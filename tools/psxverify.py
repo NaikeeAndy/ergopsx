@@ -16,7 +16,11 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import psxchronicles
+import psxcrash2
 import psxid
+import psxpe2
+import psxvagrant
 import psxbuild
 import psxff9
 import psxfft
@@ -35,6 +39,59 @@ BINARY = "swift/.build/debug/memcard"
 
 
 TEMPLATE_INDEX = psxtemplate.by_serial()
+
+
+def _counts(value):
+    """Список или словарь с количествами - к виду «имя: число».
+
+    Движки отдают одно и то же по-разному: Swift - списком записей
+    `{name, used}`, Python - парами. Сравнивать надо смысл, а не форму.
+    """
+    if isinstance(value, dict):
+        out = {}
+        for key, rows in value.items():
+            if isinstance(rows, list):
+                out[key] = sum(
+                    row.get("used", 1) if isinstance(row, dict)
+                    else (row[1] if isinstance(row, (list, tuple)) and len(row) > 1
+                          else 1)
+                    for row in rows)
+            else:
+                out[key] = rows
+        return dict(sorted(out.items()))
+    if isinstance(value, list):
+        out = {}
+        for row in value:
+            if isinstance(row, dict):
+                out[row.get("name", "?")] = row.get("used", 0)
+        return dict(sorted(out.items()))
+    return {}
+
+
+def vagrant_shape(got):
+    """Только то, что обе стороны считают одинаково."""
+    return {
+        "playtime": got["playtime"],
+        "hp": got["hp"],
+        "mp": got["mp"],
+        "map": got["map_completion"],
+        "rooms": got["rooms"],
+        "chests": got["chests"],
+        "maxChain": got["max_chain"],
+        "heals": got["heals"],
+        "kills": got["kills"],
+        "arts": got["arts_learned"],
+        "actions": got["actions"],
+        "weapons": got["weapons"],
+        "stored_weapons": got["stored_weapons"],
+        "learned": {k: len(v) for k, v in sorted(got["learned"].items())},
+        "unopened": _counts(got["unopened"]),
+        "carried": _counts(got["carried_items"]),
+        "stored": _counts(got["stored_items"]),
+    }
+
+
+SHAPES = {"vagrant": vagrant_shape}
 
 
 def python_side(root, titles):
@@ -69,6 +126,22 @@ def python_side(root, titles):
                     row["fft"] = canonical(fft_shape(psxfft.overview(body)))
                 if psxsotn.is_sotn(bytes(frame)):
                     row["sotn"] = canonical(sotn_shape(psxsotn.overview(body)))
+                if psxvagrant.is_vagrant(bytes(frame)):
+                    got = psxvagrant.overview(body)
+                    if got:
+                        row["vagrant"] = canonical(vagrant_shape(got))
+                if psxpe2.is_pe2(bytes(frame)):
+                    got = psxpe2.overview(body)
+                    if got:
+                        row["pe2"] = canonical(got)
+                if psxcrash2.is_crash2(bytes(frame)):
+                    got = psxcrash2.overview(body)
+                    if got:
+                        row["crash2"] = canonical(got)
+                if psxchronicles.is_chronicles(bytes(frame)):
+                    got = psxchronicles.overview(body)
+                    if got:
+                        row["chronicles"] = canonical(got)
                 found_template = psxtemplate.overview(body, bytes(frame),
                                                       index=TEMPLATE_INDEX)
                 if found_template:
@@ -100,13 +173,15 @@ def swift_side(root, titles_path):
         info = dict(row["info"])
         for game in GAMES:
             if row.get(game) is not None:
-                info[game] = row[game]
+                shape = SHAPES.get(game)
+                info[game] = canonical(shape(row[game]) if shape else row[game])
         rows[(row["path"], row["digest"])] = info
     return rows
 
 
 # Разборщики игр, перенесённые на Swift. Список растёт по мере переноса.
-GAMES = ("ff9", "fft", "sotn", "ff8", "ff6", "ff5", "re1", "ff7", "template")
+GAMES = ("ff9", "fft", "sotn", "ff8", "ff6", "ff5", "re1", "ff7",
+         "vagrant", "pe2", "crash2", "chronicles", "template")
 
 FIELDS = ("serial", "region", "identifier", "blocks", "title",
           "internalName") + GAMES

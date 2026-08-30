@@ -390,6 +390,10 @@ struct Row: Encodable {
     var ff5: FF5.Overview?
     var re1: RE1.Overview?
     var ff7: FF7.Overview?
+    var vagrant: Vagrant.Overview?
+    var pe2: ParasiteEve2.Overview?
+    var crash2: Crash2.Overview?
+    var chronicles: Chronicles.Overview?
     var template: Templates.Overview?
 }
 
@@ -419,6 +423,12 @@ while let item = walker?.nextObject() as? URL {
                         ff5: FF5.matches(save) ? FF5.overview(body, data: ff5Data) : nil,
                         re1: RE1.matches(save) ? RE1.overview(body, data: re1Data) : nil,
                         ff7: FF7.matches(save) ? FF7.overview(body, data: ff7Data) : nil,
+                        vagrant: Vagrant.matches(save) ? Vagrant.overview(body) : nil,
+                        pe2: ParasiteEve2.matches(save)
+                            ? ParasiteEve2.overview(body) : nil,
+                        crash2: Crash2.matches(save) ? Crash2.overview(body) : nil,
+                        chronicles: Chronicles.matches(save)
+                            ? Chronicles.overview(body) : nil,
                         template: templates.overview(
                             body, serial: SaveName.normalize(SaveName(save.rawName).serial))))
     }

@@ -1,0 +1,61 @@
+# Сборка приложения под три системы. Windows и Linux собираются здесь -
+# на маке разработчика их нет.
+name: Сборка
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  qt:
+    name: Qt (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Зависимости
+        run: python -m pip install --quiet PySide6 pyinstaller
+
+      # Qt требует системных библиотек, которых нет в чистом образе.
+      - name: Библиотеки Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libxkbcommon-x11-0 \
+            libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+            libxcb-render-util0 libxcb-shape0 libxcb-cursor0
+
+      - name: Проверка движка
+        run: python -m compileall -q tools
+
+      - name: Сборка
+        run: python qt/build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NaikeeSaveManager-${{ runner.os }}
+          path: qt/dist/
+
+  mac:
+    name: macOS (Swift)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Тесты движка
+        run: swift test --package-path swift
+      - name: Приложение и образ
+        run: |
+          ./swift/build-app.sh
+          ./swift/build-dmg.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NaikeeSaveManager-macOS
+          path: swift/NaikeeSaveManager.dmg

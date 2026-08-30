@@ -21,22 +21,26 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import psxbuild
 import psxchoco
+import psxchronicles
 import psxconvert
+import psxcrash2
 import psxff5
 import psxff6
 import psxff7
 import psxff8
 import psxff8read
-import psxfft
 import psxff9
+import psxfft
 import psxfftstats
 import psxftp
 import psxid
+import psxpe2
 import psxplaytime
 import psxre1
 import psxsotn
 import psxstate
 import psxtemplate
+import psxvagrant
 
 PAGE = __file__.replace(".py", ".html")
 
@@ -48,6 +52,11 @@ READERS = (
     ("Final Fantasy VII", psxff7.is_ff7, psxff7.overview, "ff7"),
     ("Final Fantasy VI", psxff6.is_ff6, psxff6.overview, "ff6"),
     ("Final Fantasy V", psxff5.is_ff5, psxff5.overview, "ff5"),
+    ("Vagrant Story", psxvagrant.is_vagrant, psxvagrant.overview, "vagrant"),
+    ("Parasite Eve II", psxpe2.is_pe2, psxpe2.overview, "pe2"),
+    ("Crash Bandicoot 2", psxcrash2.is_crash2, psxcrash2.overview, "crash2"),
+    ("Castlevania Chronicles", psxchronicles.is_chronicles,
+     psxchronicles.overview, "chronicles"),
 )
 
 

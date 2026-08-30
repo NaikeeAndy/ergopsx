@@ -5,6 +5,9 @@ tools/data/consoles.json
 swift/Sources/MemCardKit/Resources/titles.json
 
 # Сборка
+qt/.venv/
+qt/dist/
+qt/build/
 .build/
 *.app/
 swift/icon/*.iconset/
