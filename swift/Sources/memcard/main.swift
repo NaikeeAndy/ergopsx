@@ -129,6 +129,8 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "vagrant" {
         var unopened: [String]
         var carriedItems: [String]
         var storedItems: [String]
+        var learned: [String]
+        var artsByCategory: [Int]
     }
     var out: [Row] = []
     let root = URL(fileURLWithPath: CommandLine.arguments[3])
@@ -180,7 +182,12 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "vagrant" {
                            storedItems: Vagrant.stored.compactMap { s in
                                guard let l = found.storedItems[s.kind] else { return nil }
                                return "\(s.name): \(l.count) видов"
-                           }))
+                           },
+                           learned: ["breakArt", "spell", "ability"].compactMap { k in
+                               guard let l = found.learned[k] else { return nil }
+                               return "\(k): \(l.count) — " + l.prefix(6).joined(separator: ", ")
+                           },
+                           artsByCategory: found.artsByCategory))
         }
     }
     out.sort { $0.playtime < $1.playtime }

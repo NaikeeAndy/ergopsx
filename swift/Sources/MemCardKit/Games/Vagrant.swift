@@ -132,7 +132,9 @@ public enum Vagrant {
             case artsLearned = "arts_learned"
             case maxChain = "max_chain"
             case unopened
+            case learned
             case carriedItems = "carried_items"
+            case artsByCategory = "arts_by_category"
             case storedItems = "stored_items"
             case savesTotal = "saves_total"
             case savesGame = "saves_game"
@@ -172,6 +174,12 @@ public enum Vagrant {
         /// Что лежит в разделах, по названиям.
         public var carriedItems: [String: [Slot]]
         public var storedItems: [String: [Slot]]
+        /// Освоенные заклинания, способности и приёмы оружия.
+        public var learned: [String: [String]]
+        /// Приёмы по категориям оружия: двенадцать счётчиков от 0 до 4.
+        /// Это **не биты**: раньше считались через popcount, и число
+        /// выходило бессмысленным.
+        public var artsByCategory: [Int]
     }
 
     /// Карта комнат: маска засчитываемых, область каждой комнаты
@@ -186,9 +194,16 @@ public enum Vagrant {
         /// Названия предметов по номеру. Пустая строка - у предмета
         /// в игре имени нет.
         public var items: [String]
+        /// Действия: имя и вид (spell, ability, breakArt).
+        public var actions: [Action]
+
+        public struct Action: Codable, Sendable {
+            public var n: String
+            public var k: String
+        }
 
         enum CodingKeys: String, CodingKey {
-            case mask, scenes, areas, items
+            case mask, scenes, areas, items, actions
             case roomsTotal = "rooms_total"
         }
 
@@ -247,6 +262,23 @@ public enum Vagrant {
             }
         }
         return used
+    }
+
+    /// Что игрок освоил, по видам. Бит внутри байта считается со
+    /// старшего - `0x80 >> (i & 7)`, как это делает сама игра. С
+    /// младшего список поедет и покажет чужие названия.
+    public static func learned(_ plain: [UInt8], table: MapTable)
+        -> [String: [String]] {
+        var out: [String: [String]] = [:]
+        for index in 0..<min(256, table.actions.count) {
+            let byte = actionsLearned + (index >> 3)
+            guard byte < plain.count else { break }
+            guard plain[byte] & (0x80 >> UInt8(index & 7)) != 0 else { continue }
+            let action = table.actions[index]
+            guard !action.n.isEmpty, !action.k.isEmpty else { continue }
+            out[action.k, default: []].append(action.n)
+        }
+        return out
     }
 
     /// Что лежит в разделе, по названиям. Одинаковые собираются вместе:
@@ -357,9 +389,9 @@ public enum Vagrant {
             stored: stored.map {
                 Slot(name: $0.name, used: count(plain, $0), total: $0.slots)
             },
-            artsLearned: (0..<artsSize).reduce(0) {
-                $0 + plain[arts + $1].nonzeroBitCount
-            },
+            // Двенадцать счётчиков, а не биты: у каждой категории
+            // оружия от нуля до четырёх приёмов.
+            artsLearned: (0..<artsSize).reduce(0) { $0 + Int(plain[arts + $1]) },
             abilities: Int(read16(plain[...], at: artsAbilities)),
             kills: kills,
             rooms: Int(read32(plain[...], at: score + scoreRooms)),
@@ -378,6 +410,8 @@ public enum Vagrant {
                     let list = contents(plain, section, table: made)
                     return list.isEmpty ? nil : (section.kind, list)
                 })
-            } ?? [:])
+            } ?? [:],
+            learned: table.map { Vagrant.learned(plain, table: $0) } ?? [:],
+            artsByCategory: (0..<artsSize).map { Int(plain[arts + $0]) })
     }
 }

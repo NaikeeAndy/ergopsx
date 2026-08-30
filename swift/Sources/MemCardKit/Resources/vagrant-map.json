@@ -1079,5 +1079,1031 @@
   "untitled",
   "untitled",
   "untitled"
+ ],
+ "actions": [
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Normal",
+   "k": ""
+  },
+  {
+   "n": "Pincer",
+   "k": ""
+  },
+  {
+   "n": "Bite",
+   "k": ""
+  },
+  {
+   "n": "Bite",
+   "k": ""
+  },
+  {
+   "n": "Bite",
+   "k": ""
+  },
+  {
+   "n": "Death Vapor",
+   "k": ""
+  },
+  {
+   "n": "Eruption",
+   "k": ""
+  },
+  {
+   "n": "Freeze",
+   "k": ""
+  },
+  {
+   "n": "Gust",
+   "k": ""
+  },
+  {
+   "n": "Terra Thrust",
+   "k": ""
+  },
+  {
+   "n": "Holy Light",
+   "k": ""
+  },
+  {
+   "n": "Diabolos",
+   "k": ""
+  },
+  {
+   "n": "Poison Panel",
+   "k": ""
+  },
+  {
+   "n": "Paralysis Panel",
+   "k": ""
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Curse Panel",
+   "k": ""
+  },
+  {
+   "n": "Heal Panel",
+   "k": ""
+  },
+  {
+   "n": "Cure Panel",
+   "k": ""
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Trap Clear",
+   "k": ""
+  },
+  {
+   "n": "Heavy Shot",
+   "k": "ability"
+  },
+  {
+   "n": "Gain Life",
+   "k": "ability"
+  },
+  {
+   "n": "Mind Assault",
+   "k": "ability"
+  },
+  {
+   "n": "Gain Magic",
+   "k": "ability"
+  },
+  {
+   "n": "Raging Ache",
+   "k": "ability"
+  },
+  {
+   "n": "Mind Ache",
+   "k": "ability"
+  },
+  {
+   "n": "Temper",
+   "k": "ability"
+  },
+  {
+   "n": "Crimson Pain",
+   "k": "ability"
+  },
+  {
+   "n": "Instill",
+   "k": "ability"
+  },
+  {
+   "n": "Phantom Pain",
+   "k": "ability"
+  },
+  {
+   "n": "Paralysis Pulse",
+   "k": "ability"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Numbing Claw",
+   "k": "ability"
+  },
+  {
+   "n": "Dulling Impact",
+   "k": "ability"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Snake Venom",
+   "k": "ability"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Ward",
+   "k": "ability"
+  },
+  {
+   "n": "Siphon Soul",
+   "k": "ability"
+  },
+  {
+   "n": "Reflect Magic",
+   "k": "ability"
+  },
+  {
+   "n": "Reflect Damage",
+   "k": "ability"
+  },
+  {
+   "n": "Absorb Magic",
+   "k": "ability"
+  },
+  {
+   "n": "Absorb Damage",
+   "k": "ability"
+  },
+  {
+   "n": "Impact Guard",
+   "k": "ability"
+  },
+  {
+   "n": "Windbreak",
+   "k": "ability"
+  },
+  {
+   "n": "Fireproof",
+   "k": "ability"
+  },
+  {
+   "n": "Terra Ward",
+   "k": "ability"
+  },
+  {
+   "n": "Aqua Ward",
+   "k": "ability"
+  },
+  {
+   "n": "Shadow Guard",
+   "k": "ability"
+  },
+  {
+   "n": "Demonscale",
+   "k": "ability"
+  },
+  {
+   "n": "Phantom Shield",
+   "k": "ability"
+  },
+  {
+   "n": "Degenerate",
+   "k": "spell"
+  },
+  {
+   "n": "Psychodrain",
+   "k": "spell"
+  },
+  {
+   "n": "Leadbones",
+   "k": "spell"
+  },
+  {
+   "n": "Tarnish",
+   "k": "spell"
+  },
+  {
+   "n": "Analyze",
+   "k": "spell"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Herakles",
+   "k": "spell"
+  },
+  {
+   "n": "Enlighten",
+   "k": "spell"
+  },
+  {
+   "n": "Invigorate",
+   "k": "spell"
+  },
+  {
+   "n": "Prostasia",
+   "k": "spell"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Heal",
+   "k": "spell"
+  },
+  {
+   "n": "Luft Fusion",
+   "k": "spell"
+  },
+  {
+   "n": "Spark Fusion",
+   "k": "spell"
+  },
+  {
+   "n": "Soil Fusion",
+   "k": "spell"
+  },
+  {
+   "n": "Frost Fusion",
+   "k": "spell"
+  },
+  {
+   "n": "Aero Guard",
+   "k": "spell"
+  },
+  {
+   "n": "Pyro Guard",
+   "k": "spell"
+  },
+  {
+   "n": "Terra Guard",
+   "k": "spell"
+  },
+  {
+   "n": "Aqua Guard",
+   "k": "spell"
+  },
+  {
+   "n": "Dark Chant",
+   "k": "spell"
+  },
+  {
+   "n": "Silence",
+   "k": "spell"
+  },
+  {
+   "n": "Magic Ward",
+   "k": "spell"
+  },
+  {
+   "n": "Surging Balm",
+   "k": "spell"
+  },
+  {
+   "n": "Lightning Bolt",
+   "k": "spell"
+  },
+  {
+   "n": "Fixate",
+   "k": "spell"
+  },
+  {
+   "n": "Dispel",
+   "k": "spell"
+  },
+  {
+   "n": "Fireball",
+   "k": "spell"
+  },
+  {
+   "n": "Stun Cloud",
+   "k": "spell"
+  },
+  {
+   "n": "Poison Mist",
+   "k": "spell"
+  },
+  {
+   "n": "Vulcan Lance",
+   "k": "spell"
+  },
+  {
+   "n": "Curse",
+   "k": "spell"
+  },
+  {
+   "n": "Aqua Blast",
+   "k": "spell"
+  },
+  {
+   "n": "Restoration",
+   "k": "spell"
+  },
+  {
+   "n": "Antidote",
+   "k": "spell"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Blessing",
+   "k": "spell"
+  },
+  {
+   "n": "Clearance",
+   "k": "spell"
+  },
+  {
+   "n": "Unlock",
+   "k": "spell"
+  },
+  {
+   "n": "Eureka",
+   "k": "spell"
+  },
+  {
+   "n": "Drain Heart",
+   "k": "spell"
+  },
+  {
+   "n": "Drain Mind",
+   "k": "spell"
+  },
+  {
+   "n": "Heal",
+   "k": "spell"
+  },
+  {
+   "n": "Solid Shock",
+   "k": "spell"
+  },
+  {
+   "n": "Lightning Bolt",
+   "k": "spell"
+  },
+  {
+   "n": "Fireball",
+   "k": "spell"
+  },
+  {
+   "n": "Vulcan Lance",
+   "k": "spell"
+  },
+  {
+   "n": "Aqua Blast",
+   "k": "spell"
+  },
+  {
+   "n": "Spirit Surge",
+   "k": "spell"
+  },
+  {
+   "n": "Dark Chant",
+   "k": "spell"
+  },
+  {
+   "n": "Exorcism",
+   "k": "spell"
+  },
+  {
+   "n": "Banish",
+   "k": "spell"
+  },
+  {
+   "n": "Explosion Lv.1",
+   "k": "spell"
+  },
+  {
+   "n": "Explosion Lv.2",
+   "k": "spell"
+  },
+  {
+   "n": "Explosion Lv.3",
+   "k": "spell"
+  },
+  {
+   "n": "Explosion Lv.4",
+   "k": "spell"
+  },
+  {
+   "n": "Thunderburst Lv.1",
+   "k": "spell"
+  },
+  {
+   "n": "Thunderburst Lv.2",
+   "k": "spell"
+  },
+  {
+   "n": "Thunderburst Lv.3",
+   "k": "spell"
+  },
+  {
+   "n": "Thunderburst Lv.4",
+   "k": "spell"
+  },
+  {
+   "n": "Flame Sphere Lv.1",
+   "k": "spell"
+  },
+  {
+   "n": "Flame Sphere Lv.2",
+   "k": "spell"
+  },
+  {
+   "n": "Flame Sphere Lv.3",
+   "k": "spell"
+  },
+  {
+   "n": "Flame Sphere Lv.4",
+   "k": "spell"
+  },
+  {
+   "n": "Gaea Strike Lv.1",
+   "k": "spell"
+  },
+  {
+   "n": "Gaea Strike Lv.2",
+   "k": "spell"
+  },
+  {
+   "n": "Gaea Strike Lv.3",
+   "k": "spell"
+  },
+  {
+   "n": "Gaea Strike Lv.4",
+   "k": "spell"
+  },
+  {
+   "n": "Avalanche Lv.1",
+   "k": "spell"
+  },
+  {
+   "n": "Avalanche Lv.2",
+   "k": "spell"
+  },
+  {
+   "n": "Avalanche Lv.3",
+   "k": "spell"
+  },
+  {
+   "n": "Avalanche Lv.4",
+   "k": "spell"
+  },
+  {
+   "n": "Radial Surge Lv.1",
+   "k": "spell"
+  },
+  {
+   "n": "Radial Surge Lv.2",
+   "k": "spell"
+  },
+  {
+   "n": "Radial Surge Lv.3",
+   "k": "spell"
+  },
+  {
+   "n": "Radial Surge Lv.4",
+   "k": "spell"
+  },
+  {
+   "n": "Meteor Lv.1",
+   "k": "spell"
+  },
+  {
+   "n": "Meteor Lv.2",
+   "k": "spell"
+  },
+  {
+   "n": "Meteor Lv.3",
+   "k": "spell"
+  },
+  {
+   "n": "Meteor Lv.4",
+   "k": "spell"
+  },
+  {
+   "n": "Tornado",
+   "k": "spell"
+  },
+  {
+   "n": "Thunderbolt",
+   "k": "spell"
+  },
+  {
+   "n": "Fire Storm",
+   "k": "spell"
+  },
+  {
+   "n": "Gravity",
+   "k": "spell"
+  },
+  {
+   "n": "Acid Flow",
+   "k": "spell"
+  },
+  {
+   "n": "Judgment",
+   "k": "spell"
+  },
+  {
+   "n": "Apocalypse",
+   "k": "spell"
+  },
+  {
+   "n": "Stun Blast",
+   "k": "ability"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Tidal Rush",
+   "k": "ability"
+  },
+  {
+   "n": "Blasphemous Howl",
+   "k": "ability"
+  },
+  {
+   "n": "Tail Attack",
+   "k": "ability"
+  },
+  {
+   "n": "Tail Attack",
+   "k": "ability"
+  },
+  {
+   "n": "Fire Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Fire Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Acid Breath",
+   "k": "ability"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Acid Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Rot Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Caeser's Thrust",
+   "k": "ability"
+  },
+  {
+   "n": "Thermal Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Thunder Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Heaven's Tear",
+   "k": "ability"
+  },
+  {
+   "n": "Searing Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Tyrant's Mace",
+   "k": "ability"
+  },
+  {
+   "n": "Frost Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Raven Eye",
+   "k": "ability"
+  },
+  {
+   "n": "Divine Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Poison Breath",
+   "k": "ability"
+  },
+  {
+   "n": "Mind Blast",
+   "k": "ability"
+  },
+  {
+   "n": "Mind Blast",
+   "k": "ability"
+  },
+  {
+   "n": "Numbing Hook",
+   "k": "ability"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Numbing Needle",
+   "k": "ability"
+  },
+  {
+   "n": "Bloodsuck",
+   "k": "ability"
+  },
+  {
+   "n": "Acid Sneeze",
+   "k": "ability"
+  },
+  {
+   "n": "Spiral Shell",
+   "k": "ability"
+  },
+  {
+   "n": "Granite Punch",
+   "k": "ability"
+  },
+  {
+   "n": "Devitalize",
+   "k": "ability"
+  },
+  {
+   "n": "Poltergeist",
+   "k": "ability"
+  },
+  {
+   "n": "Reaper's Scythe",
+   "k": "ability"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Giga Rush",
+   "k": "ability"
+  },
+  {
+   "n": "Aqua Bubble",
+   "k": "ability"
+  },
+  {
+   "n": "Poison Sneeze",
+   "k": "ability"
+  },
+  {
+   "n": "Acrid Ooze",
+   "k": "ability"
+  },
+  {
+   "n": "Bloody Sin",
+   "k": "ability"
+  },
+  {
+   "n": "Last Ascension",
+   "k": "ability"
+  },
+  {
+   "n": "",
+   "k": ""
+  },
+  {
+   "n": "Whistle Sting",
+   "k": "breakArt"
+  },
+  {
+   "n": "Shadoweave",
+   "k": "breakArt"
+  },
+  {
+   "n": "Double Fang",
+   "k": "breakArt"
+  },
+  {
+   "n": "Wyrm Scorn",
+   "k": "breakArt"
+  },
+  {
+   "n": "Rending Gale",
+   "k": "breakArt"
+  },
+  {
+   "n": "Vile Scar",
+   "k": "breakArt"
+  },
+  {
+   "n": "Cherry Ronde",
+   "k": "breakArt"
+  },
+  {
+   "n": "Papillon Reel",
+   "k": "breakArt"
+  },
+  {
+   "n": "Sunder",
+   "k": "breakArt"
+  },
+  {
+   "n": "Thunderwave",
+   "k": "breakArt"
+  },
+  {
+   "n": "Swallow Slash",
+   "k": "breakArt"
+  },
+  {
+   "n": "Advent Sign",
+   "k": "breakArt"
+  },
+  {
+   "n": "Mistral Edge",
+   "k": "breakArt"
+  },
+  {
+   "n": "Glacial Gale",
+   "k": "breakArt"
+  },
+  {
+   "n": "Killer Mantis",
+   "k": "breakArt"
+  },
+  {
+   "n": "Black Nebula",
+   "k": "breakArt"
+  },
+  {
+   "n": "Bear Claw",
+   "k": "breakArt"
+  },
+  {
+   "n": "Accursed Umbra",
+   "k": "breakArt"
+  },
+  {
+   "n": "Iron Ripper",
+   "k": "breakArt"
+  },
+  {
+   "n": "Emetic Bomb",
+   "k": "breakArt"
+  },
+  {
+   "n": "Sirocco",
+   "k": "breakArt"
+  },
+  {
+   "n": "Riskbreak",
+   "k": "breakArt"
+  },
+  {
+   "n": "Gravis Aether",
+   "k": "breakArt"
+  },
+  {
+   "n": "Trinity Pulse",
+   "k": "breakArt"
+  },
+  {
+   "n": "Bonecrusher",
+   "k": "breakArt"
+  },
+  {
+   "n": "Quickshock",
+   "k": "breakArt"
+  },
+  {
+   "n": "Ignis Wheel",
+   "k": "breakArt"
+  },
+  {
+   "n": "Hex Flux",
+   "k": "breakArt"
+  },
+  {
+   "n": "Ruination",
+   "k": "breakArt"
+  },
+  {
+   "n": "Scythe Wind",
+   "k": "breakArt"
+  },
+  {
+   "n": "Giga Tempest",
+   "k": "breakArt"
+  },
+  {
+   "n": "Spiral Scourge",
+   "k": "breakArt"
+  },
+  {
+   "n": "Brimstone Hail",
+   "k": "breakArt"
+  },
+  {
+   "n": "Heaven's Scorn",
+   "k": "breakArt"
+  },
+  {
+   "n": "Death Wail",
+   "k": "breakArt"
+  },
+  {
+   "n": "Sanctus Flare",
+   "k": "breakArt"
+  },
+  {
+   "n": "Lotus Palm",
+   "k": "breakArt"
+  },
+  {
+   "n": "Vertigo",
+   "k": "breakArt"
+  },
+  {
+   "n": "Vermillion Aura",
+   "k": "breakArt"
+  },
+  {
+   "n": "Retribution",
+   "k": "breakArt"
+  },
+  {
+   "n": "Recover 50 HP",
+   "k": ""
+  },
+  {
+   "n": "Recover 100 HP",
+   "k": ""
+  },
+  {
+   "n": "Recover 150 HP",
+   "k": ""
+  },
+  {
+   "n": "HP Full",
+   "k": ""
+  },
+  {
+   "n": "Recharge 25 MP",
+   "k": ""
+  },
+  {
+   "n": "Recharge 50 MP",
+   "k": ""
+  },
+  {
+   "n": "Recharge 100 MP",
+   "k": ""
+  },
+  {
+   "n": "MP Full",
+   "k": ""
+  },
+  {
+   "n": "HP & MP Recover 100",
+   "k": ""
+  },
+  {
+   "n": "HP & MP Full",
+   "k": ""
+  },
+  {
+   "n": "HP & RISK 25",
+   "k": ""
+  },
+  {
+   "n": "HP & RISK 50",
+   "k": ""
+  },
+  {
+   "n": "Cure Paralysis",
+   "k": ""
+  },
+  {
+   "n": "Cure Poison",
+   "k": ""
+  },
+  {
+   "n": "Cure Curse",
+   "k": ""
+  },
+  {
+   "n": "Cure Numbness",
+   "k": ""
+  },
+  {
+   "n": "Cureall",
+   "k": ""
+  },
+  {
+   "n": "Mark Trap",
+   "k": ""
+  },
+  {
+   "n": "Magic Cancel",
+   "k": ""
+  },
+  {
+   "n": "RISK -25",
+   "k": ""
+  },
+  {
+   "n": "RISK -50",
+   "k": ""
+  },
+  {
+   "n": "RISK -75",
+   "k": ""
+  },
+  {
+   "n": "No RISK",
+   "k": ""
+  },
+  {
+   "n": "Quicken",
+   "k": ""
+  },
+  {
+   "n": "STR-up",
+   "k": ""
+  },
+  {
+   "n": "INT-up",
+   "k": ""
+  },
+  {
+   "n": "AGL-up",
+   "k": ""
+  },
+  {
+   "n": "HP-up",
+   "k": ""
+  },
+  {
+   "n": "MP-up",
+   "k": ""
+  },
+  {
+   "n": "STR-down",
+   "k": ""
+  },
+  {
+   "n": "INT-down",
+   "k": ""
+  },
+  {
+   "n": "AGL-down",
+   "k": ""
+  }
  ]
 }

@@ -199,6 +199,18 @@ struct Digest {
             items: found.stored.map {
                 Field(label: $0.name, value: L.t("\($0.used) из \($0.total)", "\($0.used) of \($0.total)"))
             }))
+        // Освоенное - по видам, с названиями из самой игры.
+        for (key, title) in [("breakArt", L.t("Приёмы оружия", "Break Arts")),
+                             ("spell", L.t("Заклинания", "Spells")),
+                             ("ability", L.t("Способности", "Abilities"))] {
+            if let list = found.learned[key], !list.isEmpty {
+                sections.append(Section(
+                    title: title,
+                    items: list.map { Field(label: $0, value: "") },
+                    note: "\(list.count)"))
+            }
+        }
+
         if !found.unopened.isEmpty {
             sections.append(Section(
                 title: L.t("Комнаты не открыты", "Rooms not found"),
@@ -229,7 +241,8 @@ struct Digest {
                 Field(label: L.t("Комнат осталось", "Rooms left"),
                       value: String(max(0, Vagrant.roomsTotal - found.rooms))),
                 Field(label: L.t("Сундуков открыто", "Chests opened"), value: String(found.chests)),
-                Field(label: L.t("Приёмов изучено", "Arts learned"), value: String(found.artsLearned)),
+                Field(label: L.t("Приёмов изучено", "Arts learned"),
+                      value: "\(found.artsLearned) из 48"),
                 Field(label: L.t("Способностей открыто", "Abilities unlocked"), value: String(found.abilities)),
                 Field(label: L.t("Длиннейшая цепь", "Longest chain"), value: String(found.maxChain)),
                 Field(label: L.t("Лечений", "Heals"), value: String(found.heals)),
