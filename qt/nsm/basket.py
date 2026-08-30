@@ -1,5 +1,6 @@
 """Корзина: то, из чего соберётся карта. Копится по дороге, из любого места."""
 
+from . import lang
 import os
 import sys
 
@@ -41,8 +42,8 @@ class Basket:
         if self.contains(item):
             return
         if item.blocks > self.free:
-            self.note = (f"{item.title} занимает {item.blocks} "
-                         f"{blocks_word(item.blocks)}, а свободно {self.free}")
+            self.note = (lang.t(f"{item.title} занимает {item.blocks} ", f"{item.title} takes {item.blocks} ")
+                         + lang.t(f"{blocks_word(item.blocks)}, а свободно {self.free}", f"{blocks_word(item.blocks)}, only {self.free} free"))
             return
         # Игра находит сейв по имени, поэтому двух одинаковых имён на
         # карте быть не должно. Выбирать за пользователя нельзя - говорим.
@@ -50,9 +51,11 @@ class Basket:
         clash = next((x for x in self.items
                       if bytes(x.frame[10:30]) == name), None)
         if clash:
-            self.note = (f"«{name.split(b'\\x00')[0].decode('ascii', 'replace')}» "
-                         f"уже в корзине — из {clash.title}. Игра различает "
-                         f"сейвы по имени, двух одинаковых быть не может")
+            shown = name.split(b"\x00")[0].decode("ascii", "replace")
+            self.note = (f"«{shown}» "
+                         + lang.t(f"уже в корзине — из {clash.title}. Игра различает ",
+                                  f"is already in the basket — from {clash.title}. The game tells ")
+                         + lang.t(f"сейвы по имени, двух одинаковых быть не может", f"saves apart by name; two identical names cannot share a card"))
             return
         self.items.append(item)
         self.note = None
@@ -85,12 +88,12 @@ class Basket:
 def saves_word(count):
     tail = count % 100
     if 11 <= tail <= 14:
-        return "сейвов"
-    return {1: "сейв", 2: "сейва", 3: "сейва", 4: "сейва"}.get(count % 10, "сейвов")
+        return lang.t("сейвов", "saves")
+    return {1: lang.t("сейв", "save"), 2: lang.t("сейва", "saves"), 3: lang.t("сейва", "saves"), 4: lang.t("сейва", "saves")}.get(count % 10, lang.t("сейвов", "saves"))
 
 
 def blocks_word(count):
     tail = count % 100
     if 11 <= tail <= 14:
-        return "блоков"
-    return {1: "блок", 2: "блока", 3: "блока", 4: "блока"}.get(count % 10, "блоков")
+        return lang.t("блоков", "blocks")
+    return {1: lang.t("блок", "block"), 2: lang.t("блока", "blocks"), 3: lang.t("блока", "blocks"), 4: lang.t("блока", "blocks")}.get(count % 10, lang.t("блоков", "blocks"))

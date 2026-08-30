@@ -29,14 +29,36 @@ Vagrant Story, Parasite Eve II, Crash Bandicoot 2. Отряд, инвентар�
 **Консоли по FTP.** Обход файлов на PS3 и Switch, просмотр содержимого карт
 без скачивания, загрузка образов игр, сборка карты из сейвов разных мест.
 
+**Два движка, сверенных между собой.** Один на Swift, второй на Python;
+`python3 tools/psxverify.py saves` гоняет оба по коллекции и сравнивает поле
+в поле. Расхождений быть не должно - на этом ловятся ошибки, которые на глаз
+выглядят правдоподобно.
+
 ## Как запустить
 
-Приложение для macOS:
+**macOS** — родное приложение на Swift:
 
 ```sh
 ./swift/build-app.sh
 open swift/NaikeeSaveManager.app
+./swift/build-dmg.sh          # образ для раздачи
 ```
+
+**Windows и Linux** — версия на Qt поверх того же движка:
+
+```sh
+python3 -m venv qt/.venv
+qt/.venv/bin/python -m pip install PySide6
+qt/.venv/bin/python qt/app.py
+```
+
+Самостоятельное приложение, без установленного Python:
+
+```sh
+qt/.venv/bin/python qt/build.py    # соберёт в qt/dist
+```
+
+Готовые сборки под все три системы делает GitHub Actions по тегу версии.
 
 Инструменты командной строки (Python 3, зависимостей нет):
 

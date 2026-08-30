@@ -4,6 +4,7 @@
 для macOS, и сверенный с ней построчно.
 """
 
+from . import lang
 import hashlib
 import os
 import sys
@@ -87,7 +88,7 @@ class Library:
             try:
                 found = psxbuild.sources(full)
             except Exception:
-                self.skipped.append((os.path.basename(full), "не прочитался"))
+                self.skipped.append((os.path.basename(full), lang.t("не прочитался", "could not be read")))
                 continue
             if not found:
                 continue

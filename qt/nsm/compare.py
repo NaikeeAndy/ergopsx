@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (QDialog, QGridLayout, QLabel, QScrollArea,
 
 from . import digest, lang
 from .style import sheet
+from . import lang
 from .theme import Palette
 
 
@@ -29,16 +30,16 @@ def _flatten(made, prefix=""):
         # Одноимённых нумеруем: иначе различия последнего затирают
         # предыдущих, и дифф выглядит короче, чем есть.
         key = name if seen[name] == 1 else f"{name} #{seen[name]}"
-        out[f"{key} · уровень"] = unit.level
+        out[lang.t(f"{key} · уровень", f"{key} · level")] = unit.level
         for stat in unit.stats:
             out[f"{key} · {stat.label}"] = stat.value
         if unit.gear:
-            out[f"{key} · экипировка"] = ", ".join(unit.gear)
+            out[lang.t(f"{key} · экипировка", f"{key} · equipment")] = ", ".join(unit.gear)
         if unit.extra:
-            out[f"{key} · прочее"] = unit.extra
+            out[lang.t(f"{key} · прочее", f"{key} · other")] = unit.extra
     for part in made.sections:
         for field in part.items:
-            out[f"{part.title} · {field.label}"] = field.value or "есть"
+            out[f"{part.title} · {field.label}"] = field.value or lang.t("есть", "present")
     return out
 
 
@@ -79,8 +80,8 @@ class CompareView(QDialog):
 
         if not rows:
             done = QLabel(lang.t(
-                "Различий нет — сейвы совпадают по всем полям, "
-                "которые мы читаем",
+                lang.t("Различий нет — сейвы совпадают по всем полям, ", "No differences — the saves match on every field ")
+                + lang.t("которые мы читаем", "we read"),
                 "No differences — the saves match on every field we read"))
             done.setObjectName("faint")
             column.addWidget(done)

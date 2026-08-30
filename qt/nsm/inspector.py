@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (QFrame, QGridLayout, QHBoxLayout, QLabel,
                                QScrollArea, QVBoxLayout, QWidget)
 
 from . import digest, icons
+from . import lang
 from .theme import Palette
 
 
@@ -44,23 +45,23 @@ class Inspector(QScrollArea):
     def show_item(self, item):
         self._clear()
         if item is None:
-            self.box.addWidget(_label("Ничего не выбрано", "dim"))
+            self.box.addWidget(_label(lang.t("Ничего не выбрано", "Nothing selected"), "dim"))
             self.box.addStretch(1)
             return
 
         detail = self.library.detail(item)
         self.box.addWidget(self._head(item, detail))
         self.box.addWidget(self._grid([
-            ("Серийник", item.serial), ("Регион", item.region),
-            ("Блоков", str(item.blocks)), ("Имя сейва", self._name(item)),
+            (lang.t("Серийник", "Serial"), item.serial), (lang.t("Регион", "Region"), item.region),
+            (lang.t("Блоков", "Blocks"), str(item.blocks)), (lang.t("Имя сейва", "Save name"), self._name(item)),
         ]))
 
         made = digest.build(detail)
         if made is None:
             self.box.addWidget(self._rule())
             self.box.addWidget(_label(
-                "Подробного разбора под эту игру нет — "
-                "видно только общее: игру, регион, подпись и иконку.",
+                lang.t("Подробного разбора под эту игру нет — ", "No detailed parser for this game — ")
+                + lang.t("видно только общее: игру, регион, подпись и иконку.", "only the basics are shown: game, region, signature and icon."),
                 "faint", 11.5))
             self.box.addStretch(1)
             return
@@ -131,7 +132,7 @@ class Inspector(QScrollArea):
         line.setSpacing(8)
         line.addWidget(_label(unit.name, size=12.5, bold=True))
         if unit.level:
-            line.addWidget(_label(f"ур. {unit.level}", "accent", 11.5))
+            line.addWidget(_label(lang.t(f"ур. {unit.level}", f"lv. {unit.level}"), "accent", 11.5))
         if unit.role:
             line.addWidget(_label(unit.role, "dim", 11.5))
         line.addStretch(1)

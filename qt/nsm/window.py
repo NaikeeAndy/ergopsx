@@ -19,6 +19,7 @@ from .consoleview import ConsoleView
 from .settings import Settings
 from .settingsview import SettingsView
 from .style import sheet
+from . import lang
 from .theme import DARK, LIGHT
 
 
@@ -41,6 +42,7 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         self.settings = Settings()
+        lang.set_language(self.settings.language)
         self.palette_now = DARK if self.settings.dark else LIGHT
         self.library = Library()
         self.basket = Basket()
@@ -93,27 +95,27 @@ class Window(QMainWindow):
 
     def _menus(self):
         bar = self.menuBar()
-        files = bar.addMenu("Файл")
-        files.addAction("Обновить список", self.rescan).setShortcut("Ctrl+R")
-        files.addAction("Добавить папку…", self.add_folder).setShortcut("Ctrl+O")
+        files = bar.addMenu(lang.t("Файл", "File"))
+        files.addAction(lang.t("Обновить список", "Refresh list"), self.rescan).setShortcut("Ctrl+R")
+        files.addAction(lang.t("Добавить папку…", "Add folder…"), self.add_folder).setShortcut("Ctrl+O")
         files.addSeparator()
-        files.addAction("Собрать карту из корзины…",
+        files.addAction(lang.t("Собрать карту из корзины…", "Build card from basket…"),
                         self.basket_bar._save).setShortcut("Ctrl+Shift+S")
         files.addSeparator()
-        files.addAction("Настройки…", self.open_settings).setShortcut("Ctrl+,")
+        files.addAction(lang.t("Настройки…", "Settings…"), self.open_settings).setShortcut("Ctrl+,")
 
-        consoles = bar.addMenu("Консоли")
+        consoles = bar.addMenu(lang.t("Консоли", "Consoles"))
         found = profiles()
         if not found:
-            consoles.addAction("Не настроены").setEnabled(False)
+            consoles.addAction(lang.t("Не настроены", "Not configured")).setEnabled(False)
         for profile in found:
             consoles.addAction(
                 profile["label"],
                 lambda checked=False, p=profile: self.open_console(p))
 
-        saves = bar.addMenu("Сейв")
-        saves.addAction("В корзину", self._toggle_basket).setShortcut("Ctrl+D")
-        saves.addAction("Сравнить два выделенных",
+        saves = bar.addMenu(lang.t("Сейв", "Save"))
+        saves.addAction(lang.t("В корзину", "To basket"), self._toggle_basket).setShortcut("Ctrl+D")
+        saves.addAction(lang.t("Сравнить два выделенных", "Compare the two selected"),
                         self.compare).setShortcut("Ctrl+=")
 
     def open_settings(self):
@@ -132,7 +134,7 @@ class Window(QMainWindow):
         rows = self.list.selected()
         if len(rows) != 2:
             self.status.showMessage(
-                "Выделите два сейва: щёлкните второй с Command", 5000)
+                lang.t("Выделите два сейва: щёлкните второй с Command", "Select two saves: Command-click the second"), 5000)
             return
         CompareView(rows[0], rows[1], self.library, self.palette_now,
                     self).exec()
@@ -146,25 +148,25 @@ class Window(QMainWindow):
         line.setSpacing(12)
 
         self.order = QComboBox()
-        self.order.addItems(["По времени", "По названию", "Как в файлах"])
+        self.order.addItems([lang.t("По времени", "By playtime"), lang.t("По названию", "By title"), lang.t("Как в файлах", "As in files")])
         self.order.currentIndexChanged.connect(lambda _: self.refresh())
         line.addWidget(self.order)
 
         self.search = QLineEdit()
-        self.search.setPlaceholderText("Поиск по игре или подписи")
+        self.search.setPlaceholderText(lang.t("Поиск по игре или подписи", "Search by game or signature"))
         self.search.setFixedWidth(320)
         self.search.textChanged.connect(lambda _: self.refresh())
         line.addWidget(self.search)
 
         line.addStretch(1)
-        to_basket = QPushButton("В корзину")
+        to_basket = QPushButton(lang.t("В корзину", "To basket"))
         to_basket.setObjectName("primary")
         to_basket.clicked.connect(self._toggle_basket)
         line.addWidget(to_basket)
-        add = QPushButton("Добавить папку…")
+        add = QPushButton(lang.t("Добавить папку…", "Add folder…"))
         add.clicked.connect(self.add_folder)
         line.addWidget(add)
-        again = QPushButton("Обновить")
+        again = QPushButton(lang.t("Обновить", "Refresh"))
         again.clicked.connect(self.rescan)
         line.addWidget(again)
         return bar
@@ -180,21 +182,21 @@ class Window(QMainWindow):
     def rescan(self):
         folders = self.settings.folders
         if not folders:
-            self.status.showMessage("Папок с сейвами не добавлено")
+            self.status.showMessage(lang.t("Папок с сейвами не добавлено", "No save folders added"))
             return
-        self.status.showMessage("Читаю сейвы…")
+        self.status.showMessage(lang.t("Читаю сейвы…", "Reading saves…"))
         self.loader = Loader(self.library, folders)
         self.loader.step.connect(
             lambda done, total: self.status.showMessage(
-                f"Читаю сейвы… {done} из {total}"))
+                lang.t(f"Читаю сейвы… {done} из {total}", f"Reading saves… {done} of {total}")))
         self.loader.done.connect(self._loaded)
         self.loader.start()
 
     def _loaded(self):
         self.sidebar.fill(self.library)
         self.status.showMessage(
-            f"{len(self.library.unique)} сейвов · {len(self.library.games)} игр"
-            f" · {self.library.cards} образов карт", 8000)
+            lang.t(f"{len(self.library.unique)} сейвов · {len(self.library.games)} игр", f"{len(self.library.unique)} saves · {len(self.library.games)} games")
+            + lang.t(f" · {self.library.cards} образов карт", f" · {self.library.cards} card images"), 8000)
         self.refresh()
 
     def refresh(self):
@@ -224,7 +226,7 @@ class Window(QMainWindow):
             self.basket_bar.refresh()
 
     def add_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, "Где лежат сейвы")
+        folder = QFileDialog.getExistingDirectory(self, lang.t("Где лежат сейвы", "Where the saves are"))
         if folder:
             self.settings.add_folder(folder)
             self.rescan()

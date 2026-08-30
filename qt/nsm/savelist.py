@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (QListWidget, QListWidgetItem, QStyle,
                                QStyledItemDelegate)
 
 from . import icons
+from . import lang
 from .theme import Palette
 
 ROW = 68
@@ -66,7 +67,7 @@ class SaveDelegate(QStyledItemDelegate):
                              second, Qt.ElideRight, width))
 
         painter.setPen(QColor(p.ink_faint))
-        third = f"{item.region} · {item.blocks} бл."
+        third = lang.t(f"{item.region} · {item.blocks} бл.", f"{item.region} · {item.blocks} bl.")
         if item.folder:
             third += f" · {item.folder}"
         # Место под время держим всегда: без запаса третья строка

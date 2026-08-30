@@ -10,6 +10,7 @@ from PySide6.QtGui import QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import (QListWidget, QListWidgetItem, QStyle,
                                QStyledItemDelegate)
 
+from . import lang
 from .theme import Palette
 
 HEAD = 30       # высота заголовка раздела
@@ -119,11 +120,11 @@ class Sidebar(QListWidget):
     def fill(self, library):
         self.clear()
         marks = self.p.marks
-        self._head("КОЛЛЕКЦИЯ")
-        self._row("Все сейвы", "*", len(library.unique), marks[0])
-        self._row("Образы карт", "#cards", library.cards, marks[2])
+        self._head(lang.t("КОЛЛЕКЦИЯ", "COLLECTION"))
+        self._row(lang.t("Все сейвы", "All saves"), "*", len(library.unique), marks[0])
+        self._row(lang.t("Образы карт", "Card images"), "#cards", library.cards, marks[2])
         if library.games:
-            self._head(f"ИГРЫ · {len(library.games)}")
+            self._head(lang.t(f"ИГРЫ · {len(library.games)}", f"GAMES · {len(library.games)}"))
             for index, (name, count) in enumerate(library.games):
                 self._row(name, name, count, marks[(index + 1) % len(marks)])
         # Первая выбираемая строка - «Все сейвы».

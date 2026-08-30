@@ -84,7 +84,7 @@ class ConsoleView(QDialog):
         buttons.addWidget(self.take)
         buttons.addStretch(1)
         self.note = QLabel(lang.t(
-            "Записанное подхватывается только при запуске игры",
+            lang.t("Записанное подхватывается только при запуске игры", "What you write is picked up only when the game starts"),
             "What you write is picked up only when the game starts"))
         self.note.setObjectName("faint")
         buttons.addWidget(self.note)
@@ -118,7 +118,7 @@ class ConsoleView(QDialog):
         for name, size, is_dir in rows:
             label = f"{'📁 ' if is_dir else ''}{name}"
             if not is_dir:
-                label += f"    {size // 1024} КБ"
+                label += lang.t(f"    {size // 1024} КБ", f"    {size // 1024} KB")
             row = QListWidgetItem(label)
             row.setData(Qt.UserRole, (name, is_dir))
             self.files.addItem(row)

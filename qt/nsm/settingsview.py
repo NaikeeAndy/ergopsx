@@ -32,8 +32,8 @@ class SettingsView(QDialog):
 
         column.addWidget(self._title(lang.t("Папки с сейвами", "Save folders")))
         note = QLabel(lang.t(
-            "Читаются при запуске. Их может быть сколько угодно — коллекция, "
-            "выгрузки с консолей, чужие карты. Приложение только читает.",
+            lang.t("Читаются при запуске. Их может быть сколько угодно — коллекция, ", "Read at startup. As many as you like — the collection, ")
+            + lang.t("выгрузки с консолей, чужие карты. Приложение только читает.", "console dumps, other people's cards. The app only reads."),
             "Read at startup. As many as you like — the collection, console "
             "dumps, other people's cards. The app only reads."))
         note.setObjectName("dim")
@@ -62,8 +62,8 @@ class SettingsView(QDialog):
         self.language.setFixedWidth(240)
         column.addWidget(self.language)
         hint = QLabel(lang.t(
-            "Разбор сейвов и названия игр остаются как есть — "
-            "они приходят из самих игр.",
+            lang.t("Разбор сейвов и названия игр остаются как есть — ", "Save contents and game titles stay as they are — ")
+            + lang.t("они приходят из самих игр.", "they come from the games themselves."),
             "Save contents and game titles stay as they are — "
             "they come from the games themselves."))
         hint.setObjectName("faint")

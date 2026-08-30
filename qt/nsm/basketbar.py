@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QMessageBox,
                                QPushButton, QVBoxLayout, QWidget)
 
 from .basket import SLOTS, blocks_word, saves_word
+from . import lang
 from .theme import Palette
 
 
@@ -52,7 +53,7 @@ class BasketBar(QWidget):
         line.setContentsMargins(16, 0, 16, 0)
         line.setSpacing(14)
 
-        title = QLabel("КАРТА")
+        title = QLabel(lang.t("КАРТА", "CARD"))
         title.setObjectName("head")
         line.addWidget(title)
 
@@ -74,11 +75,11 @@ class BasketBar(QWidget):
         column.addWidget(self.line2)
         line.addWidget(text, 1)
 
-        self.clear_button = QPushButton("Очистить")
+        self.clear_button = QPushButton(lang.t("Очистить", "Clear"))
         self.clear_button.clicked.connect(self._clear)
         line.addWidget(self.clear_button)
 
-        self.save_button = QPushButton("В файл")
+        self.save_button = QPushButton(lang.t("В файл", "To file"))
         self.save_button.setObjectName("primary")
         self.save_button.clicked.connect(self._save)
         line.addWidget(self.save_button)
@@ -88,10 +89,10 @@ class BasketBar(QWidget):
         empty = not self.basket.items
         self.line1.setText(
             self.basket.note or
-            ("Пусто — добавляйте сейвы по дороге, из любого места" if empty
+            (lang.t("Пусто — добавляйте сейвы по дороге, из любого места", "Empty — add saves as you go, from anywhere") if empty
              else f"{len(self.basket.items)} {saves_word(len(self.basket.items))}"))
         self.line2.setText(
-            f"занято {self.basket.used} из {SLOTS} блоков")
+            lang.t(f"занято {self.basket.used} из {SLOTS} блоков", f"{self.basket.used} of {SLOTS} blocks used"))
         self.clear_button.setEnabled(not empty)
         self.save_button.setEnabled(not empty)
         self.cells.update()
@@ -103,19 +104,19 @@ class BasketBar(QWidget):
 
     def _save(self):
         target, _ = QFileDialog.getSaveFileName(
-            self, "Собранная карта — исходные файлы не меняются",
-            "card.mcr", "Образ карты (*.mcr *.mcd *.VM1)")
+            self, lang.t("Собранная карта — исходные файлы не меняются", "The built card — original files are not changed"),
+            "card.mcr", lang.t("Образ карты (*.mcr *.mcd *.VM1)", "Card image (*.mcr *.mcd *.VM1)"))
         if not target:
             return
         try:
             image, layout, dropped = self.basket.build()
         except Exception as error:
-            QMessageBox.warning(self, "Не собралось", str(error))
+            QMessageBox.warning(self, lang.t("Не собралось", "Build failed"), str(error))
             return
         with open(target, "wb") as fh:
             fh.write(image)
-        note = f"Собрано: {len(layout)} сейвов"
+        note = lang.t(f"Собрано: {len(layout)} сейвов", f"Built: {len(layout)} saves")
         if dropped:
-            note += f", отброшено дублей: {len(dropped)}"
+            note += lang.t(f", отброшено дублей: {len(dropped)}", f", duplicates dropped: {len(dropped)}")
         self.basket.note = note
         self.refresh()
