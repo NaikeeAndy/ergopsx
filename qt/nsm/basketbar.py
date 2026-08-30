@@ -4,39 +4,71 @@
 разных мест сразу, и отдельным экраном пришлось бы всё искать заново.
 """
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFont, QPainter
 from PySide6.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QMessageBox,
                                QPushButton, QVBoxLayout, QWidget)
 
 from .basket import SLOTS, blocks_word, saves_word
-from . import lang
+from . import icons, lang
 from .theme import Palette
+
+CELL = 34          # ширина слота
+PITCH = CELL + 4
+ICON = 24          # иконка внутри слота: поля 5 по бокам, 8 сверху и снизу
 
 
 class Cells(QWidget):
-    """Пятнадцать слотов карты. Занятые подсвечены, продолжение - бледнее."""
+    """Пятнадцать слотов карты — с иконками тех сейвов, что в них лежат.
+
+    Иконка узнаётся с одного взгляда, а инициалы вроде «FFI» - нет:
+    в корзине обычно лежат сейвы одной игры, и все подписи выходили
+    одинаковыми. У многоблочного сейва цепочка видна по бледным
+    ячейкам-продолжениям с той же иконкой.
+    """
 
     def __init__(self, basket, palette: Palette, parent=None):
         super().__init__(parent)
         self.basket = basket
         self.p = palette
-        self.setFixedSize(SLOTS * 26 - 4, 44)
+        self.frame = 0
+        self.setFixedSize(SLOTS * PITCH - (PITCH - CELL), 44)
+        # Многокадровые иконки крутятся, как их крутил BIOS.
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._tick)
+        self.timer.start(180)
+
+    def _tick(self):
+        self.frame += 1
+        if any(item is not None for item, _ in self.basket.layout()):
+            self.update()
 
     def paintEvent(self, _event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         for index, (item, tail) in enumerate(self.basket.layout()):
-            box = (index * 26, 2, 22, 40)
-            painter.setPen(QColor(self.p.tile_edge))
+            left, top = index * PITCH, 2
             if item is None:
+                painter.setPen(QColor(self.p.tile_edge))
                 painter.setBrush(QColor(self.p.well))
-            else:
-                colour = QColor(self.p.accent)
-                if tail:
-                    colour.setAlpha(110)
-                painter.setBrush(colour)
-            painter.drawRoundedRect(*box, 5, 5)
+                painter.drawRoundedRect(left, top, CELL, 40, 5, 5)
+                continue
+
+            edge = QColor(self.p.accent)
+            if tail:
+                edge.setAlpha(120)
+            painter.setPen(edge)
+            painter.setBrush(QColor(self.p.tile[0]))
+            painter.drawRoundedRect(left, top, CELL, 40, 5, 5)
+
+            pictures = icons.frames(item.block, item.fingerprint, side=ICON)
+            if not pictures:
+                continue
+            # Продолжение бледнее: так видно, что блок занят тем же сейвом.
+            painter.setOpacity(0.45 if tail else 1.0)
+            painter.drawPixmap(left + (CELL - ICON) // 2, top + (40 - ICON) // 2,
+                               pictures[self.frame % len(pictures)])
+            painter.setOpacity(1.0)
 
 
 class BasketBar(QWidget):

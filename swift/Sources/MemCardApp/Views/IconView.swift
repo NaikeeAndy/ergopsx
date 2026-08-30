@@ -11,6 +11,11 @@ struct IconView: View {
     /// у сейва уже есть отпечаток, посчитанный при загрузке.
     let key: String
     var side: CGFloat = 46
+    /// Какую долю клетки занимает сама иконка.
+    var fill: CGFloat = 0.7
+    /// Подложка со скруглением. В корзине её рисует ячейка блока,
+    /// и вторая рамка вокруг иконки там лишняя.
+    var showsWell: Bool = true
 
     @State private var frame = 0
     @Environment(\.palette) private var palette
@@ -20,19 +25,21 @@ struct IconView: View {
     var body: some View {
         let all = frames
         RoundedRectangle(cornerRadius: side * 0.11)
-            .fill(palette.iconWell)
+            .fill(showsWell ? AnyShapeStyle(palette.iconWell) : AnyShapeStyle(.clear))
             .overlay {
                 if let image = all.isEmpty ? nil : all[frame % all.count] {
                     // Без сглаживания: пиксель должен остаться пикселем.
                     Image(image, scale: 1, label: Text(L.t("save icon")))
                         .interpolation(.none)
                         .resizable()
-                        .frame(width: side * 0.7, height: side * 0.7)
+                        .frame(width: side * fill, height: side * fill)
                 }
             }
             .overlay {
-                RoundedRectangle(cornerRadius: side * 0.11)
-                    .strokeBorder(palette.iconWellEdge, lineWidth: 1)
+                if showsWell {
+                    RoundedRectangle(cornerRadius: side * 0.11)
+                        .strokeBorder(palette.iconWellEdge, lineWidth: 1)
+                }
             }
             .frame(width: side, height: side)
             .task(id: all.count) {

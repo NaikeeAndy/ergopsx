@@ -7,6 +7,7 @@
 from . import lang
 import hashlib
 import os
+import struct
 import sys
 from dataclasses import dataclass, field
 
@@ -131,6 +132,12 @@ class Library:
         block = b"".join(chain)
         frame = bytearray(psxid.FRAME)
         frame[10:30] = bytes(entry["name"])
+        # Размер сейва движок читает из поля `+4` каталожного фрейма, а
+        # фрейм здесь собирается свой: в источнике лежат только имя и
+        # блоки. Без этого **всё считалось одноблочным** - у Gran Turismo
+        # тело на пять блоков, а корзина отводила ему один слот и пускала
+        # на карту вдесятеро больше, чем на ней помещается.
+        struct.pack_into("<I", frame, 4, len(chain) * psxid.BLOCK)
         frame = bytes(frame)
         card = psxapp.describe_save({"block": block, "frame": frame}, self.titles)
         seconds = self._playtime(block, frame)

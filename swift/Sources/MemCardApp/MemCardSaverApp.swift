@@ -1,5 +1,7 @@
 import SwiftUI
 import AppKit
+import ImageIO
+import UniformTypeIdentifiers
 import MemCardKit
 
 @main
@@ -14,6 +16,16 @@ struct MemCardSaverApp: App {
         // доклацываться.
         if CommandLine.arguments.contains("--check-all") {
             MemCardSaverApp.checkAll()
+            exit(0)
+        }
+        // Снимок вида в файл, без окна на экране.
+        //     MemCardSaver --render корзина.png
+        // Окна приложения, запущенного не с рабочего стола, `screencapture`
+        // не видит, и вид приходилось проверять на глаз. `ImageRenderer`
+        // рисует тот же самый вид мимо экрана.
+        let args = CommandLine.arguments
+        if let mark = args.firstIndex(of: "--render"), mark + 1 < args.count {
+            MemCardSaverApp.render(to: URL(fileURLWithPath: args[mark + 1]))
             exit(0)
         }
     }
@@ -98,6 +110,39 @@ struct MemCardSaverApp: App {
         }
         print("память: \(footprint()) МБ")
         print("выходов за границу не случилось")
+    }
+
+    /// Рисует корзину с несколькими сейвами и кладёт в PNG.
+    @MainActor
+    static func render(to target: URL) {
+        var folders = Folders.stored()
+        if folders.isEmpty, let nearby = Folders.nearby() { folders = [nearby] }
+        guard !folders.isEmpty else { print("папок с сейвами нет"); return }
+
+        let engine = Engine()
+        var items: [LibraryItem] = []
+        for folder in folders { items += Library.scan(folder, engine: engine).items }
+        // Берём многоблочный сейв и пару однoблочных: так видно и цепочку.
+        let basket = Basket()
+        for item in items.sorted(by: { $0.blocks > $1.blocks })
+        where basket.used + item.blocks <= 6 {
+            basket.add(item)
+        }
+        print("в корзине: " + basket.items.map(\.title).joined(separator: ", "))
+
+        let view = BasketBar(basket: basket)
+            .environment(\.palette, .dark)
+            .frame(width: 1000)
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = 2
+        guard let image = renderer.cgImage,
+              let out = CGImageDestinationCreateWithURL(
+                  target as CFURL, "public.png" as CFString, 1, nil) else {
+            print("нарисовать не вышло"); return
+        }
+        CGImageDestinationAddImage(out, image, nil)
+        CGImageDestinationFinalize(out)
+        print("снято: \(target.path)")
     }
 }
 

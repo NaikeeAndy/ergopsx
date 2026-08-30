@@ -144,6 +144,12 @@ struct BasketBar: View {
         .buttonStyle(.plain)
     }
 
+    /// Слот карты — с иконкой того сейва, что в нём лежит.
+    ///
+    /// Иконка узнаётся с одного взгляда, а инициалы вроде «FFI» - нет:
+    /// в корзину обычно кладут сейвы одной игры, и подписи выходили
+    /// одинаковыми. Продолжение многоблочного сейва - та же иконка,
+    /// но бледнее: так видно, что блок занят им же.
     private struct Cell: View {
         let cell: Basket.Cell
         @Environment(\.palette) private var palette
@@ -153,30 +159,22 @@ struct BasketBar: View {
                 .fill(cell.item == nil ? AnyShapeStyle(palette.well)
                                        : AnyShapeStyle(palette.tile))
                 .overlay {
-                    if let item = cell.item {
-                        Text(cell.isContinuation ? "·" : short(item.title))
-                            .font(.system(size: 8.5, weight: .medium,
-                                          design: .monospaced))
-                            .foregroundStyle(palette.inkSoft)
-                            .lineLimit(1)
-                            .padding(.horizontal, 2)
+                    if let item = cell.item, let block = item.save.blocks.first {
+                        IconView(block: block, key: item.fingerprint,
+                                 side: 24, fill: 1, showsWell: false)
+                            .opacity(cell.isContinuation ? 0.45 : 1)
                     }
                 }
                 .overlay {
                     RoundedRectangle(cornerRadius: 4)
-                        .strokeBorder(cell.item == nil ? palette.controlEdge
-                                                       : palette.accent.opacity(0.7),
-                                      lineWidth: 1)
+                        .strokeBorder(border, lineWidth: 1)
                 }
-                .frame(width: 30, height: 40)
+                .frame(width: 34, height: 40)
         }
 
-        private func short(_ title: String) -> String {
-            let words = title.split(separator: " ")
-            if words.count >= 2 {
-                return words.prefix(3).compactMap(\.first).map(String.init).joined()
-            }
-            return String(title.prefix(4))
+        private var border: Color {
+            guard cell.item != nil else { return palette.controlEdge }
+            return palette.accent.opacity(cell.isContinuation ? 0.35 : 0.7)
         }
     }
 }
