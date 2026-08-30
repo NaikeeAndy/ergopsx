@@ -24,7 +24,12 @@ cp "$BUILD/MemCardSaver" "$APP/Contents/MacOS/NaikeeSaveManager"
 # и приложение молча покажет сейвы без имён игр.
 cp -R "$BUILD/MemCardSaver_MemCardKit.bundle" "$APP/Contents/Resources/"
 
-# Иконка. Перерисовать её: ./swift/icon/build-icon.sh
+# Иконка рисуется кодом (icon/draw.swift), в репозиторий не кладётся -
+# если её ещё нет, собираем на месте.
+if [ ! -f "$ROOT/icon/MemCardSaver.icns" ]; then
+  echo "рисую иконку…"
+  "$ROOT/icon/build-icon.sh" >/dev/null
+fi
 cp "$ROOT/icon/MemCardSaver.icns" "$APP/Contents/Resources/NaikeeSaveManager.icns"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
