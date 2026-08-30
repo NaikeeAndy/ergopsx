@@ -72,6 +72,55 @@ def blocks(text, start):
     return text[start:]
 
 
+def span(text, at):
+    """Границы объекта `{...}`, внутри которого стоит позиция `at`."""
+    depth, start = 0, None
+    i = at
+    while i >= 0:
+        if text[i] == "}":
+            depth += 1
+        elif text[i] == "{":
+            if depth == 0:
+                start = i
+                break
+            depth -= 1
+        i -= 1
+    if start is None:
+        return None
+    depth, i = 0, start
+    while i < len(text):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return start, i + 1
+        i += 1
+    return start, len(text)
+
+
+def ancestors(text, at, limit=12):
+    """Имена всех объектов, внутри которых лежит позиция.
+
+    Раньше группа искалась ближайшим именем выше по тексту - и находила
+    имя соседнего поля, а не группы. У Crash из-за этого в разбор
+    попадали «Effects Volume» и «Music Volume» из вкладки Options.
+    """
+    out, pos = [], at
+    for _ in range(limit):
+        got = span(text, pos)
+        if not got:
+            break
+        start, end = got
+        name = value(text[start:end], "name")
+        if name:
+            out.append(name)
+        pos = start - 1
+        if pos < 0:
+            break
+    return out
+
+
 def enclosing(text, at):
     """Объект `{...}`, внутри которого стоит позиция `at`.
 
@@ -104,14 +153,19 @@ def enclosing(text, at):
     return text[start:]
 
 
-def group_at(text, at):
-    """Название ближайшей группы или вкладки выше по тексту."""
-    best = ""
-    for m in re.finditer(r'name:\s*"([^"]*)",\s*\n\s*(?:flex:[^\n]*\n\s*)?'
-                         r'(?:type:\s*"(?:group|tabs)")?', text[:at]):
-        if m.group(1):
-            best = m.group(1)
-    return best
+def in_skipped_group(text, at):
+    """Лежит ли поле внутри группы, которую мы не берём."""
+    return any(n.strip().lower() in SKIP_GROUPS for n in ancestors(text, at))
+
+
+def clean(label):
+    """Метки в шаблонах размечены HTML: <b>, <span style=...>. Снимаем."""
+    if not label:
+        return label
+    out = re.sub(r"<[^>]+>", "", label)
+    out = (out.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
+              .replace("&quot;", '"').replace("&#39;", "'").replace("&nbsp;", " "))
+    return " ".join(out.split())
 
 
 def value(chunk, key):
@@ -145,18 +199,26 @@ def parse(path):
             continue
         if "overrideShift" in chunk:
             continue
-        if group_at(text, m.start()).lower() in SKIP_GROUPS:
+        if in_skipped_group(text, m.start()):
             continue
         kind = value(chunk, "dataType") or "uint8"
         if kind not in KNOWN_TYPES:
             continue
-        fields.append({
-            "n": name,
+        # Часть полей упакована битами внутри числа: у FF9 «Good Answers»
+        # это пять бит с третьего. Без распаковки читалось бы всё число.
+        packed = re.search(r"binary:\s*\{\s*bitStart:\s*(\d+),\s*"
+                           r"bitLength:\s*(\d+)", chunk)
+        entry = {
+            "n": clean(name),
             "o": offset,
             "t": kind,
-            "b": value(chunk, "binary"),
+            "b": None,
             "r": value(chunk, "resource"),
-        })
+        }
+        if packed:
+            entry["bs"] = int(packed.group(1))
+            entry["bl"] = int(packed.group(2))
+        fields.append(entry)
 
     # Длинный список флагов разбит на колонки: имя стоит только у
     # первой, продолжения идут безымянными. Их надо приклеивать к
@@ -165,7 +227,7 @@ def parse(path):
     for m in re.finditer(r'type:\s*"bitflags"', text):
         chunk = enclosing(text, m.start())
         name = value(chunk, "name")
-        if group_at(text, m.start()).lower() in SKIP_GROUPS:
+        if in_skipped_group(text, m.start()):
             continue
         marks = re.findall(
             r"\{\s*offset:\s*(0x[0-9a-fA-F]+|\d+),\s*bit:\s*(\d+)"
@@ -179,9 +241,9 @@ def parse(path):
         if len({(o, b) for o, b, _, _ in keep}) == 1 and len(keep) > 1:
             continue
         # Тройками, а не словарями: так их читает psxtemplate.overview.
-        marks_out = [[o, b, lab] for o, b, lab, _ in keep]
+        marks_out = [[o, b, clean(lab)] for o, b, lab, _ in keep]
         if name:
-            sections.append({"n": name, "f": marks_out})
+            sections.append({"n": clean(name), "f": marks_out})
         elif sections:
             sections[-1]["f"].extend(marks_out)
 
