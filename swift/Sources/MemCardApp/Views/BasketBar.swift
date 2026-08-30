@@ -34,7 +34,7 @@ struct BasketBar: View {
                     Image(systemName: "tray.full")
                         .font(.system(size: 12))
                         .foregroundStyle(palette.accent)
-                    Text(L.t("КАРТА", "CARD"))
+                    Text(L.t("CARD"))
                         .font(.system(size: 10, weight: .bold))
                         .tracking(1.4)
                         .foregroundStyle(palette.ink)
@@ -45,13 +45,12 @@ struct BasketBar: View {
                         Cell(cell: cell)
                             .contextMenu {
                                 if let item = cell.item {
-                                    Button(L.t("Убрать из корзины",
-                                               "Remove from basket")) {
+                                    Button(L.t("Remove from basket")) {
                                         basket.remove(item)
                                         result = nil
                                     }
                                 }
-                                Button(L.t("Очистить корзину", "Clear basket")) {
+                                Button(L.t("Clear basket")) {
                                     basket.clear()
                                     result = nil
                                 }
@@ -67,7 +66,7 @@ struct BasketBar: View {
                         .foregroundStyle(palette.ink)
                         .lineLimit(1)
                         .truncationMode(.tail)
-                    Text(L.t("занято \(basket.used) из \(PSX.slots) блоков", "\(basket.used) of \(PSX.slots) blocks used"))
+                    Text(L.t("{0} of {1} blocks used", basket.used, PSX.slots))
                         .font(.system(size: 10.5, design: .monospaced))
                         .foregroundStyle(palette.inkFaint)
                         .lineLimit(1)
@@ -80,9 +79,9 @@ struct BasketBar: View {
                 .layoutPriority(-1)
 
                 HStack(spacing: 8) {
-                    button(L.t("Очистить", "Clear"), filled: false) { basket.clear(); result = nil }
+                    button(L.t("Clear"), filled: false) { basket.clear(); result = nil }
                         .disabled(basket.isEmpty)
-                    button(L.t("В файл", "To file"), filled: true, action: save)
+                    button(L.t("To file"), filled: true, action: save)
                         .disabled(basket.isEmpty || saving)
                 }
                 .fixedSize()
@@ -96,28 +95,27 @@ struct BasketBar: View {
 
     private var line: String {
         basket.isEmpty
-            ? L.t("Пусто — добавляйте сейвы по дороге, из любого места", "Empty — add saves as you go, from anywhere")
+            ? L.t("Empty — add saves as you go, from anywhere")
             : basket.items.map(\.title).joined(separator: " · ")
     }
 
     private func save() {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "card.mcr"
-        panel.message = L.t("Собранная карта — исходные файлы не меняются", "The built card — original files are not changed")
+        panel.message = L.t("The built card — original files are not changed")
         guard panel.runModal() == .OK, let target = panel.url else { return }
         saving = true
         defer { saving = false }
         do {
             let built = try basket.build()
             try Data(built.image).write(to: target)
-            var text = L.t("Собрано: \(built.layout.count) ", "Built: \(built.layout.count) ")
-                + (built.layout.count == 1 ? L.t("сейв", "save") : L.t("сейвов", "saves"))
+            var text = L.t("Built: {0} {1}", built.layout.count, L.plural("save", built.layout.count))
             if !built.dropped.isEmpty {
-                text += L.t(", отброшено дублей: \(built.dropped.count)", ", duplicates dropped: \(built.dropped.count)")
+                text += L.t(", duplicates dropped: {0}", built.dropped.count)
             }
             result = text
         } catch {
-            result = L.t("Не собралось: \(error)", "Build failed: \(error)")
+            result = L.t("Build failed: {0}", error)
         }
     }
 

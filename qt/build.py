@@ -16,6 +16,21 @@ ROOT = os.path.dirname(HERE)
 NAME = "NaikeeSaveManager"
 
 
+def titles_data(sep):
+    """База названий игр, выгруженная `psxexport.py`.
+
+    Без неё приложение показывает «Unknown game» вместо названий: сама база
+    лежит в чужом проекте под `reference/` и в репозиторий не входит.
+    Нет файла - собираем без неё, но говорим об этом вслух.
+    """
+    path = os.path.join(ROOT, "tools", "data", "titles.json")
+    if not os.path.exists(path):
+        print("titles.json нет - названий игр в сборке не будет.")
+        print("Сделать: python3 tools/psxexport.py")
+        return []
+    return ["--add-data", f"{path}{sep}data"]
+
+
 def main():
     try:
         import PyInstaller  # noqa: F401
@@ -35,6 +50,7 @@ def main():
         # складывает их плоско - кладём папку и туда.
         "--add-data", f"{os.path.join(ROOT, 'tools', 'data')}{sep}data",
         "--paths", os.path.join(ROOT, "tools"),
+        *titles_data(sep),
         "--distpath", os.path.join(HERE, "dist"),
         "--workpath", os.path.join(HERE, "build"),
         "--specpath", os.path.join(HERE, "build"),

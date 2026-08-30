@@ -27,7 +27,7 @@ struct GamesWindow: View {
                 listing
                 bottom(profile)
             } else {
-                Text(L.t("Консоли не настроены", "No consoles configured"))
+                Text(L.t("No consoles configured"))
                     .font(.system(size: 13))
                     .foregroundStyle(palette.inkSoft)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -39,16 +39,12 @@ struct GamesWindow: View {
         .task(id: profile?.id) { await start() }
         .alert(item: $asking) { game in
             Alert(
-                title: Text(L.t("Удалить с консоли?", "Delete from console?")),
-                message: Text(L.t(
-                    "«\(game.name)» — \(GamesBrowser.size(game.size)), "
-                        + L.t("файлов: \(game.files.count). Это нельзя отменить.", "\(game.files.count) files. This cannot be undone."),
-                    "\"\(game.name)\" — \(GamesBrowser.size(game.size)), "
-                        + "\(game.files.count) files. This cannot be undone.")),
-                primaryButton: .destructive(Text(L.t("Удалить", "Delete"))) {
+                title: Text(L.t("Delete from console?")),
+                message: Text(L.t("\"{0}\" — {1}, {2} files. This cannot be undone.", game.name, GamesBrowser.size(game.size), game.files.count)),
+                primaryButton: .destructive(Text(L.t("Delete"))) {
                     Task { await browser?.delete(game) }
                 },
-                secondaryButton: .cancel(Text(L.t("Отмена", "Cancel"))))
+                secondaryButton: .cancel(Text(L.t("Cancel"))))
         }
     }
 
@@ -70,8 +66,7 @@ struct GamesWindow: View {
                 .font(.system(size: 15))
                 .foregroundStyle(palette.accent)
             VStack(alignment: .leading, spacing: 3) {
-                Text(L.t("Образы игр — \(profile.label)",
-                         "Game images — \(profile.label)"))
+                Text(L.t("Game images — {0}", profile.label))
                     .font(.system(size: 14.5, weight: .semibold))
                     .foregroundStyle(palette.ink)
                 Text(profile.address)
@@ -80,13 +75,12 @@ struct GamesWindow: View {
             }
             Spacer()
             if let free = browser?.freeSpace {
-                Text(L.t("свободно \(GamesBrowser.size(free))",
-                         "\(GamesBrowser.size(free)) free"))
+                Text(L.t("{0} free", GamesBrowser.size(free)))
                     .font(.system(size: 11.5, design: .monospaced))
                     .foregroundStyle(palette.inkSoft)
             }
             if browser?.busy == true { ProgressView().controlSize(.small) }
-            Button(L.t("Обновить", "Refresh")) {
+            Button(L.t("Refresh")) {
                 Task {
                     await browser?.open(picked)
                     await browser?.checkSpace()
@@ -100,7 +94,7 @@ struct GamesWindow: View {
 
     private func folders(_ profile: ConsoleProfile) -> some View {
         HStack(spacing: 8) {
-            Text(L.t("Папка:", "Folder:"))
+            Text(L.t("Folder:"))
                 .font(.system(size: 11.5))
                 .foregroundStyle(palette.inkSoft)
             Picker("", selection: $picked) {
@@ -116,22 +110,18 @@ struct GamesWindow: View {
                     await browser?.checkSpace()
                 }
             }
-            Button(L.t("Добавить путь…", "Add path…")) { addFolder(profile) }
+            Button(L.t("Add path…")) { addFolder(profile) }
                 .controlSize(.small)
-                .help(L.t("Ещё одна папка на консоли, где лежат образы",
-                          "Another folder on the console holding images"))
+                .help(L.t("Another folder on the console holding images"))
             if state.folders.gameFolders(for: profile.label).count > 1 {
-                Button(L.t("Убрать из списка", "Remove from list")) {
+                Button(L.t("Remove from list")) {
                     state.folders.removeGameFolder(picked, for: profile.label)
                     picked = state.folders.gameFolders(for: profile.label).first ?? ""
                 }
                 .controlSize(.small)
                 // Название важно: рядом список игр, и короткое «Убрать»
                 // читается как удаление с консоли.
-                .help(L.t("Убирает путь из списка приложения. На консоли "
-                          + "ничего не удаляется",
-                          "Removes the path from the app's list. Nothing is "
-                          + "deleted on the console"))
+                .help(L.t("Removes the path from the app's list. Nothing is deleted on the console"))
             }
             Spacer()
             if let counting = browser?.counting {
@@ -184,7 +174,7 @@ struct GamesWindow: View {
             Text(game.size < 0 ? "…" : GamesBrowser.size(game.size))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(game.size < 0 ? palette.inkFaint : palette.inkSoft)
-            Button(L.t("Удалить", "Delete")) { asking = game }
+            Button(L.t("Delete")) { asking = game }
                 .controlSize(.small)
                 .disabled(browser?.busy ?? true)
         }
@@ -196,16 +186,15 @@ struct GamesWindow: View {
                 .strokeBorder(palette.tileEdge, lineWidth: 1)
         }
         .contextMenu {
-            Button(L.t("Удалить с диска", "Delete from disk"), role: .destructive) {
+            Button(L.t("Delete from disk"), role: .destructive) {
                 asking = game
             }
             Divider()
-            Button(L.t("Копировать путь", "Copy path")) {
+            Button(L.t("Copy path")) {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(game.path, forType: .string)
             }
-            Button(L.t("Открыть папку в окне консоли",
-                       "Open the folder in the console window")) {
+            Button(L.t("Open the folder in the console window")) {
                 openInConsole(game)
             }
         }
@@ -235,17 +224,15 @@ struct GamesWindow: View {
             }
 
             HStack(spacing: 9) {
-                Button(L.t("Загрузить игру…", "Add game…")) { pick() }
+                Button(L.t("Add game…")) { pick() }
                     .buttonStyle(.borderedProminent)
                     .disabled((browser?.busy ?? true) || picked.isEmpty)
-                Text(L.t("Игра PS1 — это .cue и .bin вместе; выбирайте папку целиком",
-                         "A PS1 game is .cue plus .bin — pick the whole folder"))
+                Text(L.t("A PS1 game is .cue plus .bin — pick the whole folder"))
                     .font(.system(size: 11))
                     .foregroundStyle(palette.inkFaint)
                 Spacer()
                 if profile.kind == "ps3" {
-                    Text(L.t("после переноса нужен /refresh.ps3",
-                             "run /refresh.ps3 afterwards"))
+                    Text(L.t("run /refresh.ps3 afterwards"))
                         .font(.system(size: 11))
                         .foregroundStyle(palette.inkSoft)
                 }
@@ -266,16 +253,14 @@ struct GamesWindow: View {
                 .foregroundStyle(palette.accent)
 
             Text(browser.fileCount > 1
-                 ? L.t("\(browser.fileIndex) из \(browser.fileCount): \(browser.fileName)",
-                       "\(browser.fileIndex) of \(browser.fileCount): \(browser.fileName)")
+                 ? L.t("{0} of {1}: {2}", browser.fileIndex, browser.fileCount, browser.fileName)
                  : browser.fileName)
                 .font(.system(size: 12))
                 .foregroundStyle(palette.ink)
                 .lineLimit(1)
                 .truncationMode(.middle)
 
-            Text(L.t("Загружено \(browser.percent)%",
-                     "Uploaded \(browser.percent)%"))
+            Text(L.t("Uploaded {0}%", browser.percent))
                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
                 .foregroundStyle(palette.accent)
                 .fixedSize()
@@ -317,24 +302,21 @@ struct GamesWindow: View {
         panel.canChooseDirectories = true
         panel.canChooseFiles = true
         panel.allowsMultipleSelection = false
-        panel.prompt = L.t("Загрузить", "Upload")
-        panel.message = L.t("Папка с игрой или отдельный образ",
-                            "Game folder or a single image")
+        panel.prompt = L.t("Upload")
+        panel.message = L.t("Game folder or a single image")
         guard panel.runModal() == .OK, let source = panel.url else { return }
         Task { await browser?.upload(source, into: picked) }
     }
 
     private func addFolder(_ profile: ConsoleProfile) {
         let alert = NSAlert()
-        alert.messageText = L.t("Папка на консоли", "Folder on the console")
-        alert.informativeText = L.t(
-            L.t("Полный путь, например /dev_usb000/PSXISO", "Full path, for example /dev_usb000/PSXISO"),
-            "Full path, for example /dev_usb000/PSXISO")
+        alert.messageText = L.t("Folder on the console")
+        alert.informativeText = L.t("Full path, for example /dev_usb000/PSXISO")
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
         field.stringValue = picked
         alert.accessoryView = field
-        alert.addButton(withTitle: L.t("Добавить", "Add"))
-        alert.addButton(withTitle: L.t("Отмена", "Cancel"))
+        alert.addButton(withTitle: L.t("Add"))
+        alert.addButton(withTitle: L.t("Cancel"))
         guard alert.runModal() == .alertFirstButtonReturn else { return }
         let path = field.stringValue.trimmingCharacters(in: .whitespaces)
         guard path.hasPrefix("/") else { return }

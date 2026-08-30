@@ -73,9 +73,14 @@ def export_titles():
         return
     titles = psxid.load_titles(path)
     os.makedirs(DEST, exist_ok=True)
+    # Два места по той же причине, что и у таблиц строк: приложению для
+    # macOS - ресурсом внутрь, версии на Qt - рядом с движком, откуда
+    # упаковщик кладёт её в сборку.
+    here = os.path.dirname(os.path.abspath(__file__))
     target = os.path.join(DEST, "titles.json")
-    with open(target, "w", encoding="utf-8") as fh:
-        json.dump(titles, fh, ensure_ascii=False, sort_keys=True)
+    for where in (target, os.path.join(here, "data", "titles.json")):
+        with open(where, "w", encoding="utf-8") as fh:
+            json.dump(titles, fh, ensure_ascii=False, sort_keys=True)
     print(f"  titles.json          {len(titles)} названий, "
           f"{os.path.getsize(target)/1024:.0f} КБ")
 
@@ -91,6 +96,60 @@ def copy_plain():
             continue
         shutil.copy2(source, os.path.join(DEST, name))
         print(f"  {name:<20} скопирован, {os.path.getsize(source)/1024:.1f} КБ")
+
+
+def copy_languages():
+    """Таблицы строк общие у обоих приложений: Qt читает их из `tools/data`,
+    приложению для macOS они кладутся ресурсом внутрь."""
+    import shutil
+    here = os.path.dirname(os.path.abspath(__file__))
+    source = os.path.join(here, "data", "i18n")
+    if not os.path.isdir(source):
+        print("  i18n: папки нет, пропущено")
+        return
+    target = os.path.join(DEST, "i18n")
+    os.makedirs(target, exist_ok=True)
+    tables = {}
+    for name in sorted(os.listdir(source)):
+        if not name.endswith(".json"):
+            continue
+        with open(os.path.join(source, name), encoding="utf-8") as fh:
+            tables[name[:-5]] = json.load(fh)
+    check_languages(tables)
+    for code, table in sorted(tables.items()):
+        shutil.copy2(os.path.join(source, code + ".json"),
+                     os.path.join(target, code + ".json"))
+        print(f"  i18n/{code + '.json':<15} {len(table)} строк")
+
+
+def check_languages(tables):
+    """Каталоги должны совпадать по ключам и по числу подстановок.
+
+    Ошибка тут тихая: пропущенный ключ просто показывается по-английски,
+    а разъехавшиеся `{0}` роняют форматирование уже у пользователя.
+    Английский - исходный язык, у него в таблице только формы числа.
+    """
+    import re
+    base = tables.get("ru")
+    if not base:
+        return
+    holes = 0
+    for code, table in sorted(tables.items()):
+        if code == "en":
+            continue
+        missing = sorted(k for k in base if k not in table)
+        extra = sorted(k for k in table if k not in base)
+        for key in missing:
+            print(f"  i18n/{code}: нет перевода {key!r}"); holes += 1
+        for key in extra:
+            print(f"  i18n/{code}: лишний ключ {key!r}"); holes += 1
+        for key, value in table.items():
+            if not isinstance(value, str):
+                continue
+            if set(re.findall(r"\{(\d+)\}", key)) != set(re.findall(r"\{(\d+)\}", value)):
+                print(f"  i18n/{code}: подстановки разошлись у {key!r}"); holes += 1
+    if holes:
+        raise SystemExit(f"каталоги строк расходятся: {holes} мест")
 
 
 def main():
@@ -112,6 +171,7 @@ def main():
               f"{size/1024:>6.1f} КБ -> {path}")
     print(f"всего записей: {total}")
     copy_plain()
+    copy_languages()
     export_titles()
 
 

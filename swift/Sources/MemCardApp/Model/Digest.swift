@@ -141,7 +141,7 @@ struct Digest {
                 sections: found.sections.map {
                     Section(title: $0.name, items: $0.set.map {
                         Field(label: $0, value: "")
-                    }, note: L.t("\($0.set.count) из \($0.total)", "\($0.set.count) of \($0.total)"))
+                    }, note: L.t("{0} of {1}", $0.set.count, $0.total))
                 })
         }
         return nil
@@ -151,17 +151,17 @@ struct Digest {
 
     static func fromVagrant(_ found: Vagrant.Overview) -> Digest {
         // Шесть классов противников - порядок из `vs_main_scoredata_t`.
-        let classes = [L.t("Люди", "Humans"), L.t("Звери", "Beasts"), L.t("Нежить", "Undead"), L.t("Призраки", "Phantoms"), L.t("Драконы", "Dragons"), L.t("Демоны", "Evils")]
+        let classes = [L.t("Humans"), L.t("Beasts"), L.t("Undead"), L.t("Phantoms"), L.t("Dragons"), L.t("Evils")]
         var sections: [Section] = []
 
         if !found.weapons.isEmpty {
             sections.append(Section(
-                title: L.t("Оружие при себе", "Weapons carried"),
+                title: L.t("Weapons carried"),
                 items: found.weapons.map { Field(label: $0, value: "") }))
         }
         if !found.storedWeapons.isEmpty {
             sections.append(Section(
-                title: L.t("Оружие в сундуке", "Weapons in container"),
+                title: L.t("Weapons in container"),
                 items: found.storedWeapons.map { Field(label: $0, value: "") }))
         }
         // Названия предметов вместо занятых мест: «Cure Potion x4»
@@ -169,8 +169,7 @@ struct Digest {
         for section in Vagrant.carried where section.kind != "weapons" {
             if let list = found.carriedItems[section.kind], !list.isEmpty {
                 sections.append(Section(
-                    title: L.t("При себе — \(section.name)",
-                               "Carried — \(section.name)"),
+                    title: L.t("Carried — {0}", section.name),
                     items: list.map {
                         Field(label: $0.name,
                               value: $0.used > 1 ? "\($0.used)" : "")
@@ -180,8 +179,7 @@ struct Digest {
         for section in Vagrant.stored where section.kind != "weapons" {
             if let list = found.storedItems[section.kind], !list.isEmpty {
                 sections.append(Section(
-                    title: L.t("В сундуке — \(section.name)",
-                               "Container — \(section.name)"),
+                    title: L.t("Container — {0}", section.name),
                     items: list.map {
                         Field(label: $0.name,
                               value: $0.used > 1 ? "\($0.used)" : "")
@@ -190,19 +188,19 @@ struct Digest {
         }
 
         sections.append(Section(
-            title: L.t("При себе", "Carried"),
+            title: L.t("Carried"),
             items: found.carried.map {
-                Field(label: $0.name, value: L.t("\($0.used) из \($0.total)", "\($0.used) of \($0.total)"))
+                Field(label: $0.name, value: L.t("{0} of {1}", $0.used, $0.total))
             }))
         sections.append(Section(
-            title: L.t("В сундуке", "In container"),
+            title: L.t("In container"),
             items: found.stored.map {
-                Field(label: $0.name, value: L.t("\($0.used) из \($0.total)", "\($0.used) of \($0.total)"))
+                Field(label: $0.name, value: L.t("{0} of {1}", $0.used, $0.total))
             }))
         // Освоенное - по видам, с названиями из самой игры.
-        for (key, title) in [("breakArt", L.t("Приёмы оружия", "Break Arts")),
-                             ("spell", L.t("Заклинания", "Spells")),
-                             ("ability", L.t("Способности", "Abilities"))] {
+        for (key, title) in [("breakArt", L.t("Break Arts")),
+                             ("spell", L.t("Spells")),
+                             ("ability", L.t("Abilities"))] {
             if let list = found.learned[key], !list.isEmpty {
                 sections.append(Section(
                     title: title,
@@ -213,45 +211,45 @@ struct Digest {
 
         if !found.unopened.isEmpty {
             sections.append(Section(
-                title: L.t("Комнаты не открыты", "Rooms not found"),
+                title: L.t("Rooms not found"),
                 items: found.unopened.map {
                     Field(label: $0.name, value: String($0.used))
                 },
-                note: L.t("всего \(found.unopened.reduce(0) { $0 + $1.used })", "\(found.unopened.reduce(0) { $0 + $1.used }) total")))
+                note: L.t("{0} total", found.unopened.reduce(0) { $0 + $1.used })))
         }
         sections.append(Section(
-            title: L.t("Убито", "Killed"),
+            title: L.t("Killed"),
             items: zip(classes, found.kills).map {
                 Field(label: $0.0, value: number($0.1))
             },
-            note: L.t("всего \(number(found.kills.reduce(0, +)))", "\(number(found.kills.reduce(0, +))) total")))
+            note: L.t("{0} total", number(found.kills.reduce(0, +)))))
 
         return Digest(
             game: "Vagrant Story",
             playtime: found.playtimeRaw,
             fields: [
-                Field(label: L.t("Наиграно", "Playtime"), value: time(found.playtime)),
+                Field(label: L.t("Playtime"), value: time(found.playtime)),
                 Field(label: "HP", value: "\(found.hp[0])/\(found.hp[1])"),
                 Field(label: "MP", value: "\(found.mp[0])/\(found.mp[1])"),
-                Field(label: L.t("Карта пройдена", "Map explored"), value: "\(found.mapCompletion) %"),
+                Field(label: L.t("Map explored"), value: "\(found.mapCompletion) %"),
                 // Знаменатель - из самой игры, а не прикидка: процент
                 // она считает как rooms * 100 / 361.
-                Field(label: L.t("Комнат открыто", "Rooms found"),
-                      value: L.t("\(found.rooms) из \(Vagrant.roomsTotal)", "\(found.rooms) of \(Vagrant.roomsTotal)")),
-                Field(label: L.t("Комнат осталось", "Rooms left"),
+                Field(label: L.t("Rooms found"),
+                      value: L.t("{0} of {1}", found.rooms, Vagrant.roomsTotal)),
+                Field(label: L.t("Rooms left"),
                       value: String(max(0, Vagrant.roomsTotal - found.rooms))),
-                Field(label: L.t("Сундуков открыто", "Chests opened"), value: String(found.chests)),
-                Field(label: L.t("Приёмов изучено", "Arts learned"),
+                Field(label: L.t("Chests opened"), value: String(found.chests)),
+                Field(label: L.t("Arts learned"),
                       value: "\(found.artsLearned) из 48"),
-                Field(label: L.t("Способностей открыто", "Abilities unlocked"), value: String(found.abilities)),
-                Field(label: L.t("Длиннейшая цепь", "Longest chain"), value: String(found.maxChain)),
-                Field(label: L.t("Лечений", "Heals"), value: String(found.heals)),
-                Field(label: L.t("Действий изучено", "Actions learned"), value: String(found.actions)),
-                Field(label: L.t("Карт исследовано", "Maps explored"), value: String(found.maps)),
-                Field(label: L.t("Пройдено раз", "Times cleared"), value: String(found.clearCount)),
-                Field(label: L.t("Сохранений всего", "Saves total"), value: String(found.savesTotal)),
-                Field(label: L.t("Сохранений в игре", "Saves this run"), value: String(found.savesGame)),
-                Field(label: L.t("Локация", "Location"), value: String(found.location)),
+                Field(label: L.t("Abilities unlocked"), value: String(found.abilities)),
+                Field(label: L.t("Longest chain"), value: String(found.maxChain)),
+                Field(label: L.t("Heals"), value: String(found.heals)),
+                Field(label: L.t("Actions learned"), value: String(found.actions)),
+                Field(label: L.t("Maps explored"), value: String(found.maps)),
+                Field(label: L.t("Times cleared"), value: String(found.clearCount)),
+                Field(label: L.t("Saves total"), value: String(found.savesTotal)),
+                Field(label: L.t("Saves this run"), value: String(found.savesGame)),
+                Field(label: L.t("Location"), value: String(found.location)),
             ],
             members: [], membersTitle: "", sections: sections)
     }
@@ -261,14 +259,14 @@ struct Digest {
             game: "Castlevania Chronicles",
             playtime: nil,
             fields: [
-                Field(label: L.t("Игрок", "Player"), value: found.name),
-                Field(label: L.t("Стейдж", "Stage"), value: String(format: "%02d", found.stage)),
-                Field(label: L.t("Уровень", "Level"), value: String(found.level)),
+                Field(label: L.t("Player"), value: found.name),
+                Field(label: L.t("Stage"), value: String(format: "%02d", found.stage)),
+                Field(label: L.t("Level"), value: String(found.level)),
                 // Второе число с экрана выбора: что оно значит - неизвестно,
                 // поэтому и подписано тем, чем оно является на экране.
-                Field(label: L.t("Второе число", "Second number"),
+                Field(label: L.t("Second number"),
                       value: String(format: "%02d", found.counter)),
-                Field(label: L.t("Сохранён", "Saved"), value: found.saved),
+                Field(label: L.t("Saved"), value: found.saved),
             ],
             members: [], membersTitle: "", sections: [])
     }
@@ -278,15 +276,15 @@ struct Digest {
             game: "Crash Bandicoot 2",
             playtime: nil,
             fields: [
-                Field(label: L.t("Игрок", "Player"), value: found.name.isEmpty ? "—" : found.name),
-                Field(label: L.t("Уровень", "Level"), value: String(found.level)),
-                Field(label: L.t("Жизней", "Lives"), value: String(found.lives)),
-                Field(label: L.t("Фруктов", "Fruit"), value: String(found.wumpa)),
-                Field(label: L.t("Аку-Аку", "Aku Aku"), value: String(found.akuAku)),
-                Field(label: L.t("Кристаллов", "Crystals"), value: String(found.crystals)),
-                Field(label: L.t("Самоцветов", "Gems"), value: String(found.gems)),
-                Field(label: L.t("Пройдено уровней", "Levels cleared"), value: String(found.progress)),
-                Field(label: L.t("Секретов", "Secrets"), value: String(found.secrets)),
+                Field(label: L.t("Player"), value: found.name.isEmpty ? "—" : found.name),
+                Field(label: L.t("Level"), value: String(found.level)),
+                Field(label: L.t("Lives"), value: String(found.lives)),
+                Field(label: L.t("Fruit"), value: String(found.wumpa)),
+                Field(label: L.t("Aku Aku"), value: String(found.akuAku)),
+                Field(label: L.t("Crystals"), value: String(found.crystals)),
+                Field(label: L.t("Gems@@count"), value: String(found.gems)),
+                Field(label: L.t("Levels cleared"), value: String(found.progress)),
+                Field(label: L.t("Secrets"), value: String(found.secrets)),
             ],
             members: [], membersTitle: "", sections: [])
     }
@@ -302,39 +300,39 @@ struct Digest {
             game: "Parasite Eve II",
             playtime: found.playtimeMinutes * 60,
             fields: [
-                Field(label: L.t("Наиграно", "Playtime"),
+                Field(label: L.t("Playtime"),
                       value: String(format: "%d:%02d",
                                     found.playtime[0], found.playtime[1])),
-                Field(label: L.t("Место", "Place"), value: place.isEmpty ? "—" : place),
-                Field(label: L.t("Предметов при себе", "Items carried"), value: String(found.items)),
-                Field(label: L.t("В хранилище", "In storage"), value: String(found.stored)),
-                Field(label: L.t("Записей в блоке", "Records in block"), value: String(found.banks)),
+                Field(label: L.t("Place"), value: place.isEmpty ? "—" : place),
+                Field(label: L.t("Items carried"), value: String(found.items)),
+                Field(label: L.t("In storage"), value: String(found.stored)),
+                Field(label: L.t("Records in block"), value: String(found.banks)),
             ],
             members: [], membersTitle: "", sections: [])
     }
 
     static func fromFFT(_ found: FFT.Overview) -> Digest {
-        let labels = ["hp": "HP", "mp": "MP", "sp": L.t("скорость", "speed"),
-                      "pa": L.t("физ. атака", "p.atk"), "ma": L.t("маг. атака", "m.atk")]
+        let labels = ["hp": "HP", "mp": "MP", "sp": L.t("speed"),
+                      "pa": L.t("p.atk"), "ma": L.t("m.atk")]
         let order = ["hp", "mp", "sp", "pa", "ma"]
         return Digest(
             game: "Final Fantasy Tactics",
             playtime: total(found.playtime),
             fields: [
-                Field(label: L.t("Герой", "Hero"), value: found.name),
-                Field(label: L.t("Класс", "Class"), value: found.job),
-                Field(label: L.t("Уровень", "Level"), value: String(found.level)),
-                Field(label: L.t("Наиграно", "Playtime"), value: time(found.playtime)),
-                Field(label: L.t("Казна", "Funds"), value: number(found.funds) + L.t(" гил", " gil")),
-                Field(label: L.t("Место", "Place"), value: found.location),
-                Field(label: L.t("Дата в игре", "In-game date"),
+                Field(label: L.t("Hero"), value: found.name),
+                Field(label: L.t("Class"), value: found.job),
+                Field(label: L.t("Level"), value: String(found.level)),
+                Field(label: L.t("Playtime"), value: time(found.playtime)),
+                Field(label: L.t("Funds"), value: L.t("{0} gil", number(found.funds))),
+                Field(label: L.t("Place"), value: found.location),
+                Field(label: L.t("In-game date"),
                       value: found.date.joined(separator: " ")),
-                Field(label: L.t("День рождения", "Birthday"),
+                Field(label: L.t("Birthday"),
                       value: found.birthday.joined(separator: " ")),
             ],
             members: found.units.map { unit in
                 var extra = [unit.who, unit.gender, unit.zodiac]
-                if unit.guest { extra.append(L.t("гость", "guest")) }
+                if unit.guest { extra.append(L.t("guest")) }
                 if !unit.status.isEmpty { extra.append(unit.status) }
                 // У монстров класс один и сменить его нельзя, поэтому
                 // экранных статов для них не существует - только сырые.
@@ -347,27 +345,27 @@ struct Digest {
                     role: unit.job,
                     level: String(unit.level),
                     stats: numbers + [
-                        Field(label: L.t("храбрость", "brave"), value: String(unit.brave)),
-                        Field(label: L.t("вера", "faith"), value: String(unit.faith)),
+                        Field(label: L.t("brave"), value: String(unit.brave)),
+                        Field(label: L.t("faith"), value: String(unit.faith)),
                     ],
                     gear: unit.gear.compactMap { $0.count > 1 ? $0[1] : nil },
                     extra: extra.filter { !$0.isEmpty }.joined(separator: " · "))
             },
-            membersTitle: L.t("Отряд", "Party"),
+            membersTitle: L.t("Party@@squad"),
             sections: [
-                Section(title: L.t("Инвентарь", "Inventory"), items: pairs(found.inventory),
-                        note: L.t("\(found.inventory.count) позиций", "\(found.inventory.count) entries")),
+                Section(title: L.t("Inventory"), items: pairs(found.inventory),
+                        note: L.t("{0} entries", found.inventory.count)),
             ])
     }
 
     static func fromFF9(_ found: FF9.Overview) -> Digest {
         var fields = [
-            Field(label: L.t("Наиграно", "Playtime"), value: time(found.playtime)),
-            Field(label: L.t("Гилы", "Gil"), value: number(found.gil)),
-            Field(label: L.t("Локация", "Location"), value: String(found.location)),
+            Field(label: L.t("Playtime"), value: time(found.playtime)),
+            Field(label: L.t("Gil"), value: number(found.gil)),
+            Field(label: L.t("Location"), value: String(found.location)),
         ]
         if let disc = found.disc {
-            fields.insert(Field(label: L.t("Диск", "Disc"), value: String(disc)), at: 0)
+            fields.insert(Field(label: L.t("Disc"), value: String(disc)), at: 0)
         }
         return Digest(
             game: "Final Fantasy IX",
@@ -380,15 +378,15 @@ struct Digest {
                        stats: [
                            Field(label: "HP", value: "\(unit.hp[0])/\(unit.hp[1])"),
                            Field(label: "MP", value: "\(unit.mp[0])/\(unit.mp[1])"),
-                           Field(label: L.t("опыт", "exp"), value: number(unit.exp)),
+                           Field(label: L.t("exp"), value: number(unit.exp)),
                        ],
                        gear: unit.gear.compactMap { $0.count > 1 ? $0[1] : nil },
-                       extra: unit.trance > 0 ? L.t("транс \(unit.trance)", "trance \(unit.trance)") : "")
+                       extra: unit.trance > 0 ? L.t("trance {0}", unit.trance) : "")
             },
-            membersTitle: L.t("Партия", "Party"),
+            membersTitle: L.t("Party"),
             sections: [
-                Section(title: L.t("Инвентарь", "Inventory"), items: pairs(found.inventory),
-                        note: L.t("\(found.inventory.count) позиций", "\(found.inventory.count) entries")),
+                Section(title: L.t("Inventory"), items: pairs(found.inventory),
+                        note: L.t("{0} entries", found.inventory.count)),
             ])
     }
 
@@ -402,7 +400,7 @@ struct Digest {
                            parts["hours"] ?? 0, parts["minutes"] ?? 0,
                            parts["seconds"] ?? 0)
 
-        let statNames = [L.t("Сила", "Strength"), L.t("Стойкость", "Vitality"), L.t("Магия", "Magic"), L.t("Дух", "Spirit"), L.t("Ловкость", "Agility"), L.t("Удача", "Luck")]
+        let statNames = [L.t("Strength"), L.t("Vitality"), L.t("Magic"), L.t("Spirit"), L.t("Agility"), L.t("Luck")]
         let party = found.characters.filter(\.exists).map { who in
             Member(name: who.name.isEmpty ? "—" : who.name,
                    role: who.weapon,
@@ -414,18 +412,18 @@ struct Digest {
                    gear: who.magic.compactMap { row in
                        row.count > 1 ? "\(row[0]) ×\(row[1])" : row.first
                    },
-                   extra: L.t("убийств \(who.kills) · ГФ \(who.gfs)", "kills \(who.kills) · GF \(who.gfs)"))
+                   extra: L.t("kills {0} · GF {1}", who.kills, who.gfs))
         }
         // Гардианы - половина смысла сейва FF8, без них панель бессмысленна.
         let guardians = found.guardians.filter(\.exists).map { gf in
             Member(name: gf.name,
-                   role: L.t("\(gf.learned.count) из \(gf.totalSlots) способностей", "\(gf.learned.count) of \(gf.totalSlots) abilities"),
+                   role: L.t("{0} of {1} abilities", gf.learned.count, gf.totalSlots),
                    level: String(gf.level),
                    stats: [Field(label: "HP", value: String(gf.hp)),
-                           Field(label: L.t("убийств", "kills"), value: String(gf.kills))],
+                           Field(label: L.t("kills"), value: String(gf.kills))],
                    gear: gf.learned,
                    extra: gf.learning.isEmpty ? ""
-                       : L.t("учит: ", "learns: ") + gf.learning.compactMap { row in
+                       : L.t("learns: ") + gf.learning.compactMap { row in
                            row.count > 2 ? "\(row[0]) \(row[1])/\(row[2])" : row.first
                        }.joined(separator: ", "))
         }
@@ -434,22 +432,22 @@ struct Digest {
             playtime: (parts["hours"] ?? 0) * 3600 + (parts["minutes"] ?? 0) * 60
                 + (parts["seconds"] ?? 0),
             fields: [
-                Field(label: L.t("Наиграно", "Playtime"), value: value),
-                Field(label: L.t("Гилы", "Gil"), value: number(found.gils)),
-                Field(label: L.t("Шагов", "Steps"), value: number(found.steps)),
-                Field(label: L.t("Боёв", "Battles"), value: number(found.battles)),
-                Field(label: L.t("В отряде", "In party"), value: found.party.joined(separator: ", ")),
+                Field(label: L.t("Playtime"), value: value),
+                Field(label: L.t("Gil"), value: number(found.gils)),
+                Field(label: L.t("Steps"), value: number(found.steps)),
+                Field(label: L.t("Battles"), value: number(found.battles)),
+                Field(label: L.t("In party"), value: found.party.joined(separator: ", ")),
             ],
             members: party,
-            membersTitle: L.t("Персонажи", "Characters"),
+            membersTitle: L.t("Characters"),
             sections: [
-                Section(title: L.t("Гардианы", "Guardians"),
+                Section(title: L.t("Guardians"),
                         items: guardians.map {
-                            Field(label: $0.name, value: L.t("ур. \($0.level) · \($0.role)", "lv. \($0.level) · \($0.role)"))
+                            Field(label: $0.name, value: L.t("lv. {0} · {1}", $0.level, $0.role))
                         },
-                        note: L.t("\(guardians.count) из 16", "\(guardians.count) of 16")),
-                Section(title: L.t("Инвентарь", "Inventory"), items: pairs(found.items),
-                        note: L.t("\(found.items.count) позиций", "\(found.items.count) entries")),
+                        note: L.t("{0} of 16", guardians.count)),
+                Section(title: L.t("Inventory"), items: pairs(found.items),
+                        note: L.t("{0} entries", found.items.count)),
             ])
     }
 
@@ -458,43 +456,43 @@ struct Digest {
             game: "Castlevania: Symphony of the Night",
             playtime: total(found.playtime.map(Int.init)),
             fields: [
-                Field(label: L.t("Герой", "Hero"), value: found.character),
-                Field(label: L.t("Уровень", "Level"), value: String(found.level)),
-                Field(label: L.t("Наиграно", "Playtime"), value: time(found.playtime.map(Int.init))),
-                Field(label: L.t("Карта", "Map"), value: String(format: "%.2f %%", found.map)),
+                Field(label: L.t("Hero"), value: found.character),
+                Field(label: L.t("Level"), value: String(found.level)),
+                Field(label: L.t("Playtime"), value: time(found.playtime.map(Int.init))),
+                Field(label: L.t("Map"), value: String(format: "%.2f %%", found.map)),
                 Field(label: "HP", value: "\(found.hp[0])/\(found.hp[1])"),
                 Field(label: "MP", value: "\(found.mp[0])/\(found.mp[1])"),
-                Field(label: L.t("Сердца", "Hearts"), value: "\(found.hearts[0])/\(found.hearts[1])"),
-                Field(label: L.t("Опыт", "Experience"), value: number(found.exp)),
-                Field(label: L.t("Золото", "Gold"), value: number(found.gold)),
-                Field(label: L.t("Убийств", "Kills"), value: number(found.kills)),
-                Field(label: L.t("Локация", "Location"), value: String(found.location)),
-                Field(label: L.t("Продвижение", "Progress"), value: String(found.progression)),
+                Field(label: L.t("Hearts"), value: "\(found.hearts[0])/\(found.hearts[1])"),
+                Field(label: L.t("Experience"), value: number(found.exp)),
+                Field(label: L.t("Gold"), value: number(found.gold)),
+                Field(label: L.t("Kills"), value: number(found.kills)),
+                Field(label: L.t("Location"), value: String(found.location)),
+                Field(label: L.t("Progress"), value: String(found.progression)),
             ],
             members: found.familiars.map { row in
                 Member(name: row.first ?? "",
-                       role: L.t("фамильяр", "familiar"),
+                       role: L.t("familiar"),
                        level: row.count > 1 ? row[1] : "",
-                       stats: row.count > 2 ? [Field(label: L.t("опыт", "exp"), value: row[2])] : [])
+                       stats: row.count > 2 ? [Field(label: L.t("exp"), value: row[2])] : [])
             },
-            membersTitle: L.t("Фамильяры", "Familiars"),
+            membersTitle: L.t("Familiars"),
             sections: [
-                Section(title: L.t("Экипировка", "Equipment"),
+                Section(title: L.t("Equipment"),
                         items: found.gear.compactMap { row in
                             row.count > 1 ? Field(label: row[1], value: row[0]) : nil
                         }),
-                Section(title: L.t("Реликвии", "Relics"),
+                Section(title: L.t("Relics"),
                         items: found.relics.map { Field(label: $0, value: "") },
                         note: String(found.relics.count)),
-                Section(title: L.t("Заклинания", "Spells"),
+                Section(title: L.t("Spells"),
                         items: found.spells.map { Field(label: $0, value: "") },
                         note: String(found.spells.count)),
-                Section(title: L.t("Инвентарь", "Inventory"), items: pairs(found.inventory),
-                        note: L.t("\(found.inventory.count) позиций", "\(found.inventory.count) entries")),
-                Section(title: L.t("Бестиарий", "Bestiary"),
+                Section(title: L.t("Inventory"), items: pairs(found.inventory),
+                        note: L.t("{0} entries", found.inventory.count)),
+                Section(title: L.t("Bestiary"),
                         items: found.bestiary.map { Field(label: $0, value: "") },
-                        note: L.t("\(found.bestiary.count) из \(found.enemyTotal)", "\(found.bestiary.count) of \(found.enemyTotal)")),
-                Section(title: L.t("С дропом", "With drop"),
+                        note: L.t("{0} of {1}", found.bestiary.count, found.enemyTotal)),
+                Section(title: L.t("With drop"),
                         items: found.drops.map { Field(label: $0, value: "") },
                         note: String(found.drops.count)),
             ])
@@ -505,12 +503,12 @@ struct Digest {
             game: "Final Fantasy VI",
             playtime: total(found.playtime),
             fields: [
-                Field(label: L.t("Наиграно", "Playtime"), value: time(found.playtime)),
-                Field(label: L.t("Гилы", "Gil"), value: number(found.gil)),
-                Field(label: L.t("Шагов", "Steps"), value: number(found.steps)),
-                Field(label: L.t("Сохранений", "Saves"), value: String(found.saves)),
-                Field(label: L.t("Место", "Place"), value: found.location),
-                Field(label: L.t("Не завербовано", "Not recruited"), value: String(found.notRecruited)),
+                Field(label: L.t("Playtime"), value: time(found.playtime)),
+                Field(label: L.t("Gil"), value: number(found.gil)),
+                Field(label: L.t("Steps"), value: number(found.steps)),
+                Field(label: L.t("Saves"), value: String(found.saves)),
+                Field(label: L.t("Place"), value: found.location),
+                Field(label: L.t("Not recruited"), value: String(found.notRecruited)),
             ],
             members: found.party.map { unit in
                 let learned = unit.magic.filter(\.learned).count
@@ -521,7 +519,7 @@ struct Digest {
                     stats: [
                         Field(label: "HP", value: "\(unit.hp[0])/\(unit.hp[1])"),
                         Field(label: "MP", value: "\(unit.mp[0])/\(unit.mp[1])"),
-                        Field(label: L.t("опыт", "exp"), value: number(unit.exp)),
+                        Field(label: L.t("exp"), value: number(unit.exp)),
                     ],
                     gear: unit.gear.compactMap { $0.count > 1 ? $0[1] : nil }
                         + unit.magic.filter { !$0.learned }.map {
@@ -529,16 +527,16 @@ struct Digest {
                         },
                     extra: ([unit.abilities.joined(separator: ", ")]
                         + (unit.magic.isEmpty ? []
-                           : [L.t("магия \(learned) из \(unit.magic.count)", "magic \(learned) of \(unit.magic.count)")]))
+                           : [L.t("magic {0} of {1}", learned, unit.magic.count)]))
                         .filter { !$0.isEmpty }.joined(separator: " · "))
             },
-            membersTitle: L.t("Отряд", "Party"),
+            membersTitle: L.t("Party"),
             sections: [
-                Section(title: L.t("Эсперы", "Espers"),
+                Section(title: L.t("Espers"),
                         items: found.espers.map { Field(label: $0, value: "") },
                         note: String(found.espers.count)),
-                Section(title: L.t("Инвентарь", "Inventory"), items: pairs(found.inventory),
-                        note: L.t("\(found.inventory.count) позиций", "\(found.inventory.count) entries")),
+                Section(title: L.t("Inventory"), items: pairs(found.inventory),
+                        note: L.t("{0} entries", found.inventory.count)),
             ])
     }
 
@@ -547,15 +545,15 @@ struct Digest {
             game: "Final Fantasy V",
             playtime: total(found.playtime),
             fields: [
-                Field(label: L.t("Наиграно", "Playtime"), value: time(found.playtime)),
-                Field(label: L.t("Гил", "Gil"), value: number(found.money)),
-                Field(label: L.t("Боёв", "Battles"), value: number(found.battles)),
-                Field(label: L.t("Убито", "Killed"), value: number(found.kills)),
-                Field(label: L.t("Сохранений", "Saves"), value: String(found.saves)),
-                Field(label: L.t("Сундуков открыто", "Chests opened"), value: String(found.chests)),
-                Field(label: L.t("Мир", "World"), value: String(found.world)),
-                Field(label: L.t("Карта", "Map"), value: String(found.map)),
-                Field(label: L.t("Ростер", "Roster"),
+                Field(label: L.t("Playtime"), value: time(found.playtime)),
+                Field(label: L.t("Gil"), value: number(found.money)),
+                Field(label: L.t("Battles"), value: number(found.battles)),
+                Field(label: L.t("Killed"), value: number(found.kills)),
+                Field(label: L.t("Saves"), value: String(found.saves)),
+                Field(label: L.t("Chests opened"), value: String(found.chests)),
+                Field(label: L.t("World"), value: String(found.world)),
+                Field(label: L.t("Map"), value: String(found.map)),
+                Field(label: L.t("Roster"),
                       value: found.roster.joined(separator: ", ")),
             ],
             members: found.party.map { unit in
@@ -568,12 +566,12 @@ struct Digest {
                            Field(label: "ABP", value: String(unit.abp)),
                        ],
                        gear: unit.gear.compactMap { $0.count > 1 ? $0[1] : nil },
-                       extra: L.t("уровень работы \(unit.jobLevel)", "job level \(unit.jobLevel)"))
+                       extra: L.t("job level {0}", unit.jobLevel))
             },
-            membersTitle: L.t("Отряд", "Party"),
+            membersTitle: L.t("Party"),
             sections: [
-                Section(title: L.t("Инвентарь", "Inventory"), items: pairs(found.inventory),
-                        note: L.t("\(found.inventory.count) позиций", "\(found.inventory.count) entries")),
+                Section(title: L.t("Inventory"), items: pairs(found.inventory),
+                        note: L.t("{0} entries", found.inventory.count)),
             ])
     }
 
@@ -582,39 +580,39 @@ struct Digest {
             game: "Resident Evil",
             playtime: nil,
             fields: [
-                Field(label: L.t("Герой", "Hero"), value: found.character),
-                Field(label: L.t("Здоровье", "Health"), value: String(found.health)),
-                Field(label: L.t("Место", "Place"), value: found.location),
-                Field(label: L.t("Чернильные ленты", "Ink ribbons"), value: String(found.inkRibbons)),
-                Field(label: L.t("Счётчик времени", "Time counter"), value: number(found.playtimeRaw)),
-                Field(label: L.t("Если это секунды", "If these are seconds"),
+                Field(label: L.t("Hero"), value: found.character),
+                Field(label: L.t("Health"), value: String(found.health)),
+                Field(label: L.t("Place"), value: found.location),
+                Field(label: L.t("Ink ribbons"), value: String(found.inkRibbons)),
+                Field(label: L.t("Time counter"), value: number(found.playtimeRaw)),
+                Field(label: L.t("If these are seconds"),
                       value: time([Int(found.playtimeRaw) / 3600,
                                    Int(found.playtimeRaw) / 60 % 60,
                                    Int(found.playtimeRaw) % 60])),
             ],
             members: [], membersTitle: "",
             sections: [
-                Section(title: L.t("При себе", "Carried"), items: pairs(found.inventory),
-                        note: L.t("\(found.inventory.count) из 8", "\(found.inventory.count) of 8")),
-                Section(title: L.t("В сундуке", "In container"), items: pairs(found.container),
-                        note: L.t("\(found.container.count) позиций", "\(found.container.count) entries")),
+                Section(title: L.t("Carried"), items: pairs(found.inventory),
+                        note: L.t("{0} of 8", found.inventory.count)),
+                Section(title: L.t("In container"), items: pairs(found.container),
+                        note: L.t("{0} entries", found.container.count)),
             ])
     }
 
     static func fromFF7(_ found: FF7.Overview) -> Digest {
-        let statNames = [L.t("сила", "str"), L.t("стойкость", "vit"), L.t("магия", "magic"), L.t("дух", "spr"), L.t("ловкость", "agi"), L.t("удача", "luck")]
+        let statNames = [L.t("str"), L.t("vit"), L.t("magic"), L.t("spr"), L.t("agi"), L.t("luck")]
         return Digest(
             game: "Final Fantasy VII",
             playtime: total(found.playtime),
             fields: [
-                Field(label: L.t("Герой", "Hero"), value: found.leader),
-                Field(label: L.t("Уровень", "Level"), value: String(found.level)),
-                Field(label: L.t("Наиграно", "Playtime"), value: time(found.playtime)),
-                Field(label: L.t("Гилы", "Gil"), value: number(found.gil)),
-                Field(label: L.t("Место", "Place"), value: found.location),
-                Field(label: L.t("Место в сейве", "Slot"), value: found.locationText),
-                Field(label: L.t("Боёв", "Battles"), value: number(found.battles)),
-                Field(label: L.t("Побегов", "Escapes"), value: number(found.runs)),
+                Field(label: L.t("Hero"), value: found.leader),
+                Field(label: L.t("Level"), value: String(found.level)),
+                Field(label: L.t("Playtime"), value: time(found.playtime)),
+                Field(label: L.t("Gil"), value: number(found.gil)),
+                Field(label: L.t("Place"), value: found.location),
+                Field(label: L.t("Slot"), value: found.locationText),
+                Field(label: L.t("Battles"), value: number(found.battles)),
+                Field(label: L.t("Escapes"), value: number(found.runs)),
             ],
             members: found.characters.map { who in
                 Member(name: who.name.isEmpty ? who.who : who.name,
@@ -629,30 +627,30 @@ struct Digest {
                        gear: [who.weapon, who.armor, who.accessory]
                            .filter { !$0.isEmpty },
                        extra: who.materia.isEmpty ? ""
-                           : L.t("материя: ", "materia: ") + who.materia.map(\.materia.name)
+                           : L.t("materia: ") + who.materia.map(\.materia.name)
                                .joined(separator: ", "))
             },
-            membersTitle: L.t("Персонажи", "Characters"),
+            membersTitle: L.t("Characters"),
             sections: [
-                Section(title: L.t("Материя", "Materia"),
+                Section(title: L.t("Materia"),
                         items: found.materia.map {
                             Field(label: $0.name,
-                                  value: $0.mastered ? L.t("освоена", "mastered")
+                                  value: $0.mastered ? L.t("mastered")
                                                      : "\($0.stars)/\($0.total)")
                         },
                         note: String(found.materia.count)),
-                Section(title: L.t("Украдено Юффи", "Stolen by Yuffie"),
+                Section(title: L.t("Stolen by Yuffie"),
                         items: found.materiaStolen.map {
                             Field(label: $0.name,
-                                  value: $0.mastered ? L.t("освоена", "mastered")
+                                  value: $0.mastered ? L.t("mastered")
                                                      : "\($0.stars)/\($0.total)")
                         },
                         note: String(found.materiaStolen.count)),
-                Section(title: L.t("Инвентарь", "Inventory"),
+                Section(title: L.t("Inventory"),
                         items: found.inventory.map {
                             Field(label: $0.name, value: String($0.count))
                         },
-                        note: L.t("\(found.inventory.count) позиций", "\(found.inventory.count) entries")),
+                        note: L.t("{0} entries", found.inventory.count)),
             ])
     }
 }

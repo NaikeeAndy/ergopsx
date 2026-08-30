@@ -19,7 +19,7 @@ class SettingsView(QDialog):
         super().__init__(parent)
         self.settings = settings
         self.p = palette
-        self.setWindowTitle(lang.t("Настройки", "Settings"))
+        self.setWindowTitle(lang.t("Settings"))
         self.resize(620, 460)
         # Без имени правило фона не срабатывает, и окно
         # остаётся белым - текст на нём почти не виден.
@@ -30,12 +30,8 @@ class SettingsView(QDialog):
         column.setContentsMargins(20, 18, 20, 18)
         column.setSpacing(12)
 
-        column.addWidget(self._title(lang.t("Папки с сейвами", "Save folders")))
-        note = QLabel(lang.t(
-            lang.t("Читаются при запуске. Их может быть сколько угодно — коллекция, ", "Read at startup. As many as you like — the collection, ")
-            + lang.t("выгрузки с консолей, чужие карты. Приложение только читает.", "console dumps, other people's cards. The app only reads."),
-            "Read at startup. As many as you like — the collection, console "
-            "dumps, other people's cards. The app only reads."))
+        column.addWidget(self._title(lang.t("Save folders")))
+        note = QLabel(lang.t("Read at startup. As many as you like — the collection, console dumps, other people's cards. The app only reads."))
         note.setObjectName("dim")
         note.setWordWrap(True)
         column.addWidget(note)
@@ -44,28 +40,26 @@ class SettingsView(QDialog):
         column.addWidget(self.list, 1)
 
         buttons = QHBoxLayout()
-        add = QPushButton(lang.t("Добавить папку…", "Add folder…"))
+        add = QPushButton(lang.t("Add folder…"))
         add.setObjectName("primary")
         add.clicked.connect(self._add)
         buttons.addWidget(add)
-        drop = QPushButton(lang.t("Убрать из списка", "Remove from list"))
+        drop = QPushButton(lang.t("Remove from list"))
         drop.clicked.connect(self._remove)
         buttons.addWidget(drop)
         buttons.addStretch(1)
         column.addLayout(buttons)
 
-        column.addWidget(self._title(lang.t("Язык", "Language")))
+        column.addWidget(self._title(lang.t("Language")))
         self.language = QComboBox()
-        self.language.addItems(["Русский", "English"])
-        self.language.setCurrentIndex(0 if settings.language == "ru" else 1)
+        self.language.addItems([name for _, name in lang.LANGUAGES])
+        codes = [code for code, _ in lang.LANGUAGES]
+        self.language.setCurrentIndex(codes.index(settings.language)
+                                      if settings.language in codes else 0)
         self.language.currentIndexChanged.connect(self._language)
         self.language.setFixedWidth(240)
         column.addWidget(self.language)
-        hint = QLabel(lang.t(
-            lang.t("Разбор сейвов и названия игр остаются как есть — ", "Save contents and game titles stay as they are — ")
-            + lang.t("они приходят из самих игр.", "they come from the games themselves."),
-            "Save contents and game titles stay as they are — "
-            "they come from the games themselves."))
+        hint = QLabel(lang.t("Save contents and game titles stay as they are — they come from the games themselves."))
         hint.setObjectName("faint")
         hint.setWordWrap(True)
         column.addWidget(hint)
@@ -88,7 +82,7 @@ class SettingsView(QDialog):
 
     def _add(self):
         folder = QFileDialog.getExistingDirectory(
-            self, lang.t("Где лежат сейвы", "Where the saves are"))
+            self, lang.t("Where the saves are"))
         if folder:
             self.settings.add_folder(folder)
             self._fill()
@@ -106,7 +100,7 @@ class SettingsView(QDialog):
         self.changed.emit()
 
     def _language(self, index):
-        self.settings.language = "ru" if index == 0 else "en"
+        self.settings.language = lang.LANGUAGES[index][0]
         self.settings.save()
         lang.set_language(self.settings.language)
         self.changed.emit()

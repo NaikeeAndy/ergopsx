@@ -6,11 +6,18 @@ import CryptoKit
 ///
 ///     memcard dump <база названий> <папка>
 
-let args = CommandLine.arguments
+// Подписи полей приходят из языкового слоя, поэтому у сверки со старым
+// движком должен быть выбор: тот пишет их по-русски.
+//     memcard --lang ru dump <база названий> <папка>
+var args = CommandLine.arguments
+if let mark = args.firstIndex(of: "--lang"), mark + 1 < args.count {
+    L.current = Lang(rawValue: args[mark + 1]) ?? .en
+    args.removeSubrange(mark...(mark + 1))
+}
 // Проверка FTP на живой консоли: memcard ftp <host> <port> <user> <pass> <path>
 // Скачивание: memcard ftp-get <host> <port> <user> <pass> <файл>
-if CommandLine.arguments.count >= 7, CommandLine.arguments[1] == "ftp-get" {
-    let a = CommandLine.arguments
+if args.count >= 7, args[1] == "ftp-get" {
+    let a = args
     let client = FTPClient(FTPClient.Profile(host: a[2], port: UInt16(a[3]) ?? 21,
                                              user: a[4], password: a[5]))
     do {
@@ -28,8 +35,8 @@ if CommandLine.arguments.count >= 7, CommandLine.arguments[1] == "ftp-get" {
     }
 }
 
-if CommandLine.arguments.count >= 7, CommandLine.arguments[1] == "ftp" {
-    let a = CommandLine.arguments
+if args.count >= 7, args[1] == "ftp" {
+    let a = args
     let profile = FTPClient.Profile(host: a[2], port: UInt16(a[3]) ?? 21,
                                     user: a[4], password: a[5], path: a[6])
     let client = FTPClient(profile)
@@ -51,8 +58,8 @@ if CommandLine.arguments.count >= 7, CommandLine.arguments[1] == "ftp" {
 }
 
 // Castlevania Chronicles: сверка с экраном выбора игрока.
-if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "chronicles" {
-    let root = URL(fileURLWithPath: CommandLine.arguments[3])
+if args.count >= 4, args[1] == "chronicles" {
+    let root = URL(fileURLWithPath: args[3])
     var seen = Set<String>()
     let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)
     while let item = walker?.nextObject() as? URL {
@@ -74,9 +81,9 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "chronicles" {
 }
 
 // Parasite Eve II: сверка найденных полей с подписью игры.
-if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "pe2" {
-    let root = URL(fileURLWithPath: CommandLine.arguments[3])
-    let titles = try Titles(contentsOf: URL(fileURLWithPath: CommandLine.arguments[2]))
+if args.count >= 4, args[1] == "pe2" {
+    let root = URL(fileURLWithPath: args[3])
+    let titles = try Titles(contentsOf: URL(fileURLWithPath: args[2]))
     var seen = Set<String>(), ok = 0, total = 0
     var lines: [String] = []
     let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)
@@ -105,7 +112,7 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "pe2" {
 }
 
 // Vagrant Story: сверка расшифровки с подписью, которую пишет игра.
-if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "vagrant" {
+if args.count >= 4, args[1] == "vagrant" {
     struct Row: Encodable {
         var path: String
         var signature: String
@@ -133,8 +140,8 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "vagrant" {
         var artsByCategory: [Int]
     }
     var out: [Row] = []
-    let root = URL(fileURLWithPath: CommandLine.arguments[3])
-    let titles = try Titles(contentsOf: URL(fileURLWithPath: CommandLine.arguments[2]))
+    let root = URL(fileURLWithPath: args[3])
+    let titles = try Titles(contentsOf: URL(fileURLWithPath: args[2]))
     let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)
     var seen = Set<String>()
     while let item = walker?.nextObject() as? URL {
@@ -198,7 +205,7 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "vagrant" {
 }
 
 // Иконки: хеш ленты RGBA по каждому сейву - по нему сверяется декодер.
-if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "icons" {
+if args.count >= 4, args[1] == "icons" {
     struct Row: Encodable {
         var path: String
         var name: String
@@ -206,7 +213,7 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "icons" {
         var digest: String
     }
     var out: [Row] = []
-    let root = URL(fileURLWithPath: CommandLine.arguments[3])
+    let root = URL(fileURLWithPath: args[3])
     let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)
     while let item = walker?.nextObject() as? URL {
         guard let data = try? Data(contentsOf: item), data.count >= PSX.block,

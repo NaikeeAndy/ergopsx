@@ -28,9 +28,9 @@ public enum SotN {
 
     /// Экипировка: семь слотов подряд по четыре байта.
     static let gearSlots: [(Int, String)] = [
-        (0x3D4, L.t("правая рука", "right hand")), (0x3D8, L.t("левая рука", "left hand")), (0x3DC, L.t("голова", "head")),
-        (0x3E0, L.t("тело", "body")), (0x3E4, L.t("плащ", "cloak")), (0x3E8, L.t("аксессуар 1", "accessory 1")),
-        (0x3EC, L.t("аксессуар 2", "accessory 2")),
+        (0x3D4, L.t("right hand")), (0x3D8, L.t("left hand")), (0x3DC, L.t("head")),
+        (0x3E0, L.t("body")), (0x3E4, L.t("cloak")), (0x3E8, L.t("accessory 1")),
+        (0x3EC, L.t("accessory 2")),
     ]
     /// В руках свой список предметов, не общий.
     static let handSlots: Set<Int> = [0x3D4, 0x3D8]

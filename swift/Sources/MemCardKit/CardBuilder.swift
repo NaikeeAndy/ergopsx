@@ -37,16 +37,15 @@ public enum CardBuilder {
         public var description: String {
             switch self {
             case let .duplicateName(name, first, second):
-                L.t("два разных сейва с одним именем '\(name)': \(first) и \(second). ", "two different saves share the name '\(name)': \(first) and \(second). ")
-                + L.t("Игра находит сейв по имени и различить их не сможет - оставьте один", "the game finds saves by name and cannot tell them apart — keep one")
+                L.t("two different saves share the name '{0}': {1} and {2}. the game finds saves by name and cannot tell them apart — keep one", name, first, second)
             case let .tooManyBlocks(need):
-                L.t("нужно \(need) блоков, а на карте только \(PSX.slots)", "\(need) blocks needed, the card holds only \(PSX.slots)")
+                L.t("{0} blocks needed, the card holds only {1}", need, PSX.slots)
             case let .badSize(size):
-                L.t("размер \(size), а должен быть \(cardSize)", "size is \(size), expected \(cardSize)")
+                L.t("size is {0}, expected {1}", size, cardSize)
             case .noMagic:
-                L.t("нет магии 'MC' в начале", "no 'MC' magic at the start")
+                L.t("no 'MC' magic at the start")
             case let .badChecksum(frames):
-                L.t("неверная контрольная сумма у фреймов \(frames)", "bad checksum in frames \(frames)")
+                L.t("bad checksum in frames {0}", frames)
             }
         }
     }
@@ -150,7 +149,7 @@ public enum CardBuilder {
         for frame in frames { card += frame }
         card += reserve()
         for block in blocks { card += block }
-        precondition(card.count == cardSize, L.t("получилось \(card.count) байт", "got \(card.count) bytes"))
+        precondition(card.count == cardSize, L.t("got {0} bytes", card.count))
         return Result(image: card, layout: layout, dropped: dropped)
     }
 
@@ -163,7 +162,7 @@ public enum CardBuilder {
             return xor(card[start..<(start + PSX.frame)]) != card[start + PSX.frame - 1]
         }
         guard bad.isEmpty else { throw Failure.badChecksum(bad) }
-        return CardImage(card)?.saves(origin: L.t("образ", "image")) ?? []
+        return CardImage(card)?.saves(origin: L.t("image")) ?? []
     }
 
     /// Обёртка DexDrive: заголовок на 3904 байта.

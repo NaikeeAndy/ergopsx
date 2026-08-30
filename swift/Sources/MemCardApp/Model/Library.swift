@@ -68,9 +68,9 @@ enum SortOrder: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .playtime: L.t("По времени", "By playtime")
-        case .title: L.t("По названию", "By title")
-        case .natural: L.t("Как в файлах", "As in files")
+        case .playtime: L.t("By playtime")
+        case .title: L.t("By title")
+        case .natural: L.t("As in files")
         }
     }
 }
@@ -229,7 +229,7 @@ final class Library {
                   values.isRegularFile == true,
                   (values.fileSize ?? 0) >= PSX.block else { continue }
             guard let data = try? Data(contentsOf: item) else {
-                skipped.append((item.lastPathComponent, L.t("не прочитался", "could not be read")))
+                skipped.append((item.lastPathComponent, L.t("could not be read")))
                 continue
             }
             let bytes = [UInt8](data)

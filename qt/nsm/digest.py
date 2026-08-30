@@ -95,14 +95,14 @@ def gear_names(gear):
 # --- по играм ------------------------------------------------------------
 
 def from_fft(got):
-    labels = {"hp": "HP", "mp": "MP", "sp": lang.t("скорость", "speed"),
-              "pa": lang.t("физ. атака", "p.atk"), "ma": lang.t("маг. атака", "m.atk")}
+    labels = {"hp": "HP", "mp": "MP", "sp": lang.t("speed"),
+              "pa": lang.t("p.atk"), "ma": lang.t("m.atk")}
     order = ("hp", "mp", "sp", "pa", "ma")
     members = []
     for unit in got.get("units", []):
         extra = [unit.get("who", ""), unit.get("gender", ""), unit.get("zodiac", "")]
         if unit.get("guest"):
-            extra.append(lang.t("гость", "guest"))
+            extra.append(lang.t("guest"))
         if unit.get("status"):
             extra.append(unit["status"])
         stats = got and unit.get("stats") or {}
@@ -112,8 +112,8 @@ def from_fft(got):
             name=unit.get("name") or unit.get("who", ""),
             role=unit.get("job", ""),
             level=str(unit.get("level", "")),
-            stats=numbers + [Field(lang.t("храбрость", "brave"), str(unit.get("brave", ""))),
-                             Field(lang.t("вера", "faith"), str(unit.get("faith", "")))],
+            stats=numbers + [Field(lang.t("brave"), str(unit.get("brave", ""))),
+                             Field(lang.t("faith"), str(unit.get("faith", "")))],
             gear=gear_names(unit.get("gear")),
             extra=" · ".join(x for x in extra if x)))
     inventory = got.get("inventory") or []
@@ -121,27 +121,27 @@ def from_fft(got):
         game="Final Fantasy Tactics",
         playtime=total(got.get("playtime")),
         fields=[
-            Field(lang.t("Герой", "Hero"), got.get("name", "")),
-            Field(lang.t("Класс", "Class"), got.get("job", "")),
-            Field(lang.t("Уровень", "Level"), str(got.get("level", ""))),
-            Field(lang.t("Наиграно", "Playtime"), clock(got.get("playtime"))),
-            Field(lang.t("Казна", "Funds"), number(got.get("funds", 0)) + lang.t(" гил", " gil")),
-            Field(lang.t("Место", "Place"), str(got.get("location", ""))),
-            Field(lang.t("Дата в игре", "In-game date"), " ".join(str(x) for x in (got.get("date") or ()))),
-            Field(lang.t("День рождения", "Birthday"),
+            Field(lang.t("Hero"), got.get("name", "")),
+            Field(lang.t("Class"), got.get("job", "")),
+            Field(lang.t("Level"), str(got.get("level", ""))),
+            Field(lang.t("Playtime"), clock(got.get("playtime"))),
+            Field(lang.t("Funds"), lang.t("{0} gil", number(got.get("funds", 0)))),
+            Field(lang.t("Place"), str(got.get("location", ""))),
+            Field(lang.t("In-game date"), " ".join(str(x) for x in (got.get("date") or ()))),
+            Field(lang.t("Birthday"),
                   " ".join(str(x) for x in (got.get("birthday") or ()))),
         ],
-        members=members, members_title=lang.t("Отряд", "Party"),
-        sections=[Section(lang.t("Инвентарь", "Inventory"), pairs(inventory),
-                          lang.t(f"{len(inventory)} позиций", f"{len(inventory)} entries"))])
+        members=members, members_title=lang.t("Party@@squad"),
+        sections=[Section(lang.t("Inventory"), pairs(inventory),
+                          lang.t("{0} entries", len(inventory)))])
 
 
 def from_ff9(got):
-    fields = [Field(lang.t("Наиграно", "Playtime"), clock(got.get("playtime"))),
-              Field(lang.t("Гилы", "Gil"), number(got.get("gil", 0))),
-              Field(lang.t("Локация", "Location"), str(got.get("location", "")))]
+    fields = [Field(lang.t("Playtime"), clock(got.get("playtime"))),
+              Field(lang.t("Gil"), number(got.get("gil", 0))),
+              Field(lang.t("Location"), str(got.get("location", "")))]
     if got.get("disc") is not None:
-        fields.insert(0, Field(lang.t("Диск", "Disc"), str(got["disc"])))
+        fields.insert(0, Field(lang.t("Disc"), str(got["disc"])))
     members = []
     for unit in got.get("party", []):
         hp, mp = unit.get("hp", [0, 0]), unit.get("mp", [0, 0])
@@ -151,14 +151,14 @@ def from_ff9(got):
             level=str(unit.get("level", "")),
             stats=[Field("HP", f"{hp[0]}/{hp[1]}"),
                    Field("MP", f"{mp[0]}/{mp[1]}"),
-                   Field(lang.t("опыт", "exp"), number(unit.get("exp", 0)))],
+                   Field(lang.t("exp"), number(unit.get("exp", 0)))],
             gear=gear_names(unit.get("gear")),
-            extra=lang.t(f"транс {unit['trance']}", f"trance {unit['trance']}") if unit.get("trance") else ""))
+            extra=lang.t("trance {0}", unit['trance']) if unit.get("trance") else ""))
     inventory = got.get("inventory") or []
     return Digest(game="Final Fantasy IX", playtime=total(got.get("playtime")),
-                  fields=fields, members=members, members_title=lang.t("Партия", "Party"),
-                  sections=[Section(lang.t("Инвентарь", "Inventory"), pairs(inventory),
-                                    lang.t(f"{len(inventory)} позиций", f"{len(inventory)} entries"))])
+                  fields=fields, members=members, members_title=lang.t("Party"),
+                  sections=[Section(lang.t("Inventory"), pairs(inventory),
+                                    lang.t("{0} entries", len(inventory)))])
 
 
 def from_ff6(got):
@@ -173,25 +173,25 @@ def from_ff6(got):
             level=str(unit.get("level", "")),
             stats=[Field("HP", f"{hp[0]}/{hp[1]}"),
                    Field("MP", f"{mp[0]}/{mp[1]}"),
-                   Field(lang.t("опыт", "exp"), number(unit.get("exp", 0)))],
+                   Field(lang.t("exp"), number(unit.get("exp", 0)))],
             gear=gear_names(unit.get("gear")),
-            extra="" if not learned else lang.t(f"магия {learned}", f"magic {learned}")))
-    sections = [Section(lang.t("Инвентарь", "Inventory"), pairs(got.get("inventory")),
-                        lang.t(f"{len(got.get('inventory') or [])} позиций", f"{len(got.get('inventory') or [])} entries"))]
+            extra="" if not learned else lang.t("magic {0}", learned)))
+    sections = [Section(lang.t("Inventory"), pairs(got.get("inventory")),
+                        lang.t("{0} entries", len(got.get('inventory') or [])))]
     if got.get("espers"):
-        sections.append(Section(lang.t("Эсперы", "Espers"), pairs(got["espers"])))
+        sections.append(Section(lang.t("Espers"), pairs(got["espers"])))
     # Число, а не список: движок отдаёт сколько персонажей не найдено.
     if got.get("not_recruited"):
-        sections.append(Section(lang.t("Не завербовано", "Not recruited"),
-                                [Field(lang.t("персонажей", "characters"), str(got["not_recruited"]))]))
+        sections.append(Section(lang.t("Not recruited"),
+                                [Field(lang.t("characters"), str(got["not_recruited"]))]))
     return Digest(
         game="Final Fantasy VI", playtime=total(got.get("playtime")),
-        fields=[Field(lang.t("Наиграно", "Playtime"), clock(got.get("playtime"))),
-                Field(lang.t("Гилы", "Gil"), number(got.get("gil", 0))),
-                Field(lang.t("Шагов", "Steps"), number(got.get("steps", 0))),
-                Field(lang.t("Сохранений", "Saves"), str(got.get("saves", ""))),
-                Field(lang.t("Локация", "Location"), str(got.get("location", "")))],
-        members=members, members_title=lang.t("Отряд", "Party"), sections=sections)
+        fields=[Field(lang.t("Playtime"), clock(got.get("playtime"))),
+                Field(lang.t("Gil"), number(got.get("gil", 0))),
+                Field(lang.t("Steps"), number(got.get("steps", 0))),
+                Field(lang.t("Saves"), str(got.get("saves", ""))),
+                Field(lang.t("Location"), str(got.get("location", "")))],
+        members=members, members_title=lang.t("Party"), sections=sections)
 
 
 def from_ff5(got):
@@ -204,87 +204,87 @@ def from_ff5(got):
             level=str(unit.get("level", "")),
             stats=[Field("HP", f"{hp[0]}/{hp[1]}"),
                    Field("MP", f"{mp[0]}/{mp[1]}"),
-                   Field(lang.t("опыт", "exp"), number(unit.get("exp", 0)))],
+                   Field(lang.t("exp"), number(unit.get("exp", 0)))],
             gear=gear_names(unit.get("gear")),
-            extra=lang.t(f"уровень работы {unit.get('job_level', 0)}", f"job level {unit.get('job_level', 0)}")))
+            extra=lang.t("job level {0}", unit.get('job_level', 0))))
     return Digest(
         game="Final Fantasy V", playtime=total(got.get("playtime")),
-        fields=[Field(lang.t("Наиграно", "Playtime"), clock(got.get("playtime"))),
-                Field(lang.t("Гил", "Gil"), number(got.get("money", 0))),
-                Field(lang.t("Убито", "Killed"), number(got.get("kills", 0))),
-                Field(lang.t("Боёв", "Battles"), number(got.get("battles", 0))),
-                Field(lang.t("Сохранений", "Saves"), str(got.get("saves", ""))),
-                Field(lang.t("Мир", "World"), str(got.get("world", ""))),
-                Field(lang.t("Карта", "Map"), str(got.get("map", "")))],
-        members=members, members_title=lang.t("Отряд", "Party"),
-        sections=[Section(lang.t("Инвентарь", "Inventory"), pairs(got.get("inventory")),
-                          lang.t(f"{len(got.get('inventory') or [])} позиций", f"{len(got.get('inventory') or [])} entries"))])
+        fields=[Field(lang.t("Playtime"), clock(got.get("playtime"))),
+                Field(lang.t("Gil"), number(got.get("money", 0))),
+                Field(lang.t("Killed"), number(got.get("kills", 0))),
+                Field(lang.t("Battles"), number(got.get("battles", 0))),
+                Field(lang.t("Saves"), str(got.get("saves", ""))),
+                Field(lang.t("World"), str(got.get("world", ""))),
+                Field(lang.t("Map"), str(got.get("map", "")))],
+        members=members, members_title=lang.t("Party"),
+        sections=[Section(lang.t("Inventory"), pairs(got.get("inventory")),
+                          lang.t("{0} entries", len(got.get('inventory') or [])))])
 
 
 def from_re1(got):
     return Digest(
         game="Resident Evil", playtime=got.get("playtime_raw"),
-        fields=[Field(lang.t("Герой", "Hero"), str(got.get("character", ""))),
-                Field(lang.t("Здоровье", "Health"), str(got.get("health", ""))),
-                Field(lang.t("Чернильные ленты", "Ink ribbons"), str(got.get("ink_ribbons", ""))),
-                Field(lang.t("Локация", "Location"), str(got.get("location", "")))],
-        sections=[Section(lang.t("При себе", "Carried"), pairs(got.get("inventory"))),
-                  Section(lang.t("В сундуке", "In container"), pairs(got.get("container")))])
+        fields=[Field(lang.t("Hero"), str(got.get("character", ""))),
+                Field(lang.t("Health"), str(got.get("health", ""))),
+                Field(lang.t("Ink ribbons"), str(got.get("ink_ribbons", ""))),
+                Field(lang.t("Location"), str(got.get("location", "")))],
+        sections=[Section(lang.t("Carried"), pairs(got.get("inventory"))),
+                  Section(lang.t("In container"), pairs(got.get("container")))])
 
 
 def from_pe2(got):
     return Digest(
         game="Parasite Eve II",
         playtime=total(got.get("playtime")),
-        fields=[Field(lang.t("Наиграно", "Playtime"), clock(got.get("playtime"))),
-                Field(lang.t("Второе число", "Second number"), str(got.get("mark", ""))),
-                Field(lang.t("Предметов при себе", "Items carried"), str(got.get("items", ""))),
-                Field(lang.t("В хранилище", "In storage"), str(got.get("stored", ""))),
-                Field(lang.t("Записей в блоке", "Records in block"), str(got.get("banks", "")))])
+        fields=[Field(lang.t("Playtime"), clock(got.get("playtime"))),
+                Field(lang.t("Second number"), str(got.get("mark", ""))),
+                Field(lang.t("Items carried"), str(got.get("items", ""))),
+                Field(lang.t("In storage"), str(got.get("stored", ""))),
+                Field(lang.t("Records in block"), str(got.get("banks", "")))])
 
 
 def from_crash2(got):
     return Digest(
         game="Crash Bandicoot 2",
-        fields=[Field(lang.t("Игрок", "Player"), got.get("name") or "—"),
-                Field(lang.t("Уровень", "Level"), str(got.get("level", ""))),
-                Field(lang.t("Жизней", "Lives"), str(got.get("lives", ""))),
-                Field(lang.t("Фруктов", "Fruit"), number(got.get("wumpa", 0))),
-                Field(lang.t("Аку-Аку", "Aku Aku"), str(got.get("aku_aku", ""))),
-                Field(lang.t("Кристаллов", "Crystals"), str(got.get("crystals", ""))),
-                Field(lang.t("Самоцветов", "Gems"), str(got.get("gems", ""))),
-                Field(lang.t("Пройдено уровней", "Levels cleared"), str(got.get("progress", ""))),
-                Field(lang.t("Секретов", "Secrets"), str(got.get("secrets", "")))])
+        fields=[Field(lang.t("Player"), got.get("name") or "—"),
+                Field(lang.t("Level"), str(got.get("level", ""))),
+                Field(lang.t("Lives"), str(got.get("lives", ""))),
+                Field(lang.t("Fruit"), number(got.get("wumpa", 0))),
+                Field(lang.t("Aku Aku"), str(got.get("aku_aku", ""))),
+                Field(lang.t("Crystals"), str(got.get("crystals", ""))),
+                Field(lang.t("Gems@@count"), str(got.get("gems", ""))),
+                Field(lang.t("Levels cleared"), str(got.get("progress", ""))),
+                Field(lang.t("Secrets"), str(got.get("secrets", "")))])
 
 
 def from_chronicles(got):
     return Digest(
         game="Castlevania Chronicles",
-        fields=[Field(lang.t("Игрок", "Player"), got.get("name", "")),
-                Field(lang.t("Стейдж", "Stage"), f"{got.get('stage', 0):02d}"),
-                Field(lang.t("Уровень", "Level"), str(got.get("level", ""))),
-                Field(lang.t("Второе число", "Second number"), f"{got.get('counter', 0):02d}"),
-                Field(lang.t("Сохранён", "Saved"), got.get("saved", ""))])
+        fields=[Field(lang.t("Player"), got.get("name", "")),
+                Field(lang.t("Stage"), f"{got.get('stage', 0):02d}"),
+                Field(lang.t("Level"), str(got.get("level", ""))),
+                Field(lang.t("Second number"), f"{got.get('counter', 0):02d}"),
+                Field(lang.t("Saved"), got.get("saved", ""))])
 
 
-AREAS = (lang.t("Люди", "Humans"), lang.t("Звери", "Beasts"), lang.t("Нежить", "Undead"), lang.t("Призраки", "Phantoms"), lang.t("Драконы", "Dragons"), lang.t("Демоны", "Evils"))
-KINDS = (("weapons", lang.t("Оружие", "Weapons")), ("shields", lang.t("Щиты", "Shields")), ("blades", lang.t("Клинки", "Blades")),
-         ("grips", lang.t("Рукояти", "Grips")), ("armor", lang.t("Броня", "Armor")), ("gems", lang.t("Самоцветы", "Gems")),
-         ("misc", lang.t("Прочее", "Other")))
-LEARNED = (("breakArt", lang.t("Приёмы оружия", "Break Arts")), ("spell", lang.t("Заклинания", "Spells")),
-           ("ability", lang.t("Способности", "Abilities")))
+AREAS = (lang.t("Humans"), lang.t("Beasts"), lang.t("Undead"), lang.t("Phantoms"), lang.t("Dragons"), lang.t("Evils"))
+KINDS = (("weapons", lang.t("Weapons")), ("shields", lang.t("Shields")), ("blades", lang.t("Blades")),
+         ("grips", lang.t("Grips")), ("armor", lang.t("Armor")), ("gems", lang.t("Gems")),
+         ("misc", lang.t("Other")))
+LEARNED = (("breakArt", lang.t("Break Arts")), ("spell", lang.t("Spells")),
+           ("ability", lang.t("Abilities")))
 
 
 def from_vagrant(got):
     sections = []
     if got.get("weapons"):
-        sections.append(Section(lang.t("Оружие при себе", "Weapons carried"),
+        sections.append(Section(lang.t("Weapons carried"),
                                 [Field(x) for x in got["weapons"]]))
     if got.get("stored_weapons"):
-        sections.append(Section(lang.t("Оружие в сундуке", "Weapons in container"),
+        sections.append(Section(lang.t("Weapons in container"),
                                 [Field(x) for x in got["stored_weapons"]]))
-    for where, title in (("carried_items", lang.t("При себе", "Carried")),
-                         ("stored_items", lang.t("В сундуке", "In container"))):
+    for where, title in (("carried_items", lang.t("Carried")),
+                         ("stored_items", lang.t("In container"))):
         for kind, name in KINDS:
             rows = (got.get(where) or {}).get(kind)
             if rows:
@@ -299,35 +299,35 @@ def from_vagrant(got):
                                     str(len(rows))))
     if got.get("unopened"):
         rows = sorted(got["unopened"].items())
-        sections.append(Section(lang.t("Комнаты не открыты", "Rooms not found"),
+        sections.append(Section(lang.t("Rooms not found"),
                                 [Field(name, str(count)) for name, count in rows],
-                                lang.t(f"всего {sum(got['unopened'].values())}", f"{sum(got['unopened'].values())} total")))
+                                lang.t("{0} total", sum(got['unopened'].values()))))
     kills = got.get("kills") or []
-    sections.append(Section(lang.t("Убито", "Killed"),
+    sections.append(Section(lang.t("Killed"),
                             [Field(AREAS[i], number(kills[i]))
                              for i in range(min(len(AREAS), len(kills)))],
-                            lang.t(f"всего {number(sum(kills))}", f"{number(sum(kills))} total")))
+                            lang.t("{0} total", number(sum(kills)))))
     hp, mp = got.get("hp", [0, 0]), got.get("mp", [0, 0])
     return Digest(
         game="Vagrant Story", playtime=total(got.get("playtime")),
         fields=[
-            Field(lang.t("Наиграно", "Playtime"), clock(got.get("playtime"))),
+            Field(lang.t("Playtime"), clock(got.get("playtime"))),
             Field("HP", f"{hp[0]}/{hp[1]}"),
             Field("MP", f"{mp[0]}/{mp[1]}"),
-            Field(lang.t("Карта пройдена", "Map explored"), f"{got.get('map_completion', 0)} %"),
-            Field(lang.t("Комнат открыто", "Rooms found"),
-                  lang.t(f"{got.get('rooms', 0)} из {got.get('rooms_total', 361)}", f"{got.get('rooms', 0)} of {got.get('rooms_total', 361)}")),
-            Field(lang.t("Комнат осталось", "Rooms left"),
+            Field(lang.t("Map explored"), f"{got.get('map_completion', 0)} %"),
+            Field(lang.t("Rooms found"),
+                  lang.t("{0} of {1}", got.get('rooms', 0), got.get('rooms_total', 361))),
+            Field(lang.t("Rooms left"),
                   str(max(0, got.get("rooms_total", 361) - got.get("rooms", 0)))),
-            Field(lang.t("Приёмов изучено", "Arts learned"), lang.t(f"{got.get('arts_learned', 0)} из 48", f"{got.get('arts_learned', 0)} of 48")),
-            Field(lang.t("Длиннейшая цепь", "Longest chain"), str(got.get("max_chain", ""))),
-            Field(lang.t("Лечений", "Heals"), str(got.get("heals", ""))),
-            Field(lang.t("Сундуков открыто", "Chests opened"), str(got.get("chests", ""))),
-            Field(lang.t("Действий изучено", "Actions learned"), str(got.get("actions", ""))),
-            Field(lang.t("Пройдено раз", "Times cleared"), str(got.get("clear_count", ""))),
-            Field(lang.t("Сохранений всего", "Saves total"), str(got.get("saves_total", ""))),
-            Field(lang.t("Сохранений в игре", "Saves this run"), str(got.get("saves_game", ""))),
-            Field(lang.t("Локация", "Location"), str(got.get("location", ""))),
+            Field(lang.t("Arts learned"), lang.t("{0} of 48", got.get('arts_learned', 0))),
+            Field(lang.t("Longest chain"), str(got.get("max_chain", ""))),
+            Field(lang.t("Heals"), str(got.get("heals", ""))),
+            Field(lang.t("Chests opened"), str(got.get("chests", ""))),
+            Field(lang.t("Actions learned"), str(got.get("actions", ""))),
+            Field(lang.t("Times cleared"), str(got.get("clear_count", ""))),
+            Field(lang.t("Saves total"), str(got.get("saves_total", ""))),
+            Field(lang.t("Saves this run"), str(got.get("saves_game", ""))),
+            Field(lang.t("Location"), str(got.get("location", ""))),
         ],
         sections=sections)
 
@@ -345,31 +345,31 @@ def from_ff7(got):
             gear=gear_names(unit.get("gear"))))
     return Digest(
         game="Final Fantasy VII", playtime=total(got.get("playtime")),
-        fields=[Field(lang.t("Наиграно", "Playtime"), clock(got.get("playtime"))),
-                Field(lang.t("Гилы", "Gil"), number(got.get("gil", 0))),
-                Field(lang.t("Локация", "Location"), str(got.get("location", ""))),
-                Field(lang.t("Боёв", "Battles"), str(got.get("battles", ""))),
-                Field(lang.t("Побегов", "Escapes"), str(got.get("escapes", "")))],
-        members=members, members_title=lang.t("Партия", "Party"),
-        sections=[Section(lang.t("Инвентарь", "Inventory"), pairs(got.get("inventory")),
-                          lang.t(f"{len(got.get('inventory') or [])} позиций", f"{len(got.get('inventory') or [])} entries"))])
+        fields=[Field(lang.t("Playtime"), clock(got.get("playtime"))),
+                Field(lang.t("Gil"), number(got.get("gil", 0))),
+                Field(lang.t("Location"), str(got.get("location", ""))),
+                Field(lang.t("Battles"), str(got.get("battles", ""))),
+                Field(lang.t("Escapes"), str(got.get("escapes", "")))],
+        members=members, members_title=lang.t("Party"),
+        sections=[Section(lang.t("Inventory"), pairs(got.get("inventory")),
+                          lang.t("{0} entries", len(got.get('inventory') or [])))])
 
 
 def from_sotn(got):
     sections = []
-    for key, title in (("relics", lang.t("Реликвии", "Relics")), ("inventory", lang.t("Инвентарь", "Inventory")),
-                       ("spells", lang.t("Заклинания", "Spells")), ("familiars", lang.t("Фамильяры", "Familiars"))):
+    for key, title in (("relics", lang.t("Relics")), ("inventory", lang.t("Inventory")),
+                       ("spells", lang.t("Spells")), ("familiars", lang.t("Familiars"))):
         if got.get(key):
             sections.append(Section(title, pairs(got[key])))
     return Digest(
         game="Castlevania: Symphony of the Night",
         playtime=total(got.get("playtime")),
-        fields=[Field(lang.t("Наиграно", "Playtime"), clock(got.get("playtime"))),
-                Field(lang.t("Уровень", "Level"), str(got.get("level", ""))),
-                Field(lang.t("Опыт", "Experience"), number(got.get("experience", 0))),
-                Field(lang.t("Золото", "Gold"), number(got.get("gold", 0))),
-                Field(lang.t("Карта пройдена", "Map explored"), f"{got.get('map', 0)} %"),
-                Field(lang.t("Убийств", "Kills"), number(got.get("kills", 0)))],
+        fields=[Field(lang.t("Playtime"), clock(got.get("playtime"))),
+                Field(lang.t("Level"), str(got.get("level", ""))),
+                Field(lang.t("Experience"), number(got.get("experience", 0))),
+                Field(lang.t("Gold"), number(got.get("gold", 0))),
+                Field(lang.t("Map explored"), f"{got.get('map', 0)} %"),
+                Field(lang.t("Kills"), number(got.get("kills", 0)))],
         sections=sections)
 
 
@@ -389,28 +389,28 @@ def from_ff8(got):
             role=unit.get("weapon", ""),
             level=str(unit.get("level", "")),
             stats=[Field("HP", str(unit.get("hp", ""))),
-                   Field(lang.t("опыт", "exp"), number(unit.get("exp", 0))),
-                   Field(lang.t("убийств", "kills"), str(unit.get("kills", "")))],
+                   Field(lang.t("exp"), number(unit.get("exp", 0))),
+                   Field(lang.t("kills"), str(unit.get("kills", "")))],
             gear=[],
-            extra=lang.t(f"магия {learned}", f"magic {learned}") if learned else ""))
+            extra=lang.t("magic {0}", learned) if learned else ""))
     sections = []
     if got.get("guardians"):
         sections.append(Section(
-            lang.t("Гардианы", "Guardians"),
+            lang.t("Guardians"),
             [Field(gf.get("name", "?"),
-                   lang.t(f"{len(gf.get('learned') or [])} способностей", f"{len(gf.get('learned') or [])} abilities"))
+                   lang.t("{0} abilities", len(gf.get('learned') or [])))
              for gf in got["guardians"]],
-            lang.t(f"{len(got['guardians'])} из 16", f"{len(got['guardians'])} of 16")))
+            lang.t("{0} of 16", len(got['guardians']))))
     if got.get("inventory"):
-        sections.append(Section(lang.t("Инвентарь", "Inventory"), pairs(got["inventory"]),
-                                lang.t(f"{len(got['inventory'])} позиций", f"{len(got['inventory'])} entries")))
+        sections.append(Section(lang.t("Inventory"), pairs(got["inventory"]),
+                                lang.t("{0} entries", len(got['inventory']))))
     return Digest(
         game="Final Fantasy VIII", playtime=total(parts),
-        fields=[Field(lang.t("Наиграно", "Playtime"), clock(parts)),
-                Field(lang.t("Гилы", "Gil"), number(got.get("gil", 0))),
-                Field(lang.t("Шагов", "Steps"), number(got.get("steps", 0))),
-                Field(lang.t("Боёв", "Battles"), number(got.get("battles", 0)))],
-        members=members, members_title=lang.t("Персонажи", "Characters"), sections=sections)
+        fields=[Field(lang.t("Playtime"), clock(parts)),
+                Field(lang.t("Gil"), number(got.get("gil", 0))),
+                Field(lang.t("Steps"), number(got.get("steps", 0))),
+                Field(lang.t("Battles"), number(got.get("battles", 0)))],
+        members=members, members_title=lang.t("Characters"), sections=sections)
 
 
 BUILDERS = {
@@ -434,6 +434,6 @@ def build(detail):
                     for row in data.get("fields", [])],
             sections=[Section(part.get("name", "?"),
                               [Field(x) for x in part.get("set", [])],
-                              lang.t(f"{len(part.get('set', []))} из {part.get('total', 0)}", f"{len(part.get('set', []))} of {part.get('total', 0)}"))
+                              lang.t("{0} of {1}", len(part.get('set', [])), part.get('total', 0)))
                       for part in data.get("sections", [])])
     return None

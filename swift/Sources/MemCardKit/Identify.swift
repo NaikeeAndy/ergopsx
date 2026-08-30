@@ -73,7 +73,7 @@ public enum Identify {
               blob[0] == 0x53 || blob[0] == 0x73, blob[1] == 0x43 else { return nil }
         var raw = Array(embeddedName(in: name).utf8.prefix(20))
         raw.append(contentsOf: [UInt8](repeating: 0, count: 20 - raw.count))
-        return Save(rawName: raw, blocks: split(blob), origin: L.t("блок без заголовка", "block without a header"))
+        return Save(rawName: raw, blocks: split(blob), origin: L.t("block without a header"))
     }
 
     /// Штатное имя сейва, найденное где угодно внутри имени файла:

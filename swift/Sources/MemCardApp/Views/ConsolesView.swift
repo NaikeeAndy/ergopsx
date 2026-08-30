@@ -49,9 +49,7 @@ struct ConsolesView: View {
             if let note = browser.downloaded ?? browser.trouble {
                 warning(note, bad: browser.trouble != nil)
             }
-            warning(L.t("Записанное подхватывается только при запуске игры: ", "What you write is picked up only when the game starts: ")
-                    + L.t("эмулятор читает карту один раз. Пока игра открыта, ", "the emulator reads the card once. While the game is open, ")
-                    + L.t("карту не перезаписываем.", "we do not overwrite the card."), bad: false)
+            warning(L.t("What you write is picked up only when the game starts: the emulator reads the card once. While the game is open, we do not overwrite the card."), bad: false)
         }
         .task(id: profile.id) { await browser.open(startPath) }
     }
@@ -66,14 +64,14 @@ struct ConsolesView: View {
                     .font(.system(size: 14.5, weight: .semibold))
                     .foregroundStyle(palette.ink)
                 Text(profile.address + " · "
-                     + (profile.hasPassword ? L.t("вход по паролю", "password login") : L.t("анонимно", "anonymous")))
+                     + (profile.hasPassword ? L.t("password login") : L.t("anonymous")))
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(palette.inkSoft)
             }
             Spacer()
             if browser.busy { ProgressView().controlSize(.small) }
-            Button(L.t("Список игр", "Game list")) { onGames?() }
-            Button(L.t("Обновить", "Refresh")) { Task { await browser.open() } }
+            Button(L.t("Game list")) { onGames?() }
+            Button(L.t("Refresh")) { Task { await browser.open() } }
                 .disabled(browser.busy)
         }
         .padding(.horizontal, 18)
@@ -132,7 +130,7 @@ struct ConsolesView: View {
                 Text(Self.size(entry.size))
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(palette.inkFaint)
-                Button(L.t("Забрать", "Fetch")) { save(entry.name) }
+                Button(L.t("Fetch")) { save(entry.name) }
                     .disabled(browser.busy)
                     .controlSize(.small)
             }
@@ -151,7 +149,7 @@ struct ConsolesView: View {
         }
         .contentShape(Rectangle())
         .contextMenu {
-            Button(L.t("Копировать путь", "Copy path")) {
+            Button(L.t("Copy path")) {
                 let full = browser.path.hasSuffix("/")
                     ? browser.path + entry.name
                     : browser.path + "/" + entry.name
@@ -186,8 +184,8 @@ struct ConsolesView: View {
                             .foregroundStyle(palette.ink)
                             .lineLimit(1)
                         Text(found.isCard
-                             ? L.t("образ карты · \(found.items.count) сейвов", "card image · \(found.items.count) saves")
-                             : L.t("\(found.items.count) сейвов", "\(found.items.count) saves"))
+                             ? L.t("card image · {0} saves", found.items.count)
+                             : L.t("{0} saves", found.items.count))
                             .font(.system(size: 11))
                             .foregroundStyle(palette.inkSoft)
                     }
@@ -217,11 +215,11 @@ struct ConsolesView: View {
 
                 Divider().overlay(palette.panelLine)
                 HStack(spacing: 8) {
-                    Button(L.t("Сохранить…", "Save…")) { save(found.name) }
+                    Button(L.t("Save…")) { save(found.name) }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.small)
                     Spacer()
-                    Text(L.t("на диск ничего не записано", "nothing written to disk"))
+                    Text(L.t("nothing written to disk"))
                         .font(.system(size: 10.5))
                         .foregroundStyle(palette.inkFaint)
                 }
@@ -261,8 +259,8 @@ struct ConsolesView: View {
                                                            : palette.inkSoft)
             }
             .buttonStyle(.plain)
-            .help(basket.contains(item) ? L.t("Убрать из корзины", "Remove from basket")
-                                        : L.t("В корзину — скачивать всю карту не нужно", "To basket — no need to download the whole card"))
+            .help(basket.contains(item) ? L.t("Remove from basket")
+                                        : L.t("To basket — no need to download the whole card"))
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 7)
@@ -299,7 +297,7 @@ struct ConsolesView: View {
         picker.target = helper
         picker.action = #selector(FormatHelper.changed(_:))
 
-        let label = NSTextField(labelWithString: L.t("Формат:", "Format:"))
+        let label = NSTextField(labelWithString: L.t("Format:"))
         label.frame = NSRect(x: 12, y: 44, width: 60, height: 20)
 
         let box = NSView(frame: NSRect(x: 0, y: 0, width: 476, height: 76))
@@ -309,7 +307,7 @@ struct ConsolesView: View {
 
         let panel = NSSavePanel()
         panel.nameFieldStringValue = found.name
-        panel.message = L.t("Файл на консоли не меняется — сохраняется копия", "The file on the console is not changed — a copy is saved")
+        panel.message = L.t("The file on the console is not changed — a copy is saved")
         panel.accessoryView = box
         panel.canCreateDirectories = true
         if let collection { panel.directoryURL = collection }
@@ -370,9 +368,9 @@ struct ConsolesView: View {
 
     static func size(_ bytes: Int) -> String {
         if bytes >= 1_048_576 {
-            return String(format: L.t("%.1f МБ", "%.1f MB"), Double(bytes) / 1_048_576)
+            return String(format: L.t("%.1f MB"), Double(bytes) / 1_048_576)
         }
-        if bytes >= 1024 { return L.t("\(bytes / 1024) КБ", "\(bytes / 1024) KB") }
-        return L.t("\(bytes) Б", "\(bytes) B")
+        if bytes >= 1024 { return L.t("{0} KB", bytes / 1024) }
+        return L.t("{0} B", bytes)
     }
 }

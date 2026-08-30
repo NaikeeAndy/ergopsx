@@ -102,8 +102,7 @@ final class GamesBrowser {
         do {
             try await client.connect()
             for (index, game) in folders.enumerated() {
-                counting = L.t("считаю размеры: \(index + 1) из \(folders.count)",
-                               "measuring: \(index + 1) of \(folders.count)")
+                counting = L.t("measuring: {0} of {1}", index + 1, folders.count)
                 guard let inside = try? await client.list(game.path) else { continue }
                 var files: [String] = []
                 var size = 0
@@ -162,7 +161,7 @@ final class GamesBrowser {
             files = [source]
         }
         guard !files.isEmpty else {
-            trouble = L.t("в «\(source.lastPathComponent)» нечего класть", "nothing to upload in \"\(source.lastPathComponent)\"")
+            trouble = L.t("nothing to upload in \"{0}\"", source.lastPathComponent)
             return
         }
 
@@ -185,15 +184,13 @@ final class GamesBrowser {
                                                    : target + "/" + file.lastPathComponent
                 // Уже лежащее не перезаписываем молча.
                 if let there = try? await client.size(remote), there > 0 {
-                    trouble = L.t("«\(file.lastPathComponent)» на консоли уже есть — ", "\"\(file.lastPathComponent)\" already on the console — ")
-                        + L.t("не трогаю", "leaving it alone")
+                    trouble = L.t("\"{0}\" already on the console — leaving it alone", file.lastPathComponent)
                     await client.disconnect()
                     return
                 }
                 fileIndex = done + 1
                 fileName = file.lastPathComponent
-                progress = L.t("\(done + 1) из \(files.count): \(file.lastPathComponent)",
-                               "\(done + 1) of \(files.count): \(file.lastPathComponent)")
+                progress = L.t("{0} of {1}: {2}", done + 1, files.count, file.lastPathComponent)
                 // Отправляем кусками и отчитываемся о ходе: образ игры
                 // весит под гигабайт, читать его в память целиком незачем.
                 let start = base
@@ -208,7 +205,7 @@ final class GamesBrowser {
                 done += 1
             }
             await client.disconnect()
-            note = L.t("положено: \(source.lastPathComponent)", "uploaded: \(source.lastPathComponent)")
+            note = L.t("uploaded: {0}", source.lastPathComponent)
             await open(path)
         } catch {
             trouble = "\(error)"
@@ -235,7 +232,7 @@ final class GamesBrowser {
                 try await client.remove(game.path)
             }
             await client.disconnect()
-            note = L.t("удалено: \(game.name)", "deleted: \(game.name)")
+            note = L.t("deleted: {0}", game.name)
             await open(folder)
         } catch {
             trouble = "\(error)"
@@ -272,12 +269,12 @@ final class GamesBrowser {
 
     static func size(_ bytes: Int) -> String {
         if bytes >= 1_073_741_824 {
-            return String(format: L.t("%.2f ГБ", "%.2f GB"), Double(bytes) / 1_073_741_824)
+            return String(format: L.t("%.2f GB"), Double(bytes) / 1_073_741_824)
         }
         if bytes >= 1_048_576 {
-            return String(format: L.t("%.0f МБ", "%.0f MB"), Double(bytes) / 1_048_576)
+            return String(format: L.t("%.0f MB"), Double(bytes) / 1_048_576)
         }
-        if bytes >= 1024 { return L.t("\(bytes / 1024) КБ", "\(bytes / 1024) KB") }
-        return L.t("\(bytes) Б", "\(bytes) B")
+        if bytes >= 1024 { return L.t("{0} KB", bytes / 1024) }
+        return L.t("{0} B", bytes)
     }
 }

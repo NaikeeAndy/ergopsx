@@ -120,11 +120,11 @@ class Sidebar(QListWidget):
     def fill(self, library):
         self.clear()
         marks = self.p.marks
-        self._head(lang.t("КОЛЛЕКЦИЯ", "COLLECTION"))
-        self._row(lang.t("Все сейвы", "All saves"), "*", len(library.unique), marks[0])
-        self._row(lang.t("Образы карт", "Card images"), "#cards", library.cards, marks[2])
+        self._head(lang.t("COLLECTION"))
+        self._row(lang.t("All saves"), "*", len(library.unique), marks[0])
+        self._row(lang.t("Card images"), "#cards", library.cards, marks[2])
         if library.games:
-            self._head(lang.t(f"ИГРЫ · {len(library.games)}", f"GAMES · {len(library.games)}"))
+            self._head(lang.t("GAMES · {0}", len(library.games)))
             for index, (name, count) in enumerate(library.games):
                 self._row(name, name, count, marks[(index + 1) % len(marks)])
         # Первая выбираемая строка - «Все сейвы».

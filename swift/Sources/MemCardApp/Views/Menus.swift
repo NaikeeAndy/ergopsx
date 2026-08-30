@@ -34,54 +34,54 @@ struct Menus: Commands {
         // сохранённом состоянии не создаёт ни одного окна, и приложение
         // запускается невидимым. Проверено на себе.
         CommandGroup(replacing: .newItem) {
-            Button(L.t("Новое окно", "New window")) { openWindow("main") }
+            Button(L.t("New window")) { openWindow("main") }
                 .keyboardShortcut("n")
-            Button(L.t("Обновить список", "Refresh list")) { Task { await state.rescan() } }
+            Button(L.t("Refresh list")) { Task { await state.rescan() } }
                 .keyboardShortcut("r")
                 .disabled(state.library.loading)
             Divider()
-            Button(L.t("Собрать карту из корзины…", "Build card from basket…")) { buildCard() }
+            Button(L.t("Build card from basket…")) { buildCard() }
                 .keyboardShortcut("s", modifiers: [.command, .shift])
                 .disabled(state.basket.isEmpty)
         }
 
         // Своё окно вместо системной панели настроек.
         CommandGroup(replacing: .appSettings) {
-            Button(L.t("Настройки…", "Settings…")) { openWindow("settings") }
+            Button(L.t("Settings…")) { openWindow("settings") }
                 .keyboardShortcut(",")
         }
 
         // Всё про выделенный сейв - в своём меню, а не в «Правке»:
         // та про текст в полях ввода.
-        CommandMenu(L.t("Сейв", "Save")) {
-            Button(L.t("Сохранить как…", "Save as…")) { saveOne() }
+        CommandMenu(L.t("Save")) {
+            Button(L.t("Save as…")) { saveOne() }
                 .keyboardShortcut("s")
                 .disabled(chosen == nil)
-            Button(L.t("Показать в Finder", "Show in Finder")) { reveal() }
+            Button(L.t("Show in Finder")) { reveal() }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
                 .disabled(chosen?.origin == nil)
             Divider()
-            Button(inBasket ? L.t("Убрать из корзины", "Remove from basket") : L.t("Добавить в корзину", "Add to basket")) {
+            Button(inBasket ? L.t("Remove from basket") : L.t("Add to basket")) {
                 toggleBasket()
             }
                 .keyboardShortcut("d")
                 .disabled(chosen == nil)
-            Button(L.t("Очистить корзину", "Clear basket")) { state.basket.clear() }
+            Button(L.t("Clear basket")) { state.basket.clear() }
                 .disabled(state.basket.isEmpty)
             Divider()
-            Button(L.t("Сравнить два выделенных", "Compare the two selected")) { state.comparing = true }
+            Button(L.t("Compare the two selected")) { state.comparing = true }
                 .keyboardShortcut("=")
                 .disabled(state.picked.count != 2)
         }
 
         CommandGroup(after: .toolbar) {
-            Button(state.sidebar ? L.t("Скрыть список игр", "Hide game list")
-                                 : L.t("Показать список игр", "Show game list")) {
+            Button(state.sidebar ? L.t("Hide game list")
+                                 : L.t("Show game list")) {
                 state.sidebar.toggle()
             }
             .keyboardShortcut("\\")
 
-            Picker(L.t("Порядок", "Order"), selection: Binding(
+            Picker(L.t("Order"), selection: Binding(
                 get: { state.order }, set: { state.order = $0 })) {
                 ForEach(SortOrder.allCases) { Text($0.label).tag($0) }
             }
@@ -89,9 +89,9 @@ struct Menus: Commands {
 
         // Своё меню: консолей две, и у каждой два окна - сохранения
         // и образы игр. В «Окне» это тонуло среди системных пунктов.
-        CommandMenu(L.t("Консоли", "Consoles")) {
+        CommandMenu(L.t("Consoles")) {
             if state.consoles.isEmpty {
-                Text(L.t("Не настроены", "Not configured"))
+                Text(L.t("Not configured"))
             } else {
                 ForEach(state.consoles) { profile in
                     Button(profile.label) {
@@ -101,7 +101,7 @@ struct Menus: Commands {
                 }
                 Divider()
                 ForEach(state.consoles) { profile in
-                    Button(L.t("Образы игр: \(profile.label)", "Game images: \(profile.label)")) {
+                    Button(L.t("Game images: {0}", profile.label)) {
                         state.openGames = profile
                         openWindow("games")
                     }
@@ -137,8 +137,8 @@ struct Menus: Commands {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = true
-        panel.prompt = L.t("Добавить", "Add")
-        panel.message = L.t("Папки с сейвами", "Save folders")
+        panel.prompt = L.t("Add")
+        panel.message = L.t("Save folders")
         guard panel.runModal() == .OK else { return }
         let picked = panel.urls
         Task { for url in picked { await state.addFolder(url) } }
@@ -148,7 +148,7 @@ struct Menus: Commands {
         guard let item = chosen else { return }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = item.save.name + ".mcs"
-        panel.message = L.t("Отдельный сейв — исходный файл не меняется", "A single save — the original file is not changed")
+        panel.message = L.t("A single save — the original file is not changed")
         guard panel.runModal() == .OK, let target = panel.url else { return }
         let format: Convert.Single =
             target.pathExtension.lowercased() == "psv" ? .psv
@@ -159,7 +159,7 @@ struct Menus: Commands {
     private func buildCard() {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "card.mcr"
-        panel.message = L.t("Собранная карта — исходные файлы не меняются", "The built card — original files are not changed")
+        panel.message = L.t("The built card — original files are not changed")
         guard panel.runModal() == .OK, let target = panel.url else { return }
         guard let built = try? state.basket.build() else { return }
         try? Data(built.image).write(to: target)

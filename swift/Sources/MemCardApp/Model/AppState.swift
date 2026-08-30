@@ -92,7 +92,7 @@ final class AppState {
         do {
             try ConsoleStore.save(list, near: folders.urls.first)
         } catch {
-            consoleTrouble = L.t("не удалось сохранить: \(error.localizedDescription)", "could not save: \(error.localizedDescription)")
+            consoleTrouble = L.t("could not save: {0}", error.localizedDescription)
         }
         reloadConsoles()
     }

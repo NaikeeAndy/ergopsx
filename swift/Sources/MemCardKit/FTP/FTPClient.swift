@@ -82,7 +82,7 @@ public actor FTPClient {
 
     /// Ответ сервера, включая многострочные (`код-` в первой строке).
     private func readResponse() async throws -> Response {
-        guard let control else { throw FTPError.transport(L.t("нет соединения", "not connected")) }
+        guard let control else { throw FTPError.transport(L.t("not connected")) }
         var lines: [String] = []
         while true {
             guard let line = try await control.readLine() else { break }
@@ -100,7 +100,7 @@ public actor FTPClient {
 
     @discardableResult
     public func command(_ text: String) async throws -> Response {
-        guard let control else { throw FTPError.transport(L.t("нет соединения", "not connected")) }
+        guard let control else { throw FTPError.transport(L.t("not connected")) }
         // Наружу отдаём байты UTF-8: канал открыт latin-1, иначе имя
         // с кириллицей уедет.
         var bytes = Array(text.utf8)
@@ -168,7 +168,7 @@ public actor FTPClient {
             let raw = try await transfer("MLSD \(target)")
             let parsed = FTPListing.parseMLSD(FTPListing.lines(raw))
             if !parsed.isEmpty { return parsed }
-            trouble.append(L.t("MLSD: пусто", "MLSD: empty"))
+            trouble.append(L.t("MLSD: empty"))
         } catch {
             trouble.append("MLSD: \(error)")
         }
@@ -178,8 +178,7 @@ public actor FTPClient {
             let raw = try await transfer("LIST \(target)")
             let parsed = FTPListing.parseUnix(FTPListing.lines(raw))
             if !parsed.isEmpty { return parsed }
-            trouble.append(L.t("LIST: разобрано 0 из ", "LIST: parsed 0 of ")
-                           + L.t("\(FTPListing.lines(raw).count) строк", "\(FTPListing.lines(raw).count) lines"))
+            trouble.append(L.t("LIST: parsed 0 of {0} lines", FTPListing.lines(raw).count))
         } catch {
             trouble.append("LIST: \(error)")
         }
@@ -197,7 +196,7 @@ public actor FTPClient {
                 out.append(Entry(name: name, size: 0, isDirectory: entered))
             }
             if !out.isEmpty { return out }
-            trouble.append(L.t("NLST: пусто", "NLST: empty"))
+            trouble.append(L.t("NLST: empty"))
         } catch {
             trouble.append("NLST: \(error)")
         }

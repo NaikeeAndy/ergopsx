@@ -42,7 +42,7 @@ final class Folders {
     ]
 
     private(set) var games: [String: [String]] = [:]
-    var language: Lang = .ru
+    var language: Lang = .en
 
     /// Папки с играми для консоли. Если ничего не задано - берём
     /// известные места, чтобы не заставлять вводить их руками.
@@ -78,7 +78,7 @@ final class Folders {
         missing = []
         if let config = Folders.read() {
             games = config.games ?? [:]
-            language = Lang(rawValue: config.language ?? "ru") ?? .ru
+            language = Lang(rawValue: config.language ?? "en") ?? .en
             // Известные места на консолях проставляем сами: иначе
             // пользователю пришлось бы вводить их руками, зная наизусть.
             let needsDefaults = config.games == nil || config.language == nil

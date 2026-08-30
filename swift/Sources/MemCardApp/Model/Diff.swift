@@ -36,12 +36,12 @@ struct Diff {
         let rightDigest = Digest.of(right, engine: engine)
 
         // Общее по сейву - всегда, даже когда разборщика нет.
-        var common = Group(name: L.t("Общее", "General"), kind: L.t("сейв", "save"), rows: [])
+        var common = Group(name: L.t("General"), kind: L.t("save"), rows: [])
         for (label, a, b) in [
-            (L.t("Игра", "Game"), left.title, right.title),
-            (L.t("Регион", "Region"), left.info.region, right.info.region),
-            (L.t("Блоков", "Blocks"), String(left.blocks), String(right.blocks)),
-            (L.t("Подпись", "Signature"), left.signature, right.signature),
+            (L.t("Game"), left.title, right.title),
+            (L.t("Region"), left.info.region, right.info.region),
+            (L.t("Blocks"), String(left.blocks), String(right.blocks)),
+            (L.t("Signature"), left.signature, right.signature),
         ] {
             if a == b { same += 1 } else {
                 common.rows.append(Row(label: label, left: a, right: b))
@@ -49,7 +49,7 @@ struct Diff {
         }
 
         if let leftDigest, let rightDigest, leftDigest.game == rightDigest.game {
-            var fields = Group(name: leftDigest.game, kind: L.t("поля", "fields"), rows: [])
+            var fields = Group(name: leftDigest.game, kind: L.t("fields"), rows: [])
             let rightByLabel = Dictionary(
                 rightDigest.fields.map { ($0.label, $0.value) },
                 uniquingKeysWith: { first, _ in first })
@@ -64,9 +64,9 @@ struct Diff {
 
             groups.append(contentsOf: members(leftDigest, rightDigest, same: &same))
         } else if leftDigest?.game != rightDigest?.game {
-            common.rows.append(Row(label: L.t("Разбор", "Parsed"),
-                                   left: leftDigest?.game ?? L.t("нет", "no"),
-                                   right: rightDigest?.game ?? L.t("нет", "no")))
+            common.rows.append(Row(label: L.t("Parsed"),
+                                   left: leftDigest?.game ?? L.t("no"),
+                                   right: rightDigest?.game ?? L.t("no")))
         }
 
         if !common.rows.isEmpty { groups.insert(common, at: 0) }
@@ -83,12 +83,12 @@ struct Diff {
         for (key, member) in leftKeyed.sorted(by: { $0.key < $1.key }) {
             guard let other = rightKeyed[key] else {
                 groups.append(Group(name: key, kind: left.membersTitle.lowercased(),
-                                    rows: [Row(label: L.t("Есть", "Present"), left: L.t("да", "yes"), right: L.t("нет", "no"))]))
+                                    rows: [Row(label: L.t("Present"), left: L.t("yes"), right: L.t("no"))]))
                 continue
             }
             var rows: [Row] = []
-            for (label, a, b) in [(L.t("Уровень", "Level"), member.level, other.level),
-                                  (L.t("Класс", "Class"), member.role, other.role)] {
+            for (label, a, b) in [(L.t("Level"), member.level, other.level),
+                                  (L.t("Class"), member.role, other.role)] {
                 if a == b { same += 1 } else {
                     rows.append(Row(label: label, left: a, right: b))
                 }
@@ -101,7 +101,7 @@ struct Diff {
         for (key, _) in rightKeyed.sorted(by: { $0.key < $1.key })
         where leftKeyed[key] == nil {
             groups.append(Group(name: key, kind: right.membersTitle.lowercased(),
-                                rows: [Row(label: L.t("Есть", "Present"), left: L.t("нет", "no"), right: L.t("да", "yes"))]))
+                                rows: [Row(label: L.t("Present"), left: L.t("no"), right: L.t("yes"))]))
         }
         return groups
     }

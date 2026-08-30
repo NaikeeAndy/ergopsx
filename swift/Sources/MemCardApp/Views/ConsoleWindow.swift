@@ -29,7 +29,7 @@ struct ConsoleWindow: View {
                                  openWindow(id: "games")
                              })
             } else {
-                Text(L.t("Консоли не настроены", "No consoles configured"))
+                Text(L.t("No consoles configured"))
                     .font(.system(size: 13))
                     .foregroundStyle(palette.inkSoft)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

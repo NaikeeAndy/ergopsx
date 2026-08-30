@@ -15,7 +15,7 @@ public enum Container: String, Sendable {
     public var label: String {
         switch self {
         case .dexDriveBroken:
-            L.t("DexDrive .gme (заголовок побит)", "DexDrive .gme (broken header)")
+            L.t("DexDrive .gme (broken header)")
         default: rawValue
         }
     }

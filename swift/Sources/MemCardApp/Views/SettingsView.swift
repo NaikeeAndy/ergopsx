@@ -12,10 +12,10 @@ struct SettingsView: View {
 
         var label: String {
             switch self {
-            case .folders: L.t("Папки", "Folders")
-            case .look: L.t("Вид", "View")
-            case .consoles: L.t("Консоли", "Consoles")
-            case .about: L.t("Коллекция", "Collection")
+            case .folders: L.t("Folders")
+            case .look: L.t("View")
+            case .consoles: L.t("Consoles")
+            case .about: L.t("Collection")
             }
         }
 
@@ -102,13 +102,11 @@ private struct FoldersPane: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Header(L.t("Папки с сейвами", "Save folders"),
-                   note: L.t("Читаются при запуске. Их может быть сколько угодно — ", "Read at startup. As many as you like — ")
-                       + L.t("коллекция, выгрузки с консолей, чужие карты. ", "the collection, console dumps, other people\u{2019}s cards. ")
-                       + L.t("Сейв, лежащий в двух папках, считается один раз.", "A save sitting in two folders is counted once."))
+            Header(L.t("Save folders"),
+                   note: L.t("Read at startup. As many as you like — the collection, console dumps, other people’s cards. A save sitting in two folders is counted once."))
 
             if state.folders.urls.isEmpty && state.folders.missing.isEmpty {
-                Text(L.t("Пока ни одной", "None yet"))
+                Text(L.t("None yet"))
                     .font(.system(size: 12.5))
                     .foregroundStyle(palette.inkFaint)
                     .frame(maxWidth: .infinity)
@@ -126,9 +124,9 @@ private struct FoldersPane: View {
             }
 
             HStack(spacing: 9) {
-                Button(L.t("Добавить папку…", "Add folder…"), action: pick)
+                Button(L.t("Add folder…"), action: pick)
                     .buttonStyle(.borderedProminent)
-                Button(L.t("Перечитать", "Re-read")) { Task { await state.rescan() } }
+                Button(L.t("Re-read")) { Task { await state.rescan() } }
                     .disabled(state.library.loading)
                 Spacer()
                 if state.library.loading {
@@ -139,7 +137,7 @@ private struct FoldersPane: View {
 
             if !state.library.skipped.isEmpty {
                 Divider().overlay(palette.panelLine).padding(.vertical, 4)
-                Text(L.t("Не прочитались: \(state.library.skipped.count)", "Unreadable: \(state.library.skipped.count)"))
+                Text(L.t("Unreadable: {0}", state.library.skipped.count))
                     .font(.system(size: 11.5, weight: .medium))
                     .foregroundStyle(palette.inkSoft)
                 ForEach(state.library.skipped.prefix(6), id: \.path) { item in
@@ -182,11 +180,11 @@ private struct FoldersPane: View {
             Spacer(minLength: 8)
 
             if gone {
-                Text(L.t("не найдена", "not found"))
+                Text(L.t("not found"))
                     .font(.system(size: 10.5, weight: .medium))
                     .foregroundStyle(Palette.rgb(0xE8433F))
             } else if !state.library.loading {
-                Text(L.t("\(count(url)) сейвов", "\(count(url)) saves"))
+                Text(L.t("{0} saves", count(url)))
                     .font(.system(size: 11))
                     .foregroundStyle(palette.inkSoft)
             }
@@ -200,7 +198,7 @@ private struct FoldersPane: View {
                         .foregroundStyle(palette.inkSoft)
                 }
                 .buttonStyle(.plain)
-                .help(L.t("Показать в Finder", "Show in Finder"))
+                .help(L.t("Show in Finder"))
             }
 
             Button {
@@ -211,7 +209,7 @@ private struct FoldersPane: View {
                     .foregroundStyle(palette.inkSoft)
             }
             .buttonStyle(.plain)
-            .help(L.t("Убрать из списка — на диске папка остаётся", "Remove from the list — the folder stays on disk"))
+            .help(L.t("Remove from the list — the folder stays on disk"))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 9)
@@ -228,8 +226,8 @@ private struct FoldersPane: View {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = true
-        panel.prompt = L.t("Добавить", "Add")
-        panel.message = L.t("Папки с сейвами", "Save folders")
+        panel.prompt = L.t("Add")
+        panel.message = L.t("Save folders")
         guard panel.runModal() == .OK else { return }
         let picked = panel.urls
         Task { for url in picked { await state.addFolder(url) } }
@@ -245,23 +243,23 @@ private struct LookPane: View {
     var body: some View {
         @Bindable var state = state
         VStack(alignment: .leading, spacing: 16) {
-            Header(L.t("Вид списка", "List view"),
-                   note: L.t("То же самое переключается сверху в окне и в меню «Вид».", "The same switches live in the toolbar and the View menu."))
+            Header(L.t("List view"),
+                   note: L.t("The same switches live in the toolbar and the View menu."))
 
             VStack(alignment: .leading, spacing: 12) {
-                Picker(L.t("Порядок", "Order"), selection: $state.order) {
+                Picker(L.t("Order"), selection: $state.order) {
                     ForEach(SortOrder.allCases) { Text($0.label).tag($0) }
                 }
                 .frame(width: 300)
 
-                Toggle(L.t("Показывать список игр слева", "Show the game list on the left"), isOn: $state.sidebar)
+                Toggle(L.t("Show the game list on the left"), isOn: $state.sidebar)
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(palette.panel, in: RoundedRectangle(cornerRadius: 8))
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(L.t("Язык", "Language"))
+                Text(L.t("Language"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(palette.ink)
                 Picker("", selection: Binding(
@@ -272,10 +270,7 @@ private struct LookPane: View {
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 .frame(width: 260)
-                Text(L.t(L.t("Разбор сейвов и названия игр остаются как есть — ", "Save contents and game titles stay as they are — ")
-                         + L.t("они приходят из самих игр.", "they come from the games themselves."),
-                         "Save contents and game titles stay as they are — "
-                         + "they come from the games themselves."))
+                Text(L.t("Save contents and game titles stay as they are — they come from the games themselves."))
                     .font(.system(size: 11))
                     .foregroundStyle(palette.inkFaint)
                     .fixedSize(horizontal: false, vertical: true)
@@ -284,9 +279,8 @@ private struct LookPane: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(palette.panel, in: RoundedRectangle(cornerRadius: 8))
 
-            Header(L.t("Тема", "Theme"),
-                   note: L.t("Светлая — корпус приставки, тёмная — экран карт памяти ", "Light is the console shell, dark is the memory card screen of the ")
-                       + L.t("BIOS. Переключается вместе с оформлением системы.", "BIOS. Follows the system appearance."))
+            Header(L.t("Theme"),
+                   note: L.t("Light is the console shell, dark is the memory card screen of the BIOS. Follows the system appearance."))
         }
     }
 }
@@ -300,11 +294,8 @@ private struct ConsolesPane: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Header(L.t("Консоли", "Consoles"),
-                   note: L.t("Адрес консоль показывает сама — на PS3 его пишет ", "The console shows its own address — on PS3 it is printed by ")
-                       + L.t("webMAN, на Switch сервер выводит его на экран. ", "webMAN, on Switch the server puts it on screen. ")
-                       + L.t("Пароль хранится рядом с коллекцией и наружу ", "The password is kept next to the collection and is ")
-                       + L.t("не показывается.", "never shown."))
+            Header(L.t("Consoles"),
+                   note: L.t("The console shows its own address — on PS3 it is printed by webMAN, on Switch the server puts it on screen. The password is kept next to the collection and is never shown."))
 
             VStack(spacing: 6) {
                 ForEach(state.consolesToSetUp) { profile in
@@ -361,7 +352,7 @@ private struct ConsoleRow: View {
                         .foregroundStyle(palette.inkSoft)
                 }
                 .buttonStyle(.plain)
-                .help(L.t("Что нужно на консоли", "What the console needs"))
+                .help(L.t("What the console needs"))
                 .popover(isPresented: $helping, arrowEdge: .bottom) {
                     ConsoleHelp(kind: profile.kind)
                 }
@@ -369,14 +360,14 @@ private struct ConsoleRow: View {
                 Spacer(minLength: 8)
 
                 if !profile.hasAddress {
-                    Text(L.t("не настроена", "not configured"))
+                    Text(L.t("not configured"))
                         .font(.system(size: 11))
                         .foregroundStyle(palette.inkFaint)
                 }
             }
 
             HStack(spacing: 7) {
-                Text(L.t("Адрес", "Address"))
+                Text(L.t("Address"))
                     .font(.system(size: 11.5))
                     .foregroundStyle(palette.inkSoft)
                 TextField("192.168.0.1", text: $host)
@@ -386,7 +377,7 @@ private struct ConsoleRow: View {
                     .focused($editing)
                     .onSubmit(commit)
                     .onChange(of: host) { _, _ in saved = false }
-                Text(L.t("порт", "port"))
+                Text(L.t("port"))
                     .font(.system(size: 11.5))
                     .foregroundStyle(palette.inkSoft)
                 TextField("21", text: $port)
@@ -396,7 +387,7 @@ private struct ConsoleRow: View {
                     .onSubmit(commit)
 
                 if changed {
-                    Button(L.t("Сохранить", "Save"), action: commit)
+                    Button(L.t("Save@@verb"), action: commit)
                         .controlSize(.small)
                         .buttonStyle(.borderedProminent)
                 } else if saved {
@@ -404,7 +395,7 @@ private struct ConsoleRow: View {
                     // и непонятно, случилось оно или нет.
                     HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle.fill")
-                        Text(L.t("сохранено", "saved"))
+                        Text(L.t("saved"))
                     }
                     .font(.system(size: 11))
                     .foregroundStyle(Palette.rgb(0x2FA84F))
@@ -412,10 +403,10 @@ private struct ConsoleRow: View {
 
                 Spacer(minLength: 6)
 
-                Button(L.t("Проверить", "Check")) { Task { await check() } }
+                Button(L.t("Check")) { Task { await check() } }
                     .controlSize(.small)
                     .disabled(host.isEmpty || checking)
-                Button(L.t("Открыть", "Open")) { onOpen(profile) }
+                Button(L.t("Open")) { onOpen(profile) }
                     .controlSize(.small)
                     .disabled(!profile.hasAddress)
             }
@@ -423,14 +414,14 @@ private struct ConsoleRow: View {
             if checking {
                 HStack(spacing: 6) {
                     ProgressView().controlSize(.small)
-                    Text(L.t("проверяю связь…", "checking…"))
+                    Text(L.t("checking…"))
                         .font(.system(size: 11))
                         .foregroundStyle(palette.inkSoft)
                 }
             } else if let verdict {
-                Text(verdict == L.t("на связи", "connected") ? L.t("Отвечает", "Responds") : L.t("Не отвечает: \(verdict)", "No response: \(verdict)"))
+                Text(verdict == L.t("connected") ? L.t("Responds") : L.t("No response: {0}", verdict))
                     .font(.system(size: 11))
-                    .foregroundStyle(verdict == L.t("на связи", "connected")
+                    .foregroundStyle(verdict == L.t("connected")
                                      ? Palette.rgb(0x2FA84F)
                                      : Palette.rgb(0xE8433F))
                     .fixedSize(horizontal: false, vertical: true)
@@ -509,36 +500,21 @@ private struct ConsoleHelp: View {
     private var lines: [String] {
         if kind == "switch" {
             return [
-                L.t("Консоль включена, не спит и в той же сети. Экран может быть ", "The console is on, awake and on the same network. The screen may be ")
-                    + L.t("погашен, но консоль должна быть запущена.", "off, but the console must be running."),
-                L.t("Запущен FTP-сервер ftpsrv, причём именно системным модулем ", "The ftpsrv FTP server is running, and specifically as a sysmodule ")
-                    + L.t("(switch_sysmod), а не приложением: приложение работает ", "(switch_sysmod), not the app: the app runs ")
-                    + L.t("только пока открыто меню homebrew, и закрывается вместе ", "only while the homebrew menu is open, and closes together ")
-                    + L.t("с ним.", "with it."),
-                L.t("Модуль лежит в /atmosphere/contents/420000000000011B/ — ", "The module lives in /atmosphere/contents/420000000000011B/ — ")
-                    + L.t("exefs.nsp, toolbox.json и пустой flags/boot2.flag. ", "exefs.nsp, toolbox.json and an empty flags/boot2.flag. ")
-                    + L.t("Включается в оверлее (ovlSysmodules или uberhand).", "Enable it in an overlay (ovlSysmodules or uberhand)."),
-                L.t("Логин с паролем берутся из секции [Nx-Sys] файла ", "Login and password come from the [Nx-Sys] section of ")
-                    + L.t("/config/ftpsrv/config.ini. Секция [Nx-App] — ", "/config/ftpsrv/config.ini. The [Nx-App] section belongs to ")
-                    + L.t("не модуля, а приложения.", "the app, not the module."),
-                L.t("Обычный порт 5000. Приложение sphaira и модуль занимают ", "The usual port is 5000. The sphaira app and the module take ")
-                    + L.t("один и тот же порт — вместе они не работают.", "the same port — they cannot run together."),
-                L.t("Карты памяти эмуляторов лежат обычными файлами: ", "Emulator memory cards are plain files: ")
-                    + "/switch/duckstation/memcards/.",
+                L.t("The console is on, awake and on the same network. The screen may be off, but the console must be running."),
+                L.t("The ftpsrv FTP server is running, and specifically as a sysmodule (switch_sysmod), not the app: the app runs only while the homebrew menu is open, and closes together with it."),
+                L.t("The module lives in /atmosphere/contents/420000000000011B/ — exefs.nsp, toolbox.json and an empty flags/boot2.flag. Enable it in an overlay (ovlSysmodules or uberhand)."),
+                L.t("Login and password come from the [Nx-Sys] section of /config/ftpsrv/config.ini. The [Nx-App] section belongs to the app, not the module."),
+                L.t("The usual port is 5000. The sphaira app and the module take the same port — they cannot run together."),
+                L.t("Emulator memory cards are plain files: /switch/duckstation/memcards/."),
             ]
         }
         return [
-            L.t("Консоль включена и в той же сети. В спящем режиме FTP ", "The console is on and on the same network. In sleep mode FTP ")
-                + L.t("не отвечает.", "does not answer."),
-            L.t("Стоит кастомная прошивка с webMAN MOD или multiMAN — ", "Custom firmware with webMAN MOD or multiMAN is installed — ")
-                + L.t("FTP-сервер поднимают они.", "they are what run the FTP server."),
-            L.t("Обычный порт 21, вход анонимный, пароль не нужен.", "The usual port is 21, anonymous login, no password."),
-            L.t("Адрес консоли webMAN показывает у себя на главной странице, ", "webMAN shows the console address on its front page, ")
-                + L.t("он же виден в настройках сети консоли.", "and the console network settings show it too."),
-            L.t("Сохранения лежат в /dev_hdd0/home/<профиль>/savedata/, ", "Saves live in /dev_hdd0/home/<profile>/savedata/, ")
-                + L.t("виртуальные карты — в /dev_hdd0/savedata/vmc.", "virtual cards in /dev_hdd0/savedata/vmc."),
-            L.t("Пока запущена игра PS1, карту лучше не трогать: консоль ", "While a PS1 game is running, leave the card alone: the console ")
-                + L.t("держит её смонтированной.", "keeps it mounted."),
+            L.t("The console is on and on the same network. In sleep mode FTP does not answer."),
+            L.t("Custom firmware with webMAN MOD or multiMAN is installed — they are what run the FTP server."),
+            L.t("The usual port is 21, anonymous login, no password."),
+            L.t("webMAN shows the console address on its front page, and the console network settings show it too."),
+            L.t("Saves live in /dev_hdd0/home/<profile>/savedata/, virtual cards in /dev_hdd0/savedata/vmc."),
+            L.t("While a PS1 game is running, leave the card alone: the console keeps it mounted."),
         ]
     }
 }
@@ -551,9 +527,8 @@ private struct AboutPane: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Header(L.t("Что прочиталось", "What was read"),
-                   note: L.t("Дубли сведены по содержимому и имени: один и тот же ", "Duplicates are merged by content and name: the same ")
-                       + L.t("сейв часто лежит в нескольких контейнерах.", "save often sits in several containers."))
+            Header(L.t("What was read"),
+                   note: L.t("Duplicates are merged by content and name: the same save often sits in several containers."))
 
             let unique = state.library.unique.count
             let parsed = state.library.unique.filter {
@@ -562,13 +537,13 @@ private struct AboutPane: View {
             let timed = state.library.unique.filter { $0.playtime != nil }.count
 
             VStack(spacing: 1) {
-                stat(L.t("Папок", "Folders"), "\(state.folders.urls.count)")
-                stat(L.t("Файлов найдено", "Files found"), "\(state.library.items.count)")
-                stat(L.t("Уникальных сейвов", "Unique saves"), "\(unique)")
-                stat(L.t("Игр", "Games"), "\(state.library.games.count)")
-                stat(L.t("Образов карт", "Card images"), "\(state.library.cardCount)")
-                stat(L.t("Разбираются подробно", "Parsed in detail"), "\(parsed)")
-                stat(L.t("Со временем игры", "With playtime"), "\(timed)")
+                stat(L.t("Folders@@count"), "\(state.folders.urls.count)")
+                stat(L.t("Files found"), "\(state.library.items.count)")
+                stat(L.t("Unique saves"), "\(unique)")
+                stat(L.t("Games"), "\(state.library.games.count)")
+                stat(L.t("Card images@@count"), "\(state.library.cardCount)")
+                stat(L.t("Parsed in detail"), "\(parsed)")
+                stat(L.t("With playtime"), "\(timed)")
             }
             .background(palette.panel, in: RoundedRectangle(cornerRadius: 8))
             .overlay {

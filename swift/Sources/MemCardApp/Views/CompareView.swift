@@ -20,10 +20,10 @@ struct CompareView: View {
 
             if found.groups.isEmpty {
                 VStack(spacing: 8) {
-                    Text(L.t("Различий нет", "No differences"))
+                    Text(L.t("No differences"))
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(palette.ink)
-                    Text(L.t("Сейвы совпадают по всем полям, которые мы читаем", "The saves match on every field we read"))
+                    Text(L.t("The saves match on every field we read"))
                         .font(.system(size: 12))
                         .foregroundStyle(palette.inkSoft)
                 }
@@ -46,12 +46,12 @@ struct CompareView: View {
     private func header(_ found: Diff) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                Text(L.t("СРАВНЕНИЕ", "COMPARISON"))
+                Text(L.t("COMPARISON"))
                     .font(.system(size: 11, weight: .bold))
                     .tracking(1.6)
                     .foregroundStyle(palette.ink)
                 Spacer()
-                Text(L.t("\(found.count) \(Self.word(found.count)) · совпало \(found.same)", "\(found.count) \(Self.word(found.count)) · \(found.same) match"))
+                Text(L.t("{0} {1} · {2} match", found.count, L.plural("difference", found.count), found.same))
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(palette.inkSoft)
             }
@@ -60,9 +60,9 @@ struct CompareView: View {
             .background(palette.bar)
 
             HStack(spacing: 0) {
-                side(left, role: L.t("СЛЕВА", "LEFT"), tint: Palette.rgb(0xC4728A))
+                side(left, role: L.t("LEFT"), tint: Palette.rgb(0xC4728A))
                 Divider().overlay(palette.panelLine)
-                side(right, role: L.t("СПРАВА", "RIGHT"), tint: Palette.rgb(0x6FBF8B))
+                side(right, role: L.t("RIGHT"), tint: Palette.rgb(0x6FBF8B))
             }
             .frame(height: 82)
             Divider().overlay(palette.panelLine)
@@ -161,10 +161,10 @@ struct CompareView: View {
 
     private func footer(_ found: Diff) -> some View {
         HStack(spacing: 11) {
-            legend(Palette.rgb(0xC4728A), L.t("слева", "left"))
-            legend(Palette.rgb(0x6FBF8B), L.t("справа", "right"))
+            legend(Palette.rgb(0xC4728A), L.t("left"))
+            legend(Palette.rgb(0x6FBF8B), L.t("right"))
             Spacer()
-            Button(L.t("Закрыть", "Close"), action: onClose)
+            Button(L.t("Close"), action: onClose)
                 .buttonStyle(.borderedProminent)
         }
         .padding(.horizontal, 16)
@@ -177,16 +177,6 @@ struct CompareView: View {
         HStack(spacing: 7) {
             RoundedRectangle(cornerRadius: 2).fill(color).frame(width: 9, height: 9)
             Text(text).font(.system(size: 12)).foregroundStyle(palette.inkSoft)
-        }
-    }
-
-    static func word(_ count: Int) -> String {
-        let tail = count % 100
-        if (11...14).contains(tail) { return L.t("различий", "differences") }
-        switch count % 10 {
-        case 1: return L.t("различие", "difference")
-        case 2, 3, 4: return L.t("различия", "differences")
-        default: return L.t("различий", "differences")
         }
     }
 }

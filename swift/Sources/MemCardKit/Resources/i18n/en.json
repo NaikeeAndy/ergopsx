@@ -1,0 +1,14 @@
+{
+ "plural:block": {
+  "one": "block",
+  "other": "blocks"
+ },
+ "plural:difference": {
+  "one": "difference",
+  "other": "differences"
+ },
+ "plural:save": {
+  "one": "save",
+  "other": "saves"
+ }
+}

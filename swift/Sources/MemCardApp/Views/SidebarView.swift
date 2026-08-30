@@ -57,10 +57,10 @@ struct SidebarView: View {
     private var list: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                group(L.t("КОЛЛЕКЦИЯ", "COLLECTION")) {
-                    row(L.t("Все сейвы", "All saves"), count: library.games.reduce(0) { $0 + $1.count },
+                group(L.t("COLLECTION")) {
+                    row(L.t("All saves"), count: library.games.reduce(0) { $0 + $1.count },
                         mark: palette.marks[0], target: .everything)
-                    row(L.t("Образы карт", "Card images"), count: library.cardCount,
+                    row(L.t("Card images"), count: library.cardCount,
                         mark: palette.marks[2], target: .cards)
                 }
 
@@ -68,7 +68,7 @@ struct SidebarView: View {
                     // Показываем все игры, а не первые сколько-то: коллекция
                     // растёт, и обрезание списка прятало часть безо всякого
                     // признака, что она есть.
-                    group(L.t("ИГРЫ · \(library.games.count)", "GAMES · \(library.games.count)")) {
+                    group(L.t("GAMES · {0}", library.games.count)) {
                         ForEach(Array(library.games.enumerated()),
                                 id: \.offset) { index, game in
                             row(game.name, count: game.count,
@@ -79,7 +79,7 @@ struct SidebarView: View {
                 }
 
                 if !consoles.isEmpty {
-                    group(L.t("КОНСОЛИ", "CONSOLES")) {
+                    group(L.t("CONSOLES")) {
                         ForEach(consoles) { profile in
                             Button { onConsole(profile) } label: {
                                 HStack(spacing: 9) {
@@ -98,13 +98,13 @@ struct SidebarView: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .help(L.t("Открыть в отдельном окне", "Open in a separate window"))
+                            .help(L.t("Open in a separate window"))
                         }
                     }
                 }
 
                 if !library.skipped.isEmpty {
-                    Text(L.t("не прочиталось: \(library.skipped.count)", "unreadable: \(library.skipped.count)"))
+                    Text(L.t("unreadable: {0}", library.skipped.count))
                         .font(.system(size: 11))
                         .foregroundStyle(palette.inkFaint)
                         .padding(.horizontal, 8)

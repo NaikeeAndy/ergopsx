@@ -40,8 +40,7 @@ class ConsoleView(QDialog):
         self.p = palette
         self.job = None
         self.setObjectName("root")
-        self.setWindowTitle(f"{profile['label']} — "
-                            + lang.t("консоль", "console"))
+        self.setWindowTitle(lang.t("{0} — console", profile["label"]))
         self.resize(860, 700)
         self.setStyleSheet(sheet(palette))
 
@@ -57,7 +56,7 @@ class ConsoleView(QDialog):
         title.setFont(font)
         head.addWidget(title)
         head.addStretch(1)
-        self.again = QPushButton(lang.t("Обновить", "Refresh"))
+        self.again = QPushButton(lang.t("Refresh"))
         self.again.clicked.connect(self.reload)
         head.addWidget(self.again)
         column.addLayout(head)
@@ -78,14 +77,12 @@ class ConsoleView(QDialog):
         column.addLayout(body, 1)
 
         buttons = QHBoxLayout()
-        self.take = QPushButton(lang.t("Забрать в коллекцию", "Fetch"))
+        self.take = QPushButton(lang.t("Fetch to collection"))
         self.take.setObjectName("primary")
         self.take.clicked.connect(self._download)
         buttons.addWidget(self.take)
         buttons.addStretch(1)
-        self.note = QLabel(lang.t(
-            lang.t("Записанное подхватывается только при запуске игры", "What you write is picked up only when the game starts"),
-            "What you write is picked up only when the game starts"))
+        self.note = QLabel(lang.t("What you write is picked up only when the game starts"))
         self.note.setObjectName("faint")
         buttons.addWidget(self.note)
         column.addLayout(buttons)
@@ -110,7 +107,7 @@ class ConsoleView(QDialog):
         target = path or self.console.path
         self.where.setText(target)
         self.files.clear()
-        self.files.addItem(lang.t("читаю…", "loading…"))
+        self.files.addItem(lang.t("loading…"))
         self._run(lambda: self.console.listdir(target), self._show)
 
     def _show(self, rows):
@@ -118,7 +115,7 @@ class ConsoleView(QDialog):
         for name, size, is_dir in rows:
             label = f"{'📁 ' if is_dir else ''}{name}"
             if not is_dir:
-                label += lang.t(f"    {size // 1024} КБ", f"    {size // 1024} KB")
+                label += lang.t("    {0} KB", size // 1024)
             row = QListWidgetItem(label)
             row.setData(Qt.UserRole, (name, is_dir))
             self.files.addItem(row)
@@ -168,8 +165,7 @@ class ConsoleView(QDialog):
             self.inside.addItem(
                 f"{found['title'] or found['serial']} — {found['internal']}")
         if not entries:
-            self.inside.addItem(lang.t("не сейв и не образ карты",
-                                       "neither a save nor a card image"))
+            self.inside.addItem(lang.t("neither a save nor a card image"))
 
     def _download(self):
         current = self.files.currentItem()
@@ -183,6 +179,5 @@ class ConsoleView(QDialog):
                   self._saved)
 
     def _saved(self, path):
-        self.note.setText(lang.t(f"скачано: {os.path.basename(path)}",
-                                 f"saved: {os.path.basename(path)}"))
+        self.note.setText(lang.t("saved: {0}", os.path.basename(path)))
         self.downloaded.emit()

@@ -40,8 +40,8 @@ public enum FFT {
     /// ничего не могут - индекс 0x00 это Dagger, и его легко принять за
     /// настоящий предмет.
     static let gearSlots: [(Int, String)] = [
-        (0x011, L.t("правая рука", "right hand")), (0x013, L.t("левая рука", "left hand")), (0x00E, L.t("голова", "head")),
-        (0x00F, L.t("тело", "body")), (0x010, L.t("аксессуар", "accessory")),
+        (0x011, L.t("right hand")), (0x013, L.t("left hand")), (0x00E, L.t("head")),
+        (0x00F, L.t("body")), (0x010, L.t("accessory")),
     ]
     static let gearEmpty: UInt8 = 0xFF
 
@@ -50,15 +50,15 @@ public enum FFT {
     static let nameEnd: UInt8 = 0xFE
 
     /// Месяцы в сейве нумеруются с единицы, а не с нуля.
-    static let months = ["", L.t("Январь", "January"), L.t("Февраль", "February"), L.t("Март", "March"), L.t("Апрель", "April"), L.t("Май", "May"),
-                         L.t("Июнь", "June"), L.t("Июль", "July"), L.t("Август", "August"), L.t("Сентябрь", "September"), L.t("Октябрь", "October"),
-                         L.t("Ноябрь", "November"), L.t("Декабрь", "December")]
-    static let zodiacSigns = [L.t("Овен", "Aries"), L.t("Телец", "Taurus"), L.t("Близнецы", "Gemini"), L.t("Рак", "Cancer"), L.t("Лев", "Leo"), L.t("Дева", "Virgo"),
-                              L.t("Весы", "Libra"), L.t("Скорпион", "Scorpio"), L.t("Стрелец", "Sagittarius"), L.t("Козерог", "Capricorn"),
-                              L.t("Водолей", "Aquarius"), L.t("Рыбы", "Pisces")]
+    static let months = ["", L.t("January"), L.t("February"), L.t("March"), L.t("April"), L.t("May"),
+                         L.t("June"), L.t("July"), L.t("August"), L.t("September"), L.t("October"),
+                         L.t("November"), L.t("December")]
+    static let zodiacSigns = [L.t("Aries"), L.t("Taurus"), L.t("Gemini"), L.t("Cancer"), L.t("Leo"), L.t("Virgo"),
+                              L.t("Libra"), L.t("Scorpio"), L.t("Sagittarius"), L.t("Capricorn"),
+                              L.t("Aquarius"), L.t("Pisces")]
     /// Пол занимает три старших бита байта, а не весь байт.
-    static let genders: [Int: String] = [4: L.t("мужской", "male"), 2: L.t("женский", "female"), 1: L.t("монстр", "monster")]
-    static let statuses: [UInt8: String] = [0x0: "", 0x1: L.t("временно покидает отряд", "temporarily leaves the party")]
+    static let genders: [Int: String] = [4: L.t("male"), 2: L.t("female"), 1: L.t("monster")]
+    static let statuses: [UInt8: String] = [0x0: "", 0x1: L.t("temporarily leaves the party")]
 
     public struct Unit: Codable, Sendable {
         public var slot: Int

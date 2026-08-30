@@ -61,6 +61,10 @@ TITLES_CANDIDATES = (
     "reference/psxsaves/sd2psx-save-converter/BAT/TitlesDB_PS1_English.txt",
     "psxsaves/sd2psx-save-converter/BAT/TitlesDB_PS1_English.txt",
     "all saves/psxsaves/sd2psx-save-converter/BAT/TitlesDB_PS1_English.txt",
+    # Выгрузка `psxexport.py`. Идёт последней: рядом с проектом лежит сама
+    # база, а внутри собранного приложения - только эта.
+    "tools/data/titles.json",
+    "data/titles.json",
 )
 
 
@@ -107,12 +111,20 @@ def serial_of(frame):
 
 
 def default_titles_path():
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    for candidate in TITLES_CANDIDATES:
-        path = os.path.join(root, candidate)
-        if os.path.exists(path):
-            return path
-    return os.path.join(root, TITLES_CANDIDATES[0])
+    """Где лежит база названий.
+
+    Смотрим и от корня проекта, и от самого движка: упаковщик складывает
+    модули плоско, и `tools/` там оказывается на уровень ниже, чем рядом
+    с проектом. Без этого собранное приложение показывает сейвы без
+    названий игр, а список слева заполняется подписями.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    for root in (os.path.dirname(here), here):
+        for candidate in TITLES_CANDIDATES:
+            path = os.path.join(root, candidate)
+            if os.path.exists(path):
+                return path
+    return os.path.join(os.path.dirname(here), TITLES_CANDIDATES[0])
 
 
 # Номер диска в названии относится к диску, под которым выпущен серийник,
@@ -128,6 +140,10 @@ def load_titles(path):
     titles = {}
     if not path or not os.path.exists(path):
         return titles
+    if path.endswith(".json"):
+        import json
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
     with open(path, encoding="utf-8", errors="replace") as fh:
         for line in fh:
             serial, _, name = line.partition(" ")

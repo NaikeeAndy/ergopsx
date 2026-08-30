@@ -13,7 +13,7 @@ struct InspectorView: View {
             if let item {
                 content(item)
             } else {
-                Text(L.t("Ничего не выбрано", "Nothing selected"))
+                Text(L.t("Nothing selected"))
                     .font(.system(size: 13))
                     .foregroundStyle(palette.inkSoft)
                     .padding(.top, 40)
@@ -29,10 +29,10 @@ struct InspectorView: View {
         VStack(alignment: .leading, spacing: 18) {
             head(item, digest: digest)
 
-            grid([(L.t("Серийник", "Serial"), item.info.serial),
-                  (L.t("Регион", "Region"), item.info.region),
-                  (L.t("Блоков", "Blocks"), String(item.blocks)),
-                  (L.t("Имя сейва", "Save name"), item.save.name)])
+            grid([(L.t("Serial"), item.info.serial),
+                  (L.t("Region"), item.info.region),
+                  (L.t("Blocks"), String(item.blocks)),
+                  (L.t("Save name"), item.save.name)])
 
             if let digest {
                 if !digest.fields.isEmpty {
@@ -58,8 +58,7 @@ struct InspectorView: View {
                 }
             } else {
                 divider
-                Text(L.t("Подробного разбора под эту игру нет — ", "No detailed parser for this game — ")
-                     + L.t("видно только общее: игру, регион, подпись и иконку.", "only the basics are shown: game, region, signature and icon."))
+                Text(L.t("No detailed parser for this game — only the basics are shown: game, region, signature and icon."))
                     .font(.system(size: 12.5))
                     .foregroundStyle(palette.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
@@ -74,7 +73,7 @@ struct InspectorView: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                     Spacer(minLength: 8)
-                    Button(L.t("Показать в Finder", "Show in Finder")) {
+                    Button(L.t("Show in Finder")) {
                         NSWorkspace.shared.activateFileViewerSelecting([origin])
                     }
                     .controlSize(.small)
@@ -171,7 +170,7 @@ struct InspectorView: View {
                     .lineLimit(1)
                 Spacer(minLength: 6)
                 if !member.level.isEmpty {
-                    Text(L.t("ур. ", "lv. ") + member.level)
+                    Text(L.t("lv. ") + member.level)
                         .font(.system(size: 11.5, design: .monospaced))
                         .foregroundStyle(palette.ink)
                 }

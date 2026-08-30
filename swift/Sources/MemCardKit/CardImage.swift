@@ -57,7 +57,7 @@ public struct CardImage: Sendable {
                             slot: slot + 1,
                             state: state,
                             origin: origin.isEmpty
-                                ? L.t("слот \(slot + 1)", "slot \(slot + 1)") : L.t("\(origin), слот \(slot + 1)", "\(origin), slot \(slot + 1)")))
+                                ? L.t("slot {0}", slot + 1) : L.t("{0}, slot {1}", origin, slot + 1)))
         }
         return out
     }

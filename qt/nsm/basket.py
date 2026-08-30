@@ -42,8 +42,7 @@ class Basket:
         if self.contains(item):
             return
         if item.blocks > self.free:
-            self.note = (lang.t(f"{item.title} занимает {item.blocks} ", f"{item.title} takes {item.blocks} ")
-                         + lang.t(f"{blocks_word(item.blocks)}, а свободно {self.free}", f"{blocks_word(item.blocks)}, only {self.free} free"))
+            self.note = lang.t("{0} takes {1} {2}, only {3} free", item.title, item.blocks, blocks_word(item.blocks), self.free)
             return
         # Игра находит сейв по имени, поэтому двух одинаковых имён на
         # карте быть не должно. Выбирать за пользователя нельзя - говорим.
@@ -52,10 +51,7 @@ class Basket:
                       if bytes(x.frame[10:30]) == name), None)
         if clash:
             shown = name.split(b"\x00")[0].decode("ascii", "replace")
-            self.note = (f"«{shown}» "
-                         + lang.t(f"уже в корзине — из {clash.title}. Игра различает ",
-                                  f"is already in the basket — from {clash.title}. The game tells ")
-                         + lang.t(f"сейвы по имени, двух одинаковых быть не может", f"saves apart by name; two identical names cannot share a card"))
+            self.note = lang.t("\"{0}\" is already in the basket — from {1}. The game tells saves apart by name; two identical names cannot share a card", shown, clash.title)
             return
         self.items.append(item)
         self.note = None
@@ -86,14 +82,8 @@ class Basket:
 
 
 def saves_word(count):
-    tail = count % 100
-    if 11 <= tail <= 14:
-        return lang.t("сейвов", "saves")
-    return {1: lang.t("сейв", "save"), 2: lang.t("сейва", "saves"), 3: lang.t("сейва", "saves"), 4: lang.t("сейва", "saves")}.get(count % 10, lang.t("сейвов", "saves"))
+    return lang.plural("save", count)
 
 
 def blocks_word(count):
-    tail = count % 100
-    if 11 <= tail <= 14:
-        return lang.t("блоков", "blocks")
-    return {1: lang.t("блок", "block"), 2: lang.t("блока", "blocks"), 3: lang.t("блока", "blocks"), 4: lang.t("блока", "blocks")}.get(count % 10, lang.t("блоков", "blocks"))
+    return lang.plural("block", count)

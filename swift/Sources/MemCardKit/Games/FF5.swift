@@ -33,8 +33,8 @@ public enum FF5 {
     static let uHP = 0x06, uMP = 0x0A, uGear = 0x0E
     static let uJobLevel = 0x3A, uABP = 0x3B
 
-    static let gearSlots = [L.t("шлем", "helmet"), L.t("броня", "armor"), L.t("аксессуар", "accessory"), L.t("щит справа", "right shield"),
-                            L.t("щит слева", "left shield"), L.t("оружие справа", "right weapon"), L.t("оружие слева", "left weapon")]
+    static let gearSlots = [L.t("helmet"), L.t("armor"), L.t("accessory"), L.t("right shield"),
+                            L.t("left shield"), L.t("right weapon"), L.t("left weapon")]
     static let nameLength = 6
     static let nameEnd: UInt8 = 0xFF
     static let frames: UInt32 = 60

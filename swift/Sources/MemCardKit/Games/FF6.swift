@@ -34,8 +34,8 @@ public enum FF6 {
     static let uExp = 0x11             // u24
     static let uAbilities = 0x16, uVigor = 0x1A, uGear = 0x1F
 
-    static let gearSlots = [L.t("правая рука", "right hand"), L.t("левая рука", "left hand"), L.t("голова", "head"), L.t("тело", "body"),
-                            L.t("реликвия 1", "relic 1"), L.t("реликвия 2", "relic 2")]
+    static let gearSlots = [L.t("right hand"), L.t("left hand"), L.t("head"), L.t("body"),
+                            L.t("relic 1"), L.t("relic 2")]
     static let empty: UInt8 = 0xFF
 
     public struct Spell: Codable, Sendable {

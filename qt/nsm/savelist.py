@@ -67,7 +67,7 @@ class SaveDelegate(QStyledItemDelegate):
                              second, Qt.ElideRight, width))
 
         painter.setPen(QColor(p.ink_faint))
-        third = lang.t(f"{item.region} · {item.blocks} бл.", f"{item.region} · {item.blocks} bl.")
+        third = lang.t("{0} · {1} bl.", item.region, item.blocks)
         if item.folder:
             third += f" · {item.folder}"
         # Место под время держим всегда: без запаса третья строка

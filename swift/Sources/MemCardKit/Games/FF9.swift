@@ -36,9 +36,9 @@ public enum FF9 {
     /// Экипировка, смещения от начала записи бойца. Наручи и тело шаблон
     /// не подписывает, но они лежат между головой и аксессуаром.
     static let gearSlots: [(offset: Int, label: String, table: String)] = [
-        (0x39, L.t("оружие", "weapon"), "WEAPONS"), (0x3A, L.t("голова", "head"), "HEAD_GEARS"),
-        (0x3B, L.t("наручи", "armlet"), "ARM_GEARS"), (0x3C, L.t("тело", "body"), "BODIES"),
-        (0x3D, L.t("аксессуар", "accessory"), "ACCESSORIES"),
+        (0x39, L.t("weapon"), "WEAPONS"), (0x3A, L.t("head"), "HEAD_GEARS"),
+        (0x3B, L.t("armlet"), "ARM_GEARS"), (0x3C, L.t("body"), "BODIES"),
+        (0x3D, L.t("accessory"), "ACCESSORIES"),
     ]
     static let emptyGear: Set<UInt8> = [0x00, 0xFF]
 

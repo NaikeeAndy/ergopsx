@@ -21,7 +21,7 @@ class Settings:
         self.path = config_path()
         self.folders = []
         self.dark = True
-        self.language = "ru"
+        self.language = "en"
         self.load()
 
     def load(self):
@@ -31,7 +31,7 @@ class Settings:
         except (OSError, ValueError):
             data = {}
         self.folders = [f for f in data.get("folders", []) if os.path.isdir(f)]
-        self.language = data.get("language", "ru")
+        self.language = data.get("language", "en")
         self.dark = data.get("dark", True)
 
     def save(self):

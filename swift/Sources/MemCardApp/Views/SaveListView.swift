@@ -76,7 +76,7 @@ struct SaveListView: View {
                                               design: .monospaced))
                                 .foregroundStyle(palette.accent)
                         }
-                        Text("\(item.blocks) \(Basket.blockWord(item.blocks))")
+                        Text("\(item.blocks) \(L.plural("block", item.blocks))")
                             .font(.system(size: 10, design: .monospaced))
                             .foregroundStyle(palette.inkFaint)
                         if inBasket {
@@ -108,19 +108,19 @@ struct SaveListView: View {
     @ViewBuilder
     private func menu(_ item: LibraryItem) -> some View {
         Button(basket.contains(item)
-               ? L.t("Убрать из корзины", "Remove from basket")
-               : L.t("Добавить в корзину", "Add to basket")) {
+               ? L.t("Remove from basket")
+               : L.t("Add to basket")) {
             basket.toggle(item)
         }
-        Button(L.t("Сравнить с выделенным", "Compare with selected")) {
+        Button(L.t("Compare with selected")) {
             onCompare(item)
         }
         .disabled(!canCompare(item))
 
         Divider()
 
-        Button(L.t("Сохранить как…", "Save as…")) { onSave(item) }
-        Button(L.t("Показать в Finder", "Show in Finder")) {
+        Button(L.t("Save as…")) { onSave(item) }
+        Button(L.t("Show in Finder")) {
             guard let url = item.origin else { return }
             NSWorkspace.shared.activateFileViewerSelecting([url])
         }
@@ -128,9 +128,8 @@ struct SaveListView: View {
 
         let others = copies(item)
         Button(others.isEmpty
-               ? L.t("Других копий нет", "No other copies")
-               : L.t("Показать другие копии (\(others.count))",
-                     "Show other copies (\(others.count))")) {
+               ? L.t("No other copies")
+               : L.t("Show other copies ({0})", others.count)) {
             onCopies(item)
         }
         .disabled(others.isEmpty)

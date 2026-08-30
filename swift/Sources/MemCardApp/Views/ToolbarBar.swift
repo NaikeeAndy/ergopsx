@@ -24,7 +24,7 @@ struct ToolbarBar: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(sidebar ? L.t("Скрыть список слева", "Hide the list on the left") : L.t("Показать список слева", "Show the list on the left"))
+            .help(sidebar ? L.t("Hide the list on the left") : L.t("Show the list on the left"))
 
             Menu {
                 ForEach(SortOrder.allCases) { candidate in
@@ -53,7 +53,7 @@ struct ToolbarBar: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 12))
                     .foregroundStyle(palette.inkFaint)
-                TextField(L.t("Поиск по игре или подписи", "Search by game or signature"), text: $search)
+                TextField(L.t("Search by game or signature"), text: $search)
                     .textFieldStyle(.plain)
                     .font(.system(size: 13))
                     .foregroundStyle(palette.ink)
@@ -68,10 +68,10 @@ struct ToolbarBar: View {
 
             Spacer(minLength: 8)
 
-            action(L.t("Сохранить как", "Save as"), symbol: "square.and.arrow.down",
+            action(L.t("Save as"), symbol: "square.and.arrow.down",
                    filled: false, action: onSave)
                 .disabled(!canBasket)
-            action(inBasket ? L.t("Убрать", "Remove") : L.t("В корзину", "To basket"),
+            action(inBasket ? L.t("Remove") : L.t("To basket"),
                    symbol: inBasket ? "minus" : "plus",
                    filled: !inBasket, action: onBasket)
                 .disabled(!canBasket)

@@ -24,7 +24,7 @@ struct IconView: View {
             .overlay {
                 if let image = all.isEmpty ? nil : all[frame % all.count] {
                     // Без сглаживания: пиксель должен остаться пикселем.
-                    Image(image, scale: 1, label: Text(L.t("иконка сейва", "save icon")))
+                    Image(image, scale: 1, label: Text(L.t("save icon")))
                         .interpolation(.none)
                         .resizable()
                         .frame(width: side * 0.7, height: side * 0.7)

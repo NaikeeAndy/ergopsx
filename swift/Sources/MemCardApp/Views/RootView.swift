@@ -109,12 +109,12 @@ struct RootView: View {
 
                 Group {
                     if state.library.loading {
-                        Waiting(text: L.t("Читаю сейвы", "Reading saves"))
+                        Waiting(text: L.t("Reading saves"))
                     } else if state.folders.urls.isEmpty {
                         Empty(onPick: pick)
                     } else if list.isEmpty {
-                        Waiting(text: search.isEmpty ? L.t("Здесь пусто", "Nothing here")
-                                                     : L.t("Ничего не нашлось", "Nothing found"))
+                        Waiting(text: search.isEmpty ? L.t("Nothing here")
+                                                     : L.t("Nothing found"))
                     } else {
                         SaveListView(items: list, picked: state.picked,
                                      basket: state.basket,
@@ -190,7 +190,7 @@ struct RootView: View {
         guard let item else { return }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = item.save.name + ".mcs"
-        panel.message = L.t("Отдельный сейв — исходный файл не меняется", "A single save — the original file is not changed")
+        panel.message = L.t("A single save — the original file is not changed")
         guard panel.runModal() == .OK, let target = panel.url else { return }
         let format: Convert.Single =
             target.pathExtension.lowercased() == "psv" ? .psv
@@ -203,8 +203,8 @@ struct RootView: View {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = true
-        panel.prompt = L.t("Добавить", "Add")
-        panel.message = L.t("Где лежат сейвы", "Where the saves are")
+        panel.prompt = L.t("Add")
+        panel.message = L.t("Where the saves are")
         guard panel.runModal() == .OK else { return }
         let chosen = panel.urls
         Task { for url in chosen { await state.addFolder(url) } }
@@ -233,13 +233,13 @@ struct Empty: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            Text(L.t("Папок с сейвами не добавлено", "No save folders added"))
+            Text(L.t("No save folders added"))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(palette.ink)
-            Text(L.t("Их может быть сколько угодно — приложение ничего в них не меняет", "As many as you like — the app never changes anything in them"))
+            Text(L.t("As many as you like — the app never changes anything in them"))
                 .font(.system(size: 12.5))
                 .foregroundStyle(palette.inkSoft)
-            Button(L.t("Добавить папку", "Add folder"), action: onPick)
+            Button(L.t("Add folder"), action: onPick)
                 .buttonStyle(.borderedProminent)
                 .padding(.top, 4)
         }

@@ -88,7 +88,7 @@ class Library:
             try:
                 found = psxbuild.sources(full)
             except Exception:
-                self.skipped.append((os.path.basename(full), lang.t("не прочитался", "could not be read")))
+                self.skipped.append((os.path.basename(full), lang.t("could not be read")))
                 continue
             if not found:
                 continue
@@ -139,7 +139,15 @@ class Library:
         # телом, но разными именами - разные сейвы.
         digest = hashlib.blake2b(bytes(frame[10:30]) + bytes(block),
                                  digest_size=16).hexdigest()
+        # Движок ставит русскую заглушку, а интерфейс бывает любым:
+        # берём её на себя. Сама игра название всё равно не сообщает -
+        # оно приходит из базы серийников.
         title = card["title"]
+        # Движок ставит русскую заглушку, а интерфейс бывает любым.
+        # Название игры он всё равно не придумывает - оно приходит из
+        # базы серийников, и когда её нет, названия нет ни на каком языке.
+        if title == "Неизвестная игра":
+            title = lang.t("Unknown game")
         return Item(
             path=path, where=entry.get("where", ""),
             block=bytes(block), frame=bytes(frame),

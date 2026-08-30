@@ -164,7 +164,7 @@ def python_side(root, titles):
 def swift_side(root, titles_path):
     if not os.path.exists(BINARY):
         raise SystemExit(f"нет {BINARY} - собрать: cd swift && swift build")
-    out = subprocess.run([BINARY, "dump", titles_path, root],
+    out = subprocess.run([BINARY, "--lang", "ru", "dump", titles_path, root],
                          capture_output=True, check=True).stdout
     rows = {}
     for row in json.loads(out):
@@ -361,7 +361,7 @@ def rebuild_python(root):
 
 
 def rebuild_swift(root, titles_path):
-    out = subprocess.run([BINARY, "rebuild", titles_path, root],
+    out = subprocess.run([BINARY, "--lang", "ru", "rebuild", titles_path, root],
                          capture_output=True, check=True).stdout
     rows = {}
     for row in json.loads(out):
@@ -436,7 +436,7 @@ def sign_python(root):
 
 
 def sign_swift(root, titles_path):
-    out = subprocess.run([BINARY, "sign", titles_path, root],
+    out = subprocess.run([BINARY, "--lang", "ru", "sign", titles_path, root],
                          capture_output=True, check=True).stdout
     return {row["path"]: {"kind": row["kind"], "ok": row["ok"],
                           "actual": row["actual"], "resigned": row["resigned"]}
@@ -489,7 +489,7 @@ def convert_python(root):
 
 
 def convert_swift(root, titles_path):
-    out = subprocess.run([BINARY, "convert", titles_path, root],
+    out = subprocess.run([BINARY, "--lang", "ru", "convert", titles_path, root],
                          capture_output=True, check=True).stdout
     return {(r["path"], r["name"], r["format"], r["region"]): r["digest"]
             for r in json.loads(out)}
@@ -525,7 +525,7 @@ def icons_python(root):
 
 
 def icons_swift(root, titles_path):
-    out = subprocess.run([BINARY, "icons", titles_path, root],
+    out = subprocess.run([BINARY, "--lang", "ru", "icons", titles_path, root],
                          capture_output=True, check=True).stdout
     return {(r["path"], r["name"]): {"frames": r["frames"], "digest": r["digest"]}
             for r in json.loads(out)}

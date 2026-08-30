@@ -30,16 +30,16 @@ def _flatten(made, prefix=""):
         # Одноимённых нумеруем: иначе различия последнего затирают
         # предыдущих, и дифф выглядит короче, чем есть.
         key = name if seen[name] == 1 else f"{name} #{seen[name]}"
-        out[lang.t(f"{key} · уровень", f"{key} · level")] = unit.level
+        out[lang.t("{0} · level", key)] = unit.level
         for stat in unit.stats:
             out[f"{key} · {stat.label}"] = stat.value
         if unit.gear:
-            out[lang.t(f"{key} · экипировка", f"{key} · equipment")] = ", ".join(unit.gear)
+            out[lang.t("{0} · equipment", key)] = ", ".join(unit.gear)
         if unit.extra:
-            out[lang.t(f"{key} · прочее", f"{key} · other")] = unit.extra
+            out[lang.t("{0} · other", key)] = unit.extra
     for part in made.sections:
         for field in part.items:
-            out[f"{part.title} · {field.label}"] = field.value or lang.t("есть", "present")
+            out[f"{part.title} · {field.label}"] = field.value or lang.t("present")
     return out
 
 
@@ -48,7 +48,7 @@ class CompareView(QDialog):
                  parent=None):
         super().__init__(parent)
         self.p = palette
-        self.setWindowTitle(lang.t("Сравнение", "Comparison"))
+        self.setWindowTitle(lang.t("Comparison"))
         self.resize(900, 640)
         # Без имени правило фона не срабатывает, и окно
         # остаётся белым - текст на нём почти не виден.
@@ -73,16 +73,12 @@ class CompareView(QDialog):
         column.addWidget(head)
 
         note = QLabel(
-            lang.t(f"{len(rows)} различий · совпало {len(keys) - len(rows)}",
-                   f"{len(rows)} differences · {len(keys) - len(rows)} match"))
+            lang.t("{0} {1} · {2} match", len(rows), lang.plural("difference", len(rows)), len(keys) - len(rows)))
         note.setObjectName("dim")
         column.addWidget(note)
 
         if not rows:
-            done = QLabel(lang.t(
-                lang.t("Различий нет — сейвы совпадают по всем полям, ", "No differences — the saves match on every field ")
-                + lang.t("которые мы читаем", "we read"),
-                "No differences — the saves match on every field we read"))
+            done = QLabel(lang.t("No differences — the saves match on every field we read"))
             done.setObjectName("faint")
             column.addWidget(done)
             column.addStretch(1)
@@ -95,9 +91,9 @@ class CompareView(QDialog):
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setHorizontalSpacing(20)
         grid.setVerticalSpacing(6)
-        for index, title in enumerate((lang.t("Поле", "Field"),
-                                       lang.t("СЛЕВА", "LEFT"),
-                                       lang.t("СПРАВА", "RIGHT"))):
+        for index, title in enumerate((lang.t("Field"),
+                                       lang.t("LEFT"),
+                                       lang.t("RIGHT"))):
             label = QLabel(title)
             label.setObjectName("head")
             grid.addWidget(label, 0, index)

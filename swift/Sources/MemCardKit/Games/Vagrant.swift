@@ -78,24 +78,24 @@ public enum Vagrant {
     /// оно собрано из клинка и рукояти, и название даёт игрок.
     /// То, что носит с собой Эшли.
     public static let carried: [Section] = [
-        Section(kind: "weapons", name: L.t("Оружие", "Weapons"), at: 0x07C8, size: 32, slots: 8),
-        Section(kind: "shields", name: L.t("Щиты", "Shields"), at: 0x08C8, size: 48, slots: 8, idAt: 4, idWide: false),
-        Section(kind: "blades", name: L.t("Клинки", "Blades"), at: 0x0A48, size: 44, slots: 16, idAt: 0, idWide: false),
-        Section(kind: "grips", name: L.t("Рукояти", "Grips"), at: 0x0D08, size: 16, slots: 16, idAt: 0, idWide: true),
-        Section(kind: "armor", name: L.t("Броня", "Armor"), at: 0x0E08, size: 40, slots: 16, idAt: 0, idWide: false),
-        Section(kind: "gems", name: L.t("Самоцветы", "Gems"), at: 0x1088, size: 28, slots: 48, idAt: 0, idWide: true),
-        Section(kind: "misc", name: L.t("Прочее", "Other"), at: 0x15C8, size: 4, slots: 64, idAt: 0, idWide: true),
+        Section(kind: "weapons", name: L.t("Weapons"), at: 0x07C8, size: 32, slots: 8),
+        Section(kind: "shields", name: L.t("Shields"), at: 0x08C8, size: 48, slots: 8, idAt: 4, idWide: false),
+        Section(kind: "blades", name: L.t("Blades"), at: 0x0A48, size: 44, slots: 16, idAt: 0, idWide: false),
+        Section(kind: "grips", name: L.t("Grips"), at: 0x0D08, size: 16, slots: 16, idAt: 0, idWide: true),
+        Section(kind: "armor", name: L.t("Armor"), at: 0x0E08, size: 40, slots: 16, idAt: 0, idWide: false),
+        Section(kind: "gems", name: L.t("Gems"), at: 0x1088, size: 28, slots: 48, idAt: 0, idWide: true),
+        Section(kind: "misc", name: L.t("Other"), at: 0x15C8, size: 4, slots: 64, idAt: 0, idWide: true),
     ]
 
     /// Сундук в мастерской. Те же разделы, мест вчетверо больше.
     public static let stored: [Section] = [
-        Section(kind: "weapons", name: L.t("Оружие", "Weapons"), at: 0x1DE0, size: 32, slots: 32),
-        Section(kind: "shields", name: L.t("Щиты", "Shields"), at: 0x21E0, size: 48, slots: 32, idAt: 4, idWide: false),
-        Section(kind: "blades", name: L.t("Клинки", "Blades"), at: 0x27E0, size: 44, slots: 64, idAt: 0, idWide: false),
-        Section(kind: "grips", name: L.t("Рукояти", "Grips"), at: 0x32E0, size: 16, slots: 64, idAt: 0, idWide: true),
-        Section(kind: "armor", name: L.t("Броня", "Armor"), at: 0x36E0, size: 40, slots: 64, idAt: 0, idWide: false),
-        Section(kind: "gems", name: L.t("Самоцветы", "Gems"), at: 0x40E0, size: 28, slots: 192, idAt: 0, idWide: true),
-        Section(kind: "misc", name: L.t("Прочее", "Other"), at: 0x55E0, size: 4, slots: 256, idAt: 0, idWide: true),
+        Section(kind: "weapons", name: L.t("Weapons"), at: 0x1DE0, size: 32, slots: 32),
+        Section(kind: "shields", name: L.t("Shields"), at: 0x21E0, size: 48, slots: 32, idAt: 4, idWide: false),
+        Section(kind: "blades", name: L.t("Blades"), at: 0x27E0, size: 44, slots: 64, idAt: 0, idWide: false),
+        Section(kind: "grips", name: L.t("Grips"), at: 0x32E0, size: 16, slots: 64, idAt: 0, idWide: true),
+        Section(kind: "armor", name: L.t("Armor"), at: 0x36E0, size: 40, slots: 64, idAt: 0, idWide: false),
+        Section(kind: "gems", name: L.t("Gems"), at: 0x40E0, size: 28, slots: 192, idAt: 0, idWide: true),
+        Section(kind: "misc", name: L.t("Other"), at: 0x55E0, size: 4, slots: 256, idAt: 0, idWide: true),
     ]
 
     /// `vs_main_inventoryWeapon`: индекс, клинок, рукоять, надето,
@@ -238,7 +238,7 @@ public enum Vagrant {
         return perArea.sorted { $0.key < $1.key }.map { scene, count in
             let name = scene >= 0 && scene < table.areas.count
                 && !table.areas[scene].isEmpty
-                ? table.areas[scene] : L.t("неизвестно", "unknown")
+                ? table.areas[scene] : L.t("unknown")
             return Slot(name: name, used: count, total: count)
         }
     }
@@ -318,7 +318,7 @@ public enum Vagrant {
             let name = VagrantText.read(plain[from..<(from + weaponNameSize)])
             // Имя из одних нулей - место занято, но не подписано.
             let clean = name.trimmingCharacters(in: CharacterSet(charactersIn: "0 "))
-            out.append(clean.isEmpty ? L.t("без имени", "unnamed") : name)
+            out.append(clean.isEmpty ? L.t("unnamed") : name)
         }
         return out
     }

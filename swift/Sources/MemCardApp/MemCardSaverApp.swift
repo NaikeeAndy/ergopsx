@@ -27,24 +27,24 @@ struct MemCardSaverApp: App {
         .defaultSize(width: 1280, height: 820)
         .commands { Menus(state: state, openWindow: { openWindow(id: $0) }) }
 
-        Window(L.t("Консоль", "Console"), id: "console") {
+        Window(L.t("Console"), id: "console") {
             ConsoleWindow().environment(state)
         }
         .defaultSize(width: 860, height: 700)
 
         // Настройки - обычное окно, а не системная панель: в нём есть
         // разделы, и его хочется двигать и оставлять открытым.
-        Window(L.t("Копии сейва", "Save copies"), id: "copies") {
+        Window(L.t("Save copies"), id: "copies") {
             CopiesWindow().environment(state)
         }
         .defaultSize(width: 560, height: 300)
 
-        Window(L.t("Образы игр", "Game images"), id: "games") {
+        Window(L.t("Game images"), id: "games") {
             GamesWindow().environment(state)
         }
         .defaultSize(width: 900, height: 640)
 
-        Window(L.t("Настройки", "Settings"), id: "settings") {
+        Window(L.t("Settings"), id: "settings") {
             SettingsView().environment(state)
         }
         .defaultSize(width: 760, height: 540)

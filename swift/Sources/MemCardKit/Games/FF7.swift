@@ -179,7 +179,7 @@ public enum FF7 {
             for at in 0..<cMateriaSlots {
                 guard let found = materia(block, at: base + cMateria + at * materiaSize,
                                           data: data) else { continue }
-                worn.append(MateriaSlot(slot: at < 8 ? L.t("оружие", "weapon") : L.t("броня", "armor"), materia: found))
+                worn.append(MateriaSlot(slot: at < 8 ? L.t("weapon") : L.t("armor"), materia: found))
             }
             out.append(Character(
                 who: data.name("CHARACTERS", Int(ident)) ?? "#\(ident)",
@@ -209,7 +209,7 @@ public enum FF7 {
             if count == 0 { continue }
             out.append(Item(name: data.name("ITEMS", item) ?? "#\(item)",
                             count: count,
-                            kind: data.name("ITEM_KIND", item) ?? L.t("Предметы", "Items")))
+                            kind: data.name("ITEM_KIND", item) ?? L.t("Items")))
         }
         return out
     }

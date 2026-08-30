@@ -45,23 +45,22 @@ class Inspector(QScrollArea):
     def show_item(self, item):
         self._clear()
         if item is None:
-            self.box.addWidget(_label(lang.t("Ничего не выбрано", "Nothing selected"), "dim"))
+            self.box.addWidget(_label(lang.t("Nothing selected"), "dim"))
             self.box.addStretch(1)
             return
 
         detail = self.library.detail(item)
         self.box.addWidget(self._head(item, detail))
         self.box.addWidget(self._grid([
-            (lang.t("Серийник", "Serial"), item.serial), (lang.t("Регион", "Region"), item.region),
-            (lang.t("Блоков", "Blocks"), str(item.blocks)), (lang.t("Имя сейва", "Save name"), self._name(item)),
+            (lang.t("Serial"), item.serial), (lang.t("Region"), item.region),
+            (lang.t("Blocks"), str(item.blocks)), (lang.t("Save name"), self._name(item)),
         ]))
 
         made = digest.build(detail)
         if made is None:
             self.box.addWidget(self._rule())
             self.box.addWidget(_label(
-                lang.t("Подробного разбора под эту игру нет — ", "No detailed parser for this game — ")
-                + lang.t("видно только общее: игру, регион, подпись и иконку.", "only the basics are shown: game, region, signature and icon."),
+                lang.t("No detailed parser for this game — only the basics are shown: game, region, signature and icon."),
                 "faint", 11.5))
             self.box.addStretch(1)
             return
@@ -132,7 +131,7 @@ class Inspector(QScrollArea):
         line.setSpacing(8)
         line.addWidget(_label(unit.name, size=12.5, bold=True))
         if unit.level:
-            line.addWidget(_label(lang.t(f"ур. {unit.level}", f"lv. {unit.level}"), "accent", 11.5))
+            line.addWidget(_label(lang.t("lv. {0}", unit.level), "accent", 11.5))
         if unit.role:
             line.addWidget(_label(unit.role, "dim", 11.5))
         line.addStretch(1)

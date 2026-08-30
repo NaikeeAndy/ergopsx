@@ -29,16 +29,14 @@ final class Basket {
     func add(_ item: LibraryItem) {
         guard !contains(item) else { return }
         guard item.blocks <= free else {
-            note = L.t("\(item.title) занимает \(item.blocks) ", "\(item.title) takes \(item.blocks) ")
-                + Basket.blockWord(item.blocks) + L.t(", а свободно \(free)", ", only \(free) free")
+            note = L.t("{0} takes {1} {2}, only {3} free", item.title, item.blocks, L.plural("block", item.blocks), free)
             return
         }
         // Игра находит сейв по имени, поэтому двух одинаковых имён на карте
         // быть не должно. Разные сейвы под одним именем выбирать за
         // пользователя нельзя - говорим и не берём.
         if let clash = items.first(where: { $0.save.name == item.save.name }) {
-            note = L.t("«\(item.save.name)» уже в корзине — из \(clash.title). ", "\"\(item.save.name)\" is already in the basket — from \(clash.title). ")
-                + L.t("Игра различает сейвы по имени, двух одинаковых на карте быть не может", "The game tells saves apart by name; two identical names cannot share a card")
+            note = L.t("\"{0}\" is already in the basket — from {1}. The game tells saves apart by name; two identical names cannot share a card", item.save.name, clash.title)
             return
         }
         items.append(item)
@@ -78,15 +76,5 @@ final class Basket {
 
     func build() throws -> CardBuilder.Result {
         try CardBuilder.build(items.map(\.save))
-    }
-
-    static func blockWord(_ count: Int) -> String {
-        let tail = count % 100
-        if (11...14).contains(tail) { return L.t("блоков", "blocks") }
-        switch count % 10 {
-        case 1: return L.t("блок", "block")
-        case 2, 3, 4: return L.t("блока", "blocks")
-        default: return L.t("блоков", "blocks")
-        }
     }
 }

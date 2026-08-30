@@ -120,13 +120,13 @@ enum ConsoleStore {
 
     /// Отвечает ли консоль. Проверка лёгкая: вход и один листинг.
     static func check(_ profile: ConsoleProfile) async -> String {
-        guard profile.hasAddress else { return L.t("адрес не задан", "no address set") }
+        guard profile.hasAddress else { return L.t("no address set") }
         let client = FTPClient(profile.ftp)
         do {
             try await client.connect()
             _ = try await client.list(profile.path)
             await client.disconnect()
-            return L.t("на связи", "connected")
+            return L.t("connected")
         } catch {
             await client.disconnect()
             return "\(error)"
@@ -199,7 +199,7 @@ final class ConsoleBrowser {
                     : $0.isDirectory
             }
             path = want
-            greeting = L.t("на связи", "connected")
+            greeting = L.t("connected")
             await client.disconnect()
         } catch {
             trouble = "\(error)"
@@ -226,7 +226,7 @@ final class ConsoleBrowser {
             let stem = (name as NSString).deletingPathExtension
             guard let saves = Identify.saves(in: bytes, fallbackName: stem) else {
                 peeked = nil
-                trouble = L.t("«\(name)» - не сейв и не образ карты", "\"\(name)\" is neither a save nor a card image")
+                trouble = L.t("\"{0}\" is neither a save nor a card image", name)
                 return
             }
             var items: [LibraryItem] = []
@@ -274,26 +274,26 @@ final class ConsoleBrowser {
         var label: String {
             switch self {
             case .asIs:
-                return L.t("как есть — копия файла с консоли, байт в байт", "as is — a copy of the console file, byte for byte")
+                return L.t("as is — a copy of the console file, byte for byte")
             case .card(let kind):
                 switch kind {
                 case .mcr:
-                    return L.t("MCR — сырой образ карты, понимают почти все", "MCR — raw card image, understood almost everywhere")
+                    return L.t("MCR — raw card image, understood almost everywhere")
                 case .mcd:
-                    return L.t("MCD — тот же образ; так карты зовёт DuckStation", "MCD — same image; DuckStation names cards this way")
+                    return L.t("MCD — same image; DuckStation names cards this way")
                 case .gme:
-                    return L.t("GME — DexDrive, старые программы для ПК", "GME — DexDrive, old PC software")
+                    return L.t("GME — DexDrive, old PC software")
                 case .vmp:
-                    return L.t("VMP — карта PSP и классики PSN, с подписью", "VMP — PSP and PSN classics card, signed")
+                    return L.t("VMP — PSP and PSN classics card, signed")
                 }
             case .single(let kind):
                 switch kind {
                 case .mcs:
-                    return L.t("MCS — отдельный сейв, самый ходовой формат", "MCS — single save, the most common format")
+                    return L.t("MCS — single save, the most common format")
                 case .psv:
-                    return L.t("PSV — отдельный сейв для PS3, с подписью", "PSV — single save for PS3, signed")
+                    return L.t("PSV — single save for PS3, signed")
                 case .raw:
-                    return L.t("RAW — только тело сейва, без заголовка", "RAW — save body only, no header")
+                    return L.t("RAW — save body only, no header")
                 }
             }
         }
@@ -302,22 +302,19 @@ final class ConsoleBrowser {
         var note: String {
             switch self {
             case .asIs:
-                return L.t("Ничего не пересобирается: то же, что лежит на консоли.", "Nothing is rebuilt: exactly what sits on the console.")
+                return L.t("Nothing is rebuilt: exactly what sits on the console.")
             case .card(.mcr):
-                return L.t("То же содержимое, что у .VM1 на PS3 и .mcd на Switch — ", "Same content as .VM1 on PS3 and .mcd on Switch — ")
-                    + L.t("различается только расширение.", "only the extension differs.")
+                return L.t("Same content as .VM1 on PS3 and .mcd on Switch — only the extension differs.")
             case .card(.mcd):
-                return L.t("Чтобы карта подхватилась в DuckStation, имя файла должно ", "For DuckStation to pick the card up, the file name must ")
-                    + L.t("совпадать с именем образа игры плюс номер слота.", "match the game image name plus the slot number.")
+                return L.t("For DuckStation to pick the card up, the file name must match the game image name plus the slot number.")
             case .card(.gme):
-                return L.t("Заголовок на 3904 байта. Нужен только старым программам.", "A 3904-byte header. Only old software needs it.")
+                return L.t("A 3904-byte header. Only old software needs it.")
             case .card(.vmp):
-                return L.t("Подпись пересчитывается — иначе консоль файл не примет.", "The signature is recomputed — otherwise the console rejects the file.")
+                return L.t("The signature is recomputed — otherwise the console rejects the file.")
             case .single(.psv):
-                return L.t("Подпись пересчитывается. Имя сейва берётся из самого ", "The signature is recomputed. The save name comes from the ")
-                    + L.t("сейва, а не из имени файла.", "save itself, not from the file name.")
+                return L.t("The signature is recomputed. The save name comes from the save itself, not from the file name.")
             case .single(.mcs), .single(.raw):
-                return L.t("Один сейв, а не вся карта.", "One save, not the whole card.")
+                return L.t("One save, not the whole card.")
             }
         }
 
@@ -364,7 +361,7 @@ final class ConsoleBrowser {
             // Говорим, куда именно легло: иначе «скачано» без пути
             // заставляет угадывать.
             let where_ = "_с консоли/\(profile.label)/\(file.lastPathComponent)"
-            downloaded = L.t("скачано в \(where_)", "saved to \(where_)")
+            downloaded = L.t("saved to {0}", where_)
         } catch {
             trouble = "\(error)"
             await client.disconnect()

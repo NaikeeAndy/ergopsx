@@ -33,7 +33,7 @@ actor FTPSocket {
                     }
                 case .cancelled:
                     if once.claim() {
-                        done.resume(throwing: FTPError.transport(L.t("соединение закрыто", "connection closed")))
+                        done.resume(throwing: FTPError.transport(L.t("connection closed")))
                     }
                 default:
                     break
@@ -179,10 +179,10 @@ public enum FTPError: Error, CustomStringConvertible {
     public var description: String {
         switch self {
         case let .transport(text): text
-        case .timeout: L.t("истекло время ожидания", "timed out")
+        case .timeout: L.t("timed out")
         case let .refused(text): text
-        case .noListing: L.t("прошивка не поддержала ни MLSD, ни LIST, ни NLST", "the firmware supports neither MLSD, LIST nor NLST")
-        case let .badResponse(text): L.t("непонятный ответ: \(text)", "unexpected reply: \(text)")
+        case .noListing: L.t("the firmware supports neither MLSD, LIST nor NLST")
+        case let .badResponse(text): L.t("unexpected reply: {0}", text)
         }
     }
 }

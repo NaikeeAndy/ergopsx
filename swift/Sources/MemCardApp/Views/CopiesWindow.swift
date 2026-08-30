@@ -40,17 +40,14 @@ struct CopiesWindow: View {
                 }
 
                 Divider().overlay(palette.panelLine)
-                Text(L.t("Одинаковые байты и одинаковое имя — "
-                         + "в списке они сведены в один сейв.",
-                         "Identical bytes and identical name — "
-                         + "the list merges them into one save."))
+                Text(L.t("Identical bytes and identical name — the list merges them into one save."))
                     .font(.system(size: 11))
                     .foregroundStyle(palette.inkFaint)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 11)
             } else {
-                Text(L.t("Нечего показывать", "Nothing to show"))
+                Text(L.t("Nothing to show"))
                     .font(.system(size: 13))
                     .foregroundStyle(palette.inkSoft)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -84,11 +81,11 @@ struct CopiesWindow: View {
             if first {
                 // Именно этот файл приложение и читает - остальные
                 // считаются его копиями.
-                Text(L.t("показан в списке", "shown in the list"))
+                Text(L.t("shown in the list"))
                     .font(.system(size: 10.5))
                     .foregroundStyle(palette.accent)
             }
-            Button(L.t("В Finder", "In Finder")) {
+            Button(L.t("In Finder")) {
                 NSWorkspace.shared.activateFileViewerSelecting([url])
             }
             .controlSize(.small)
