@@ -62,9 +62,14 @@ def main():
                 print("снято:", target)
                 app.quit()
                 return
-            window.grab().save(target)
-            print(f"снято: {target}")
-            app.quit()
+            # Снимать сразу нельзя: добавленные виджеты ещё не разложены,
+            # и панель справа выходит пустой. Даём циклу событий пройти.
+            def grab():
+                window.grab().save(target)
+                print(f"снято: {target}")
+                app.quit()
+
+            QTimer.singleShot(400, grab)
 
         QTimer.singleShot(delay * 1000, shoot)
 

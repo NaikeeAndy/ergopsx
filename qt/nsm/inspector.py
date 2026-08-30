@@ -37,10 +37,19 @@ class Inspector(QScrollArea):
         self.show_item(None)
 
     def _clear(self):
+        """Убрать прошлый разбор.
+
+        **`deleteLater` мало.** Виджет уходит из раскладки сразу, а из
+        панели - только на следующем проходе цикла событий, и до тех пор
+        рисуется на прежнем месте. Панель показывала разбор прошлой игры
+        поверх новой: слева выбран Vagrant Story, справа Parasite Eve II.
+        Родителя снимаем сами.
+        """
         while self.box.count():
-            got = self.box.takeAt(0)
-            if got.widget():
-                got.widget().deleteLater()
+            widget = self.box.takeAt(0).widget()
+            if widget is not None:
+                widget.hide()
+                widget.deleteLater()
 
     def show_item(self, item):
         self._clear()
