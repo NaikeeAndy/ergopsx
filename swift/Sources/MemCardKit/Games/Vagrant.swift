@@ -57,33 +57,45 @@ public enum Vagrant {
     static let party = 0x6C8               // D_80060068_t, 0x100
 
     /// Разделы инвентаря: смещение, размер записи, сколько мест.
-    struct Section: Sendable {
-        let name: String
+    /// Раздел инвентаря. `kind` не переводится и служит ключом:
+    /// по названию привязываться нельзя, оно зависит от языка.
+    public struct Section: Sendable {
+        public let kind: String
+        public let name: String
         let at: Int
         let size: Int
         let slots: Int
+        /// Где внутри записи лежит номер предмета. У оружия его нет:
+        /// оно собрано из клинка и рукояти, имя даёт игрок.
+        var idAt: Int? = nil
+        var idWide = false
     }
 
+    /// Смещение номера предмета внутри записи и его ширина.
+    ///
+    /// У щита запись начинается со своих полей, а `vs_main_inventoryArmor`
+    /// с его номером идёт с четвёртого байта. У оружия номера нет вовсе:
+    /// оно собрано из клинка и рукояти, и название даёт игрок.
     /// То, что носит с собой Эшли.
-    static let carried: [Section] = [
-        Section(name: L.t("Оружие", "Weapons"), at: 0x07C8, size: 32, slots: 8),
-        Section(name: L.t("Щиты", "Shields"), at: 0x08C8, size: 48, slots: 8),
-        Section(name: L.t("Клинки", "Blades"), at: 0x0A48, size: 44, slots: 16),
-        Section(name: L.t("Рукояти", "Grips"), at: 0x0D08, size: 16, slots: 16),
-        Section(name: L.t("Броня", "Armor"), at: 0x0E08, size: 40, slots: 16),
-        Section(name: L.t("Самоцветы", "Gems"), at: 0x1088, size: 28, slots: 48),
-        Section(name: L.t("Прочее", "Other"), at: 0x15C8, size: 4, slots: 64),
+    public static let carried: [Section] = [
+        Section(kind: "weapons", name: L.t("Оружие", "Weapons"), at: 0x07C8, size: 32, slots: 8),
+        Section(kind: "shields", name: L.t("Щиты", "Shields"), at: 0x08C8, size: 48, slots: 8, idAt: 4, idWide: false),
+        Section(kind: "blades", name: L.t("Клинки", "Blades"), at: 0x0A48, size: 44, slots: 16, idAt: 0, idWide: false),
+        Section(kind: "grips", name: L.t("Рукояти", "Grips"), at: 0x0D08, size: 16, slots: 16, idAt: 0, idWide: true),
+        Section(kind: "armor", name: L.t("Броня", "Armor"), at: 0x0E08, size: 40, slots: 16, idAt: 0, idWide: false),
+        Section(kind: "gems", name: L.t("Самоцветы", "Gems"), at: 0x1088, size: 28, slots: 48, idAt: 0, idWide: true),
+        Section(kind: "misc", name: L.t("Прочее", "Other"), at: 0x15C8, size: 4, slots: 64, idAt: 0, idWide: true),
     ]
 
     /// Сундук в мастерской. Те же разделы, мест вчетверо больше.
-    static let stored: [Section] = [
-        Section(name: L.t("Оружие", "Weapons"), at: 0x1DE0, size: 32, slots: 32),
-        Section(name: L.t("Щиты", "Shields"), at: 0x21E0, size: 48, slots: 32),
-        Section(name: L.t("Клинки", "Blades"), at: 0x27E0, size: 44, slots: 64),
-        Section(name: L.t("Рукояти", "Grips"), at: 0x32E0, size: 16, slots: 64),
-        Section(name: L.t("Броня", "Armor"), at: 0x36E0, size: 40, slots: 64),
-        Section(name: L.t("Самоцветы", "Gems"), at: 0x40E0, size: 28, slots: 192),
-        Section(name: L.t("Прочее", "Other"), at: 0x55E0, size: 4, slots: 256),
+    public static let stored: [Section] = [
+        Section(kind: "weapons", name: L.t("Оружие", "Weapons"), at: 0x1DE0, size: 32, slots: 32),
+        Section(kind: "shields", name: L.t("Щиты", "Shields"), at: 0x21E0, size: 48, slots: 32, idAt: 4, idWide: false),
+        Section(kind: "blades", name: L.t("Клинки", "Blades"), at: 0x27E0, size: 44, slots: 64, idAt: 0, idWide: false),
+        Section(kind: "grips", name: L.t("Рукояти", "Grips"), at: 0x32E0, size: 16, slots: 64, idAt: 0, idWide: true),
+        Section(kind: "armor", name: L.t("Броня", "Armor"), at: 0x36E0, size: 40, slots: 64, idAt: 0, idWide: false),
+        Section(kind: "gems", name: L.t("Самоцветы", "Gems"), at: 0x40E0, size: 28, slots: 192, idAt: 0, idWide: true),
+        Section(kind: "misc", name: L.t("Прочее", "Other"), at: 0x55E0, size: 4, slots: 256, idAt: 0, idWide: true),
     ]
 
     /// `vs_main_inventoryWeapon`: индекс, клинок, рукоять, надето,
@@ -120,6 +132,8 @@ public enum Vagrant {
             case artsLearned = "arts_learned"
             case maxChain = "max_chain"
             case unopened
+            case carriedItems = "carried_items"
+            case storedItems = "stored_items"
             case savesTotal = "saves_total"
             case savesGame = "saves_game"
             case clearCount = "clear_count"
@@ -155,6 +169,9 @@ public enum Vagrant {
         public var heals: Int
         /// Сколько засчитываемых комнат не открыто, по областям.
         public var unopened: [Slot]
+        /// Что лежит в разделах, по названиям.
+        public var carriedItems: [String: [Slot]]
+        public var storedItems: [String: [Slot]]
     }
 
     /// Карта комнат: маска засчитываемых, область каждой комнаты
@@ -166,9 +183,12 @@ public enum Vagrant {
         public var mask: [UInt32]
         public var scenes: [Int]
         public var areas: [String]
+        /// Названия предметов по номеру. Пустая строка - у предмета
+        /// в игре имени нет.
+        public var items: [String]
 
         enum CodingKeys: String, CodingKey {
-            case mask, scenes, areas
+            case mask, scenes, areas, items
             case roomsTotal = "rooms_total"
         }
 
@@ -229,6 +249,32 @@ public enum Vagrant {
         return used
     }
 
+    /// Что лежит в разделе, по названиям. Одинаковые собираются вместе:
+    /// «Cure Potion x4» читается лучше, чем четыре одинаковые строки.
+    public static func contents(_ plain: [UInt8], _ section: Section,
+                                table: MapTable) -> [Slot] {
+        guard let idAt = section.idAt else { return [] }
+        var counts: [String: Int] = [:]
+        var order: [String] = []
+        for index in 0..<section.slots {
+            let at = section.at + index * section.size
+            guard at + section.size <= plain.count else { break }
+            guard plain[at..<(at + section.size)].contains(where: { $0 != 0 })
+            else { continue }
+            let id = section.idWide
+                ? Int(read16(plain[...], at: at + idAt))
+                : Int(plain[at + idAt])
+            guard id > 0, id < table.items.count else { continue }
+            let name = table.items[id]
+            // У части номеров названия в игре нет - показываем номер,
+            // а не пустую строку.
+            let shown = name.isEmpty ? "#\(id)" : name
+            if counts[shown] == nil { order.append(shown) }
+            counts[shown, default: 0] += 1
+        }
+        return order.map { Slot(name: $0, used: counts[$0] ?? 0, total: 0) }
+    }
+
     static func weaponNames(_ plain: [UInt8], _ section: Section) -> [String] {
         var out: [String] = []
         for index in 0..<section.slots {
@@ -281,6 +327,9 @@ public enum Vagrant {
             $0 + (plain[mapStatus + $1] != 0 ? 1 : 0)
         }
 
+        // Таблица нужна и комнатам, и названиям предметов - читаем один раз.
+        let table = MapTable.bundled()
+
         let kills = (0..<6).map {
             Int(read16(plain[...], at: score + scoreKills + $0 * 2))
         }
@@ -317,6 +366,18 @@ public enum Vagrant {
             chests: Int(read32(plain[...], at: score + scoreChests)),
             maxChain: Int(read16(plain[...], at: score + scoreMaxChain)),
             heals: Int(read16(plain[...], at: score + scoreHeals)),
-            unopened: MapTable.bundled().map { unopened(block, table: $0) } ?? [])
+            unopened: table.map { unopened(block, table: $0) } ?? [],
+            carriedItems: table.map { made in
+                Dictionary(uniqueKeysWithValues: carried.compactMap { section in
+                    let list = contents(plain, section, table: made)
+                    return list.isEmpty ? nil : (section.kind, list)
+                })
+            } ?? [:],
+            storedItems: table.map { made in
+                Dictionary(uniqueKeysWithValues: stored.compactMap { section in
+                    let list = contents(plain, section, table: made)
+                    return list.isEmpty ? nil : (section.kind, list)
+                })
+            } ?? [:])
     }
 }

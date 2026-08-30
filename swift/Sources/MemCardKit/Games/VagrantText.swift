@@ -35,6 +35,12 @@ enum VagrantText {
             let byte = bytes[index]
             if byte == terminator { break }
             if byte == 0xEB { index += 1; continue }   // выравнивание
+            // Кернинг игра ставит между словами вместо пробела.
+            if byte == 0xFA {
+                out += " "
+                index += 2
+                continue
+            }
             if japanese.contains(byte) || twoByte.contains(byte) {
                 index += 2
                 continue

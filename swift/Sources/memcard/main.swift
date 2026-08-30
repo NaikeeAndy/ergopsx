@@ -127,6 +127,8 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "vagrant" {
         var maxChain: Int
         var heals: Int
         var unopened: [String]
+        var carriedItems: [String]
+        var storedItems: [String]
     }
     var out: [Row] = []
     let root = URL(fileURLWithPath: CommandLine.arguments[3])
@@ -168,7 +170,17 @@ if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "vagrant" {
                            maxChain: found.maxChain,
                            heals: found.heals,
                            unopened: found.unopened.map {
-                               "\($0.name): \($0.used)" }))
+                               "\($0.name): \($0.used)" },
+                           carriedItems: Vagrant.carried.compactMap { s in
+                               guard let l = found.carriedItems[s.kind] else { return nil }
+                               return "\(s.name): " + l.map {
+                                   $0.used > 1 ? "\($0.name) x\($0.used)" : $0.name
+                               }.joined(separator: ", ")
+                           },
+                           storedItems: Vagrant.stored.compactMap { s in
+                               guard let l = found.storedItems[s.kind] else { return nil }
+                               return "\(s.name): \(l.count) видов"
+                           }))
         }
     }
     out.sort { $0.playtime < $1.playtime }

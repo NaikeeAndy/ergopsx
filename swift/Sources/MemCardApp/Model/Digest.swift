@@ -164,6 +164,31 @@ struct Digest {
                 title: L.t("Оружие в сундуке", "Weapons in container"),
                 items: found.storedWeapons.map { Field(label: $0, value: "") }))
         }
+        // Названия предметов вместо занятых мест: «Cure Potion x4»
+        // говорит больше, чем «Прочее 28 из 64».
+        for section in Vagrant.carried where section.kind != "weapons" {
+            if let list = found.carriedItems[section.kind], !list.isEmpty {
+                sections.append(Section(
+                    title: L.t("При себе — \(section.name)",
+                               "Carried — \(section.name)"),
+                    items: list.map {
+                        Field(label: $0.name,
+                              value: $0.used > 1 ? "\($0.used)" : "")
+                    }))
+            }
+        }
+        for section in Vagrant.stored where section.kind != "weapons" {
+            if let list = found.storedItems[section.kind], !list.isEmpty {
+                sections.append(Section(
+                    title: L.t("В сундуке — \(section.name)",
+                               "Container — \(section.name)"),
+                    items: list.map {
+                        Field(label: $0.name,
+                              value: $0.used > 1 ? "\($0.used)" : "")
+                    }))
+            }
+        }
+
         sections.append(Section(
             title: L.t("При себе", "Carried"),
             items: found.carried.map {
