@@ -1,0 +1,21 @@
+# Личное: профили консолей с паролем
+tools/data/consoles.json
+
+# Чужая база названий игр - берётся отдельно
+swift/Sources/MemCardKit/Resources/titles.json
+
+# Сборка
+.build/
+*.app/
+swift/icon/*.iconset/
+swift/icon/*.icns
+
+# Сейвы и состояния - личные данные, не для репозитория
+saves/
+states/
+reports/
+
+# Система
+.DS_Store
+__pycache__/
+*.pyc

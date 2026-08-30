@@ -1,0 +1,118 @@
+{
+  "$schema_version": "1.0",
+  "game": "Final Fantasy Tactics (PS1 / War of the Lions / The Ivalice Chronicles)",
+  "description": "Stat growth constants (C), class multipliers (M), caps and initial raw stats. Source: AeroStar Battle Mechanics Guide v6.5, sections 7.1-7.4.",
+  "stats": ["hp", "mp", "sp", "pa", "ma"],
+
+  "constants": {
+    "display_divisor": 1638400,
+    "display_divisor_note": "BMG prints 1683400 on the MA line; that is a typo. All five stats use 1638400.",
+    "zodiac_beast_hp_mp_divisor": 163840,
+    "raw_max": 16777215,
+    "raw_max_note": "Raw stats are 24-bit unsigned.",
+    "min_displayed": 1,
+    "min_displayed_note": "If the floored display value is 0 it becomes 1.",
+    "level_min": 1,
+    "level_max": 99
+  },
+
+  "display_caps": {
+    "hp": 999,
+    "mp": 999,
+    "sp": 50,
+    "pa": 99,
+    "ma": 99
+  },
+
+  "functional_raw_caps": {
+    "_note": "Raw value at which the displayed stat is maxed even in the job with the worst multiplier for that stat. Reaching these means the stat is maxed in every job.",
+    "hp": 16771259,
+    "mp": 16744448,
+    "sp": 1638400,
+    "pa": 5406720,
+    "ma": 3244032,
+    "worst_multiplier_job": {
+      "hp": "Bard/Dancer",
+      "mp": "Bard/Dancer",
+      "sp": "Calculator",
+      "pa": "Bard (male) / Calculator (female)",
+      "ma": "Lancer"
+    }
+  },
+
+  "initial_raw": {
+    "_note": "Values a unit has at level 1 before any leveling. HP and MP are rolled in the given inclusive range.",
+    "male":    { "sp": 98304, "pa": 81920, "ma": 65536, "hp_range": [491520, 524287], "mp_range": [229376, 245759] },
+    "female":  { "sp": 98304, "pa": 65536, "ma": 81920, "hp_range": [458752, 491519], "mp_range": [245760, 262143] },
+    "monster": { "sp": 81920, "pa": null,  "ma": null,  "hp_range": [573440, 622591], "mp_range": [98304, 147455] },
+    "exceptions": {
+      "Ramza": { "pa": 81920, "ma": 81920, "note": "Otherwise a normal male unit." }
+    }
+  },
+
+  "ram_offsets": {
+    "_note": "PS1 RAM locations of the 3-byte raw stats, per unit slot (xx = slot stride).",
+    "raw_hp": "3005xx8D-8F",
+    "raw_mp": "3005xx90-92",
+    "raw_sp": "3005xx93-95",
+    "raw_pa": "3005xx96-98",
+    "raw_ma": "3005xx99-9B"
+  },
+
+  "generic_jobs": [
+    { "name": "Squire",     "wotl_name": "Squire",        "growth": { "hp": 11, "mp": 15, "sp": 100, "pa": 60, "ma": 50 }, "mult": { "hp": 100, "mp": 75,  "sp": 100, "pa": 90,  "ma": 80 } },
+    { "name": "Chemist",    "wotl_name": "Chemist",       "growth": { "hp": 12, "mp": 16, "sp": 100, "pa": 75, "ma": 50 }, "mult": { "hp": 80,  "mp": 75,  "sp": 100, "pa": 75,  "ma": 80 } },
+    { "name": "Knight",     "wotl_name": "Knight",        "growth": { "hp": 10, "mp": 15, "sp": 100, "pa": 40, "ma": 50 }, "mult": { "hp": 120, "mp": 80,  "sp": 100, "pa": 120, "ma": 80 } },
+    { "name": "Archer",     "wotl_name": "Archer",        "growth": { "hp": 11, "mp": 16, "sp": 100, "pa": 45, "ma": 50 }, "mult": { "hp": 100, "mp": 65,  "sp": 100, "pa": 110, "ma": 80 } },
+    { "name": "Monk",       "wotl_name": "Monk",          "growth": { "hp": 9,  "mp": 13, "sp": 100, "pa": 48, "ma": 50 }, "mult": { "hp": 135, "mp": 80,  "sp": 110, "pa": 129, "ma": 80 } },
+    { "name": "Priest",     "wotl_name": "White Mage",    "growth": { "hp": 10, "mp": 10, "sp": 100, "pa": 50, "ma": 50 }, "mult": { "hp": 80,  "mp": 120, "sp": 110, "pa": 90,  "ma": 110 } },
+    { "name": "Wizard",     "wotl_name": "Black Mage",    "growth": { "hp": 12, "mp": 9,  "sp": 100, "pa": 60, "ma": 50 }, "mult": { "hp": 75,  "mp": 120, "sp": 100, "pa": 60,  "ma": 150 } },
+    { "name": "Time Mage",  "wotl_name": "Time Mage",     "growth": { "hp": 12, "mp": 10, "sp": 100, "pa": 65, "ma": 50 }, "mult": { "hp": 75,  "mp": 120, "sp": 100, "pa": 50,  "ma": 130 } },
+    { "name": "Summoner",   "wotl_name": "Summoner",      "growth": { "hp": 13, "mp": 8,  "sp": 100, "pa": 70, "ma": 50 }, "mult": { "hp": 70,  "mp": 125, "sp": 90,  "pa": 50,  "ma": 125 } },
+    { "name": "Thief",      "wotl_name": "Thief",         "growth": { "hp": 11, "mp": 16, "sp": 90,  "pa": 50, "ma": 50 }, "mult": { "hp": 90,  "mp": 50,  "sp": 110, "pa": 100, "ma": 60 } },
+    { "name": "Mediator",   "wotl_name": "Orator",        "growth": { "hp": 11, "mp": 18, "sp": 100, "pa": 55, "ma": 50 }, "mult": { "hp": 80,  "mp": 70,  "sp": 100, "pa": 75,  "ma": 75 } },
+    { "name": "Oracle",     "wotl_name": "Mystic",        "growth": { "hp": 12, "mp": 10, "sp": 100, "pa": 60, "ma": 50 }, "mult": { "hp": 75,  "mp": 110, "sp": 100, "pa": 50,  "ma": 120 } },
+    { "name": "Geomancer",  "wotl_name": "Geomancer",     "growth": { "hp": 10, "mp": 11, "sp": 100, "pa": 45, "ma": 50 }, "mult": { "hp": 110, "mp": 95,  "sp": 100, "pa": 110, "ma": 105 } },
+    { "name": "Lancer",     "wotl_name": "Dragoon",       "growth": { "hp": 10, "mp": 15, "sp": 100, "pa": 40, "ma": 50 }, "mult": { "hp": 120, "mp": 50,  "sp": 100, "pa": 120, "ma": 50 } },
+    { "name": "Samurai",    "wotl_name": "Samurai",       "growth": { "hp": 12, "mp": 14, "sp": 100, "pa": 45, "ma": 50 }, "mult": { "hp": 75,  "mp": 75,  "sp": 100, "pa": 128, "ma": 90 } },
+    { "name": "Ninja",      "wotl_name": "Ninja",         "growth": { "hp": 12, "mp": 13, "sp": 80,  "pa": 43, "ma": 50 }, "mult": { "hp": 70,  "mp": 50,  "sp": 120, "pa": 120, "ma": 75 } },
+    { "name": "Calculator", "wotl_name": "Arithmetician", "growth": { "hp": 14, "mp": 10, "sp": 100, "pa": 70, "ma": 50 }, "mult": { "hp": 65,  "mp": 80,  "sp": 50,  "pa": 50,  "ma": 70 } },
+    { "name": "Bard",       "wotl_name": "Bard",          "growth": { "hp": 20, "mp": 20, "sp": 100, "pa": 80, "ma": 50 }, "mult": { "hp": 55,  "mp": 50,  "sp": 100, "pa": 30,  "ma": 115 }, "gender": "male" },
+    { "name": "Dancer",     "wotl_name": "Dancer",        "growth": { "hp": 20, "mp": 20, "sp": 100, "pa": 50, "ma": 50 }, "mult": { "hp": 60,  "mp": 50,  "sp": 100, "pa": 110, "ma": 95 },  "gender": "female" },
+    { "name": "Mime",       "wotl_name": "Mime",          "growth": { "hp": 6,  "mp": 30, "sp": 100, "pa": 35, "ma": 40 }, "mult": { "hp": 140, "mp": 50,  "sp": 120, "pa": 120, "ma": 115 } },
+    { "name": "Dark Knight","wotl_name": "Dark Knight",   "growth": { "hp": 12, "mp": 20, "sp": 100, "pa": 40, "ma": 50 }, "mult": { "hp": 80,  "mp": 90,  "sp": 100, "pa": 140, "ma": 80 }, "wotl_only": true },
+    { "name": "Onion Knight (JLv1-7)", "wotl_name": "Onion Knight (1-7)", "growth": { "hp": 13, "mp": 13, "sp": 100, "pa": 80, "ma": 50 }, "mult": { "hp": 50,  "mp": 50,  "sp": 100, "pa": 50,  "ma": 50 },  "wotl_only": true },
+    { "name": "Onion Knight (JLv8)",   "wotl_name": "Onion Knight (8)",   "growth": { "hp": 6,  "mp": 8,  "sp": 80,  "pa": 35, "ma": 40 }, "mult": { "hp": 150, "mp": 140, "sp": 120, "pa": 130, "ma": 120 }, "wotl_only": true }
+  ],
+
+  "special_jobs": [
+    { "id": "01-03", "name": "Squire (Ramza ch.1-3)",             "growth": { "hp": 11, "mp": 11, "sp": 95,  "pa": 50, "ma": 48 }, "mult": { "hp": 125, "mp": 105, "sp": 107, "pa": 111, "ma": 102 } },
+    { "id": "04",    "name": "Squire (Delita)",                   "growth": { "hp": 10, "mp": 11, "sp": 100, "pa": 50, "ma": 50 }, "mult": { "hp": 130, "mp": 100, "sp": 100, "pa": 120, "ma": 100 } },
+    { "id": "09",    "name": "Lune Knight",                       "growth": { "hp": 10, "mp": 9,  "sp": 95,  "pa": 48, "ma": 42 }, "mult": { "hp": 170, "mp": 103, "sp": 110, "pa": 105, "ma": 100 } },
+    { "id": "0D",    "name": "Holy Swordsman (Orlandu)",          "growth": { "hp": 10, "mp": 11, "sp": 100, "pa": 42, "ma": 42 }, "mult": { "hp": 160, "mp": 120, "sp": 110, "pa": 122, "ma": 100 } },
+    { "id": "0F",    "name": "Dragoner (Reis)",                   "growth": { "hp": 5,  "mp": 10, "sp": 95,  "pa": 39, "ma": 38 }, "mult": { "hp": 140, "mp": 115, "sp": 120, "pa": 120, "ma": 110 } },
+    { "id": "15",    "name": "Astrologist (Olan)",                "growth": { "hp": 10, "mp": 11, "sp": 95,  "pa": 50, "ma": 55 }, "mult": { "hp": 140, "mp": 108, "sp": 125, "pa": 100, "ma": 130 } },
+    { "id": "1B",    "name": "Arc Knight",                        "growth": { "hp": 9,  "mp": 10, "sp": 100, "pa": 40, "ma": 42 }, "mult": { "hp": 180, "mp": 120, "sp": 120, "pa": 120, "ma": 100 } },
+    { "id": "1E/34", "name": "Holy Knight (Agrias)",              "growth": { "hp": 10, "mp": 11, "sp": 100, "pa": 50, "ma": 50 }, "mult": { "hp": 140, "mp": 100, "sp": 100, "pa": 100, "ma": 100 } },
+    { "id": "1F",    "name": "Temple Knight (Meliadoul)",         "growth": { "hp": 10, "mp": 11, "sp": 100, "pa": 48, "ma": 45 }, "mult": { "hp": 122, "mp": 145, "sp": 105, "pa": 125, "ma": 105 } },
+    { "id": "24",    "name": "Divine Knight",                     "growth": { "hp": 9,  "mp": 9,  "sp": 100, "pa": 37, "ma": 50 }, "mult": { "hp": 165, "mp": 100, "sp": 115, "pa": 124, "ma": 100 } },
+    { "id": "25",    "name": "Divine Knight",                     "growth": { "hp": 10, "mp": 10, "sp": 100, "pa": 38, "ma": 50 }, "mult": { "hp": 150, "mp": 100, "sp": 115, "pa": 122, "ma": 100 } },
+    { "id": "27",    "name": "Sorceror",                          "growth": { "hp": 10, "mp": 8,  "sp": 100, "pa": 55, "ma": 49 }, "mult": { "hp": 125, "mp": 140, "sp": 105, "pa": 80,  "ma": 125 } },
+    { "id": "2A/2B/2F", "name": "Divine Knight / Engineer (Mustadio)", "growth": { "hp": 10, "mp": 15, "sp": 100, "pa": 39, "ma": 50 }, "mult": { "hp": 125, "mp": 80, "sp": 105, "pa": 120, "ma": 90 } },
+    { "id": "2D",    "name": "Assassin (Celia)",                  "growth": { "hp": 9,  "mp": 8,  "sp": 105, "pa": 50, "ma": 45 }, "mult": { "hp": 160, "mp": 125, "sp": 110, "pa": 120, "ma": 125 } },
+    { "id": "2E",    "name": "Assassin (Lettie)",                 "growth": { "hp": 9,  "mp": 8,  "sp": 110, "pa": 50, "ma": 45 }, "mult": { "hp": 155, "mp": 125, "sp": 115, "pa": 120, "ma": 125 } },
+    { "id": "32",    "name": "Soldier (Cloud)",                   "growth": { "hp": 11, "mp": 10, "sp": 100, "pa": 42, "ma": 46 }, "mult": { "hp": 125, "mp": 116, "sp": 100, "pa": 123, "ma": 120 } },
+    { "id": "33",    "name": "Arc Knight (Elmdor)",               "growth": { "hp": 8,  "mp": 10, "sp": 97,  "pa": 38, "ma": 48 }, "mult": { "hp": 170, "mp": 105, "sp": 125, "pa": 125, "ma": 105 } },
+    { "id": "3D",    "name": "Knight (Gafgarion)",                "growth": { "hp": 9,  "mp": 15, "sp": 100, "pa": 40, "ma": 50 }, "mult": { "hp": 130, "mp": 80,  "sp": 110, "pa": 125, "ma": 80 } },
+    { "id": "44",    "name": "Time Mage (special)",               "growth": { "hp": 11, "mp": 10, "sp": 100, "pa": 65, "ma": 48 }, "mult": { "hp": 100, "mp": 120, "sp": 110, "pa": 50,  "ma": 135 } },
+    { "id": "47",    "name": "Summoner (special)",                "growth": { "hp": 12, "mp": 8,  "sp": 100, "pa": 70, "ma": 40 }, "mult": { "hp": 85,  "mp": 125, "sp": 100, "pa": 50,  "ma": 125 } }
+  ],
+
+  "exp_formulas": {
+    "exp_per_action": "(target_level - source_level + 10) * gained_exp_up",
+    "gained_exp_up": { "without": 1, "with": 2 },
+    "jp_per_action": "(source_job_level * 2 + floor(source_level / 4) + 8) * gained_jp_up",
+    "gained_jp_up": { "without": 1.0, "with": 1.5 },
+    "note": "Level 99 at job level 8 always yields 48 JP (72 with Gained JP Up)."
+  }
+}

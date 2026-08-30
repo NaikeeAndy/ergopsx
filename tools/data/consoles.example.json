@@ -1,0 +1,18 @@
+{
+  "PS3": {
+    "kind": "ps3",
+    "host": "192.168.0.100",
+    "port": 21,
+    "user": "anonymous",
+    "password": "",
+    "path": "/dev_hdd0/savedata/vmc"
+  },
+  "Switch": {
+    "kind": "switch",
+    "host": "192.168.0.101",
+    "port": 5000,
+    "user": "впишите логин",
+    "password": "впишите пароль",
+    "path": "/switch/duckstation/memcards"
+  }
+}

@@ -1,0 +1,125 @@
+{
+ "SCUS-94221": {
+  "game": "Final Fantasy Tactics",
+  "offset": 288,
+  "width": "u32",
+  "unit": "секунды",
+  "saves": 38
+ },
+ "SLUS-00662": {
+  "game": "Parasite Eve (Disc 1)",
+  "offset": 264,
+  "width": "u32",
+  "unit": "секунды",
+  "saves": 33
+ },
+ "SLUS-01251": {
+  "game": "Final Fantasy IX (Disc 1)",
+  "offset": 300,
+  "width": "u32",
+  "unit": "кадры 60 Гц",
+  "saves": 29
+ },
+ "SLUS-01541": [
+  {
+   "game": "Final Fantasy Origins",
+   "offset": 804,
+   "width": "u32",
+   "unit": "секунды",
+   "saves": 19,
+   "match": "FF1"
+  },
+  {
+   "game": "Final Fantasy Origins",
+   "offset": 416,
+   "width": "u32",
+   "unit": "секунды",
+   "saves": 19,
+   "match": "FF2"
+  }
+ ],
+ "SLUS-01042": {
+  "game": "Parasite Eve II (Disc 1)",
+  "offset": 524,
+  "width": "u32",
+  "unit": "минуты",
+  "saves": 18
+ },
+ "SLUS-00879": {
+  "game": "Final Fantasy Anthology: Final Fantasy V",
+  "offset": 696,
+  "width": "u32",
+  "unit": "кадры 60 Гц",
+  "saves": 14
+ },
+ "SLUS-00922": {
+  "game": "Dino Crisis",
+  "offset": 268,
+  "width": "u32",
+  "unit": "кадры 60 Гц",
+  "saves": 6
+ },
+ "SCES-00867": {
+  "game": "Final Fantasy VII (Disc 1)",
+  "offset": 548,
+  "width": "u32",
+  "unit": "секунды",
+  "saves": 5
+ },
+ "SCUS-94163": {
+  "game": "Final Fantasy VII (Disc 1)",
+  "offset": 548,
+  "width": "u32",
+  "unit": "секунды",
+  "saves": 5
+ },
+ "SLPM-86111": {
+  "game": "Metal Gear Solid (Disc 1) (Ichi)",
+  "offset": 272,
+  "width": "u32",
+  "unit": "кадры 60 Гц",
+  "saves": 5
+ },
+ "SLES-02398": {
+  "game": "Grandia (Disc 1)",
+  "offset": 272,
+  "width": "u32",
+  "unit": "кадры 50 Гц",
+  "saves": 4
+ },
+ "SCES-00900": {
+  "game": "Final Fantasy VII (Disc 1)",
+  "offset": 548,
+  "width": "u32",
+  "unit": "секунды",
+  "saves": 4
+ },
+ "SCUS-94491": {
+  "game": "The Legend of Dragoon (Disc 1)",
+  "offset": 416,
+  "width": "u32",
+  "unit": "кадры 60 Гц",
+  "saves": 4
+ },
+ "SLPS-00770": {
+  "game": "Final Fantasy Tactics",
+  "offset": 288,
+  "width": "u32",
+  "unit": "секунды",
+  "saves": 3
+ },
+ "SLPS-01057": {
+  "game": "Final Fantasy VII International (Disc 1)",
+  "offset": 548,
+  "width": "u32",
+  "unit": "секунды",
+  "saves": 3
+ },
+ "SLUS-00594": {
+  "game": "Metal Gear Solid (Disc 1)",
+  "offset": 272,
+  "width": "u32",
+  "unit": "кадры 60 Гц",
+  "saves": 3
+ }
+}
