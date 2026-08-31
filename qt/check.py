@@ -57,8 +57,16 @@ def engine_side(root):
 
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 else "saves"
+    # Пропускаем молча там, где сверять нечем: в публичном репозитории
+    # нет ни коллекции, ни базы названий, а на Windows и Linux нет Swift.
     if not os.path.exists(BINARY):
         print(f"нет {BINARY} - сверка пропущена")
+        return 0
+    if not os.path.isdir(root):
+        print(f"нет папки {root} - сверка пропущена")
+        return 0
+    if not os.path.exists(psxid.default_titles_path()):
+        print("нет базы названий - сверка пропущена")
         return 0
 
     app, library = app_side(root)
