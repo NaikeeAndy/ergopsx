@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import CryptoKit
 import ImageIO
 import UniformTypeIdentifiers
 import MemCardKit
@@ -26,6 +27,15 @@ struct MemCardSaverApp: App {
         let args = CommandLine.arguments
         if let mark = args.firstIndex(of: "--render"), mark + 1 < args.count {
             MemCardSaverApp.render(to: URL(fileURLWithPath: args[mark + 1]))
+            exit(0)
+        }
+        // Наигранное время, как его считает слой приложения.
+        //     MemCardSaver --playtimes время.json
+        // В `memcard dump` его нет: время собирает не движок, а `Digest` -
+        // сперва разборщик игры, потом таблица автопоиска. У версии на Qt
+        // свой такой же слой, и сличить их больше нечем.
+        if let mark = args.firstIndex(of: "--playtimes"), mark + 1 < args.count {
+            MemCardSaverApp.playtimes(to: URL(fileURLWithPath: args[mark + 1]))
             exit(0)
         }
     }
@@ -110,6 +120,36 @@ struct MemCardSaverApp: App {
         }
         print("память: \(footprint()) МБ")
         print("выходов за границу не случилось")
+    }
+
+    /// Наигранное время по всей коллекции: хеш тела сейва -> секунды.
+    ///
+    /// Ключ - только тело: время зависит от него одного, и один и тот же
+    /// сейв из разных контейнеров даёт одно значение.
+    static func playtimes(to target: URL) {
+        var folders = Folders.stored()
+        if folders.isEmpty, let nearby = Folders.nearby() { folders = [nearby] }
+        guard !folders.isEmpty else { print("папок с сейвами нет"); return }
+
+        let engine = Engine()
+        var rows: [String: Int] = [:]
+        for folder in folders {
+            for item in Library.scan(folder, engine: engine).items {
+                let body = Data(item.save.blocks.flatMap { $0 })
+                let key = SHA256.hash(data: body)
+                    .map { String(format: "%02x", $0) }.joined()
+                rows[key] = item.playtime ?? -1
+            }
+        }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        guard let blob = try? encoder.encode(rows),
+              (try? blob.write(to: target)) != nil else {
+            print("выгрузить не вышло"); return
+        }
+        let known = rows.values.filter { $0 >= 0 }.count
+        print("сейвов: \(rows.count), со временем: \(known)")
+        print("снято: \(target.path)")
     }
 
     /// Рисует корзину с несколькими сейвами и кладёт в PNG.

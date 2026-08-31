@@ -145,9 +145,6 @@ class Library:
         # телом, но разными именами - разные сейвы.
         digest = hashlib.blake2b(bytes(frame[10:30]) + bytes(block),
                                  digest_size=16).hexdigest()
-        # Движок ставит русскую заглушку, а интерфейс бывает любым:
-        # берём её на себя. Сама игра название всё равно не сообщает -
-        # оно приходит из базы серийников.
         title = card["title"]
         # Движок ставит русскую заглушку, а интерфейс бывает любым.
         # Название игры он всё равно не придумывает - оно приходит из
@@ -177,16 +174,22 @@ class Library:
                 info = reader(block)
             except Exception:
                 return None
-            value = (info or {}).get("playtime")
-            if isinstance(value, (list, tuple)) and len(value) == 3:
-                return value[0] * 3600 + value[1] * 60 + value[2]
-            if isinstance(value, dict):
-                if "as_seconds" in value:
-                    return value["as_seconds"]
-                if "hours" in value:
-                    return (value["hours"] * 3600 + value.get("minutes", 0) * 60
-                            + value.get("seconds", 0))
+            seconds = self._seconds((info or {}).get("playtime"))
+            if seconds is not None:
+                return seconds
             break
+        # Final Fantasy VIII опознаётся по телу, а не по фрейму, и в общий
+        # список разборщиков не попадает - у `psxapp.detail` для него
+        # такая же отдельная ветка. Без неё время не показывалось у 82
+        # сейвов, второй по величине игры коллекции.
+        if psxapp.psxff8.is_ff8(block):
+            try:
+                seconds = self._seconds(
+                    psxapp.psxff8read.overview(block).get("playtime"))
+            except Exception:
+                seconds = None
+            if seconds is not None:
+                return seconds
         try:
             found = psxplaytime.playtime(block, frame, self.playtimes)
         except Exception:
@@ -198,6 +201,23 @@ class Library:
         # промахиваются: у Metal Gear Solid выходило 19 884 часа.
         # Прохождение длиннее тысячи часов - почти наверняка не время.
         return seconds if seconds < 1000 * 3600 else None
+
+    @staticmethod
+    def _seconds(value):
+        """Время из разбора в секунды. У каждой игры своя запись."""
+        if isinstance(value, (list, tuple)) and len(value) == 3:
+            return value[0] * 3600 + value[1] * 60 + value[2]
+        if isinstance(value, dict):
+            # У FF8 `as_seconds` - не число, а свои часы и минуты.
+            inner = value.get("as_seconds")
+            if isinstance(inner, dict):
+                value = inner
+            elif isinstance(inner, int):
+                return inner
+            if "hours" in value:
+                return (value["hours"] * 3600 + value.get("minutes", 0) * 60
+                        + value.get("seconds", 0))
+        return None
 
     def _regroup(self):
         seen, unique = set(), []

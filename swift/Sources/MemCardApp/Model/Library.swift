@@ -246,7 +246,12 @@ final class Library {
                     origin: item, remotePath: nil)
                 // Разбор всё равно понадобится - и панели справа, и
                 // сортировке. Делаем его здесь, разом, в фоновой задаче.
+                // Сперва разборщик игры, потом таблица автопоиска:
+                // у Parasite Eve II по общему смещению из таблицы лежит
+                // не время, и выходило триста тысяч часов.
                 made.playtime = Digest.of(made, engine: engine)?.playtime
+                    ?? Playtime.seconds(save.blocks[0], serial: made.info.serial,
+                                        signature: made.info.internalName)
                 items.append(made)
             }
         }

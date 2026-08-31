@@ -27,6 +27,10 @@ import psxid                     # noqa: E402
 from nsm.library import Library  # noqa: E402
 
 BINARY = os.path.join(ROOT, "swift", ".build", "debug", "memcard")
+# Наигранное время движок не отдаёт: его собирает слой приложения -
+# сперва разборщик игры, потом таблица автопоиска. У версии для macOS
+# такой же слой, и сличить их можно только через её выгрузку.
+APP = os.path.join(ROOT, "swift", ".build", "debug", "MemCardSaver")
 # Сравниваем то, что приложение показывает само: подпись игры приходит
 # из движка байт в байт, а вот эти поля оно строит по-своему.
 FIELDS = ("title", "serial", "region", "blocks", "internalName")
@@ -44,6 +48,22 @@ def app_side(root):
                      "region": item.region, "blocks": item.blocks,
                      "internalName": item.signature}
     return rows, library
+
+
+def playtimes_app(root):
+    """Наигранное время приложением для macOS: хеш тела -> секунды."""
+    if not os.path.exists(APP):
+        return None
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as fh:
+        target = fh.name
+    try:
+        subprocess.run([APP, "--playtimes", target],
+                       capture_output=True, check=True)
+        with open(target, encoding="utf-8") as fh:
+            return json.load(fh)
+    finally:
+        os.unlink(target)
 
 
 def engine_side(root):
@@ -107,7 +127,28 @@ def main():
     bad = [i for i in library.items
            if i.blocks != max(1, len(i.block) // psxid.BLOCK)]
     print(f"блоки не по телу {len(bad)}")
-    return 1 if (holes or bad or only_app or only_engine) else 0
+
+    # Наигранное время - отдельным проходом: в `dump` его нет.
+    clocks = 0
+    theirs = playtimes_app(root)
+    if theirs is None:
+        print("наигранное    приложение для macOS не собрано, пропущено")
+    else:
+        seen = set()
+        for item in library.items:
+            key = hashlib.sha256(item.block).hexdigest()
+            if key in seen or key not in theirs:
+                continue
+            seen.add(key)
+            mine = item.playtime if item.playtime is not None else -1
+            if mine != theirs[key]:
+                clocks += 1
+                if clocks <= 5:
+                    print(f"  {os.path.basename(item.path)}\n"
+                          f"    наигранное: Qt {mine}, macOS {theirs[key]}")
+        print(f"наигранное       сверено {len(seen)}, "
+              f"расхождений {clocks or 'нет'}")
+    return 1 if (holes or bad or clocks or only_app or only_engine) else 0
 
 
 if __name__ == "__main__":
