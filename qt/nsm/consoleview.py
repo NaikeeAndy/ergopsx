@@ -1,6 +1,7 @@
 """Окно консоли: список файлов, просмотр карты без скачивания, забрать к себе."""
 
 import os
+import struct
 
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import (QDialog, QFileDialog, QHBoxLayout, QLabel,
@@ -161,6 +162,7 @@ class ConsoleView(QDialog):
             frame = bytearray(psxid.FRAME)
             frame[10:30] = bytes(entry["name"])
             body = b"".join(entry["blocks"])
+            struct.pack_into("<I", frame, 4, len(entry["blocks"]) * psxid.BLOCK)
             found = psxid.describe(bytes(frame), body, self.library.titles)
             self.inside.addItem(
                 f"{found['title'] or found['serial']} — {found['internal']}")

@@ -183,6 +183,12 @@ def describe(frame, data, titles):
     region, serial, ident = split_filename(frame[10:30])
     serial = normalize_serial(serial) if serial else serial
     size = struct.unpack_from("<I", frame, 4)[0]
+    # **Фрейм не всегда настоящий.** Приложение собирает его на месте:
+    # из источника приходят только имя и блоки, а поле размера остаётся
+    # нулевым. Тогда считаем по телу, иначе всё выходит одноблочным -
+    # у Gran Turismo тело на пять блоков, у Diablo на десять.
+    if not size and data:
+        size = (len(data) + BLOCK - 1) // BLOCK * BLOCK
     return {
         "serial": serial or "?",
         "region": REGIONS.get(region, region or "?"),

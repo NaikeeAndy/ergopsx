@@ -51,6 +51,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Тесты движка
         run: swift test --package-path swift
+      - name: Сверка слоя приложения с движком
+        # Проверяет то, чего не видит сверка движков: приложение собирает
+        # каталожный фрейм на месте, и однажды там пропало поле размера.
+        # Без коллекции и базы названий тихо пропускается.
+        run: |
+          swift build --package-path swift
+          python3 -m pip install --quiet PySide6
+          python3 qt/check.py saves
       - name: Приложение и образ
         run: |
           ./swift/build-app.sh
