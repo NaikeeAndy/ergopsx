@@ -40,7 +40,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <dict>
   <key>CFBundleName</key><string>ErgoPSX Save Manager</string>
   <key>CFBundleDisplayName</key><string>ErgoPSX Save Manager</string>
-  <key>CFBundleIdentifier</key><string>ru.memcardsaver.app</string>
+  <key>CFBundleIdentifier</key><string>com.ergopsx.savemanager</string>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
   <key>CFBundleLocalizations</key>
   <array><string>en</string><string>ru</string><string>fr</string>

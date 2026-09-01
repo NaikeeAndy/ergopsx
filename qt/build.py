@@ -45,6 +45,9 @@ def main():
     args = [
         sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
         "--name", NAME, "--windowed",
+        # Без этого упаковщик кладёт в Info.plist само имя, а не
+        # обратную запись, и macOS считает такой идентификатор негодным.
+        "--osx-bundle-identifier", "com.ergopsx.savemanager",
         "--add-data", f"{os.path.join(ROOT, 'tools')}{sep}tools",
         # Модули движка ищут таблицы рядом с собой, а упаковщик
         # складывает их плоско - кладём папку и туда.
