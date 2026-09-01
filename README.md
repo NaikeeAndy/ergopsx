@@ -98,8 +98,12 @@ makepkg -si
 ```
 
 `ergopsx-git` is the smaller and more Arch-like of the two, and it moves
-with every commit. `ergopsx-bin` carries its own Python and Qt, so a system
-upgrade cannot disturb it, but it only changes when a release is cut.
+with every commit — nothing about it has to be touched when a release is
+cut, since makepkg reads the version out of the repository. `ergopsx-bin`
+carries its own Python and Qt, so a system upgrade cannot disturb it; its
+version and checksums are rewritten by CI from the archive that was just
+published, and `.SRCINFO` is regenerated alongside. Neither file is ever
+edited by hand.
 
 **Anything else.** The `.tar.gz` from the releases page: unpack it and run
 `ErgoPSXSaveManager`. Needs the libraries listed below.

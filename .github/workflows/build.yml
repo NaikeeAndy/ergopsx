@@ -189,3 +189,49 @@ jobs:
             --repo "$REPO" \
             --title "ErgoPSX Save Manager $TAG" \
             --notes-file notes.md
+
+  # ergopsx-git needs nothing on a release: makepkg reads its version out of
+  # the repository. ergopsx-bin carries a version and three checksums, and
+  # hand-editing those is the kind of chore that ships a package nobody can
+  # build. This job rewrites them from the very archive that was published.
+  aur:
+    name: AUR recipes
+    needs: [release]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: package-Linux
+          path: packages
+          merge-multiple: true
+
+      - name: Rewrite the binary recipe
+        run: qt/packaging/aur/update-bin.sh "${{ github.ref_name }}" packages/*.tar.gz
+
+      # .SRCINFO is what AUR reads instead of running the recipe, and only
+      # makepkg can produce it - hence the Arch container.
+      - name: Generate .SRCINFO
+        run: |
+          docker run --rm -v "$PWD:/w" archlinux:latest bash -c '
+            pacman -Sy --noconfirm --quiet >/dev/null 2>&1
+            useradd -m builder
+            chown -R builder /w/qt/packaging/aur
+            for recipe in ergopsx-git ergopsx-bin; do
+              su builder -c "cd /w/qt/packaging/aur/$recipe && makepkg --printsrcinfo > .SRCINFO"
+            done
+          '
+          head -3 qt/packaging/aur/ergopsx-bin/.SRCINFO
+
+      - name: Commit them back
+        run: |
+          git config user.name "Naikee"
+          git config user.email "naikee@users.noreply.github.com"
+          git add qt/packaging/aur
+          git diff --cached --quiet && echo "nothing changed" && exit 0
+          git commit -m "AUR: ergopsx-bin ${{ github.ref_name }}"
+          git push
