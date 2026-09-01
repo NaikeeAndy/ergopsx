@@ -177,6 +177,13 @@ class Window(QMainWindow):
         again = QPushButton(lang.t("Refresh"))
         again.clicked.connect(self.rescan)
         line.addWidget(again)
+        # На macOS настройки живут в меню приложения, и это тамошний
+        # обычай. На Windows и Linux такого меню нет, и пункт в «Файле»
+        # ищут глазами: язык, папки коллекции и профили консолей
+        # оказывались спрятаны там, где их никто не смотрит.
+        options = QPushButton(lang.t("Settings…"))
+        options.clicked.connect(self.open_settings)
+        line.addWidget(options)
         return bar
 
     def _divider(self):
