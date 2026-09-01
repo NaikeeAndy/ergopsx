@@ -59,14 +59,17 @@ them PySide6 fails with `could not load the Qt platform plugin "xcb"`.
 Debian and Ubuntu:
 
 ```sh
-sudo apt-get install python3-venv libegl1 libxkbcommon-x11-0 \
+sudo apt-get install python3-venv libgl1 libegl1 libxkbcommon-x11-0 \
   libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
   libxcb-render-util0 libxcb-shape0 libxcb-cursor0
 ```
 
-That list is what CI installs on Ubuntu, so it is known to be enough. On
-other distributions the same libraries carry different names — look for
-EGL, xkbcommon-x11 and the xcb-util family.
+That list is checked on every build: CI launches the packaged app inside a
+bare Ubuntu container carrying nothing but these. Any desktop also has
+fontconfig and fonts installed, which Qt needs to draw text at all.
+
+On other distributions the same libraries carry different names — look for
+GL, EGL, xkbcommon-x11 and the xcb-util family.
 
 Then:
 

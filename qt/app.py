@@ -1,7 +1,10 @@
 """ErgoPSX Save Manager - версия для Windows и Linux.
 
     python3 qt/app.py               обычный запуск
-    python3 qt/app.py --shot вид.png   снять окно и выйти
+    python3 qt/app.py --shot view.png  grab the window and quit
+
+Вывод здесь только латиницей: консоль Windows кодирует его в cp1252,
+и кириллица роняет процесс целиком.
 """
 
 import os
@@ -48,9 +51,9 @@ def main():
                 current = window.list.currentItem()
                 if current is not None:
                     item = current.data(Qt.UserRole)
-                    print("в списке выделено:", item.title)
+                    print("list selection:", item.title)
                     window.inspector.show_item(item)
-                    print("панели передан:", item.title)
+                    print("handed to the panel:", item.title)
                 for row in range(min(3, window.list.count())):
                     window.basket.add(window.list.item(row).data(Qt.UserRole))
                 window.basket_bar.refresh()
@@ -63,14 +66,14 @@ def main():
                                    window.library, window.palette_now, window)
                 view.show()
                 view.grab().save(target)
-                print("снято:", target)
+                print("shot saved:", target)
                 app.quit()
                 return
             # Снимать сразу нельзя: добавленные виджеты ещё не разложены,
             # и панель справа выходит пустой. Даём циклу событий пройти.
             def grab():
                 window.grab().save(target)
-                print(f"снято: {target}")
+                print(f"shot saved: {target}")
                 app.quit()
 
             QTimer.singleShot(400, grab)

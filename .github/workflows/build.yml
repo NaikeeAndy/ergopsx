@@ -33,7 +33,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq libegl1 libxkbcommon-x11-0 \
+          sudo apt-get install -y -qq libgl1 libegl1 libxkbcommon-x11-0 \
             libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
             libxcb-render-util0 libxcb-shape0 libxcb-cursor0
 
@@ -53,6 +53,23 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           Compress-Archive -Path qt/dist/ErgoPSXSaveManager -DestinationPath "ErgoPSXSaveManager-${{ github.ref_name }}-windows-x64.zip"
+
+      # The runner image already carries the Qt libraries, so a build that
+      # would not start on a clean machine passes here unnoticed. Launch the
+      # packaged app in a bare container with nothing but the documented
+      # list: that is how a missing libgl1 was found.
+      - name: Start on a clean system
+        if: runner.os == 'Linux'
+        run: |
+          docker run --rm -v "$PWD/qt/dist:/app" ubuntu:24.04 bash -c '
+            apt-get update -qq > /dev/null
+            apt-get install -y -qq libgl1 libegl1 libxkbcommon-x11-0 \
+              libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+              libxcb-render-util0 libxcb-shape0 libxcb-cursor0 \
+              fontconfig fonts-dejavu-core > /dev/null
+            cd /app/ErgoPSXSaveManager
+            QT_QPA_PLATFORM=offscreen ./ErgoPSXSaveManager --shot /tmp/shot.png --wait 4
+          '
 
       - uses: actions/upload-artifact@v4
         with:
