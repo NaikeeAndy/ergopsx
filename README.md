@@ -164,7 +164,7 @@ The standalone build works the same way as on Linux, through
 
 ### macOS
 
-A native Swift app; Xcode 15 or newer, macOS 14 or newer:
+A native Swift app; Xcode 16 or newer to build, macOS 14 or newer to run:
 
 ```sh
 ./swift/build-app.sh

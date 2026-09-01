@@ -15,11 +15,24 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 VERSION="${2:-$(git -C "$ROOT" describe --tags --abbrev=0 2>/dev/null || true)}"
 VERSION="${VERSION#v}"
 VERSION="${VERSION:-0.1}"
-BUILD="$ROOT/.build/$MODE"
 APP="$ROOT/ErgoPSXSaveManager.app"
 
-echo "сборка ($MODE)…"
-swift build --package-path "$ROOT" -c "$MODE" --product MemCardSaver
+# Release собирается универсальным: одним файлом под Intel и Apple Silicon.
+# Образ CI стоит на Apple Silicon, и сборка «как есть» выходила только
+# arm64 - на Intel такой .dmg не запускался вовсе («bad CPU type in
+# executable»), а заметить это можно было только на Intel. Debug остаётся
+# одной архитектурой: он для проверки на этой же машине, и вдвое дольше
+# ему незачем. У универсальной сборки SPM другая папка вывода.
+if [ "$MODE" = "release" ]; then
+  echo "сборка (release, universal)…"
+  swift build --package-path "$ROOT" -c release --product MemCardSaver \
+    --arch arm64 --arch x86_64
+  BUILD="$ROOT/.build/apple/Products/Release"
+else
+  echo "сборка ($MODE)…"
+  swift build --package-path "$ROOT" -c "$MODE" --product MemCardSaver
+  BUILD="$ROOT/.build/$MODE"
+fi
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
@@ -86,6 +99,15 @@ done
 codesign --force --deep --sign - "$APP" >/dev/null 2>&1 \
   && echo "подписано локально" \
   || echo "подписать не вышло - приложение запустится, но может не увидеть папки"
+
+# Проверка, а не надежда: release без одной из архитектур - ошибка.
+if [ "$MODE" = "release" ]; then
+  ARCHS="$(lipo -archs "$APP/Contents/MacOS/ErgoPSXSaveManager")"
+  case "$ARCHS" in
+    *x86_64*arm64*|*arm64*x86_64*) echo "архитектуры: $ARCHS" ;;
+    *) echo "не универсальная сборка: $ARCHS" >&2; exit 1 ;;
+  esac
+fi
 
 echo "готово: $APP"
 du -sh "$APP" | cut -f1 | sed 's/^/размер: /'
