@@ -1,6 +1,6 @@
-# Сборка приложения под три системы. Windows и Linux собираются здесь -
-# на маке разработчика их нет.
-name: Сборка
+# Builds the app for all three systems. Windows and Linux are built here:
+# the developer's machine is a Mac.
+name: Build
 
 on:
   push:
@@ -21,11 +21,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Зависимости
+      - name: Dependencies
         run: python -m pip install --quiet PySide6 pyinstaller
 
-      # Qt требует системных библиотек, которых нет в чистом образе.
-      - name: Библиотеки Linux
+      # Qt needs system libraries that a clean image does not carry.
+      - name: Linux libraries
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq
@@ -33,10 +33,10 @@ jobs:
             libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
             libxcb-render-util0 libxcb-shape0 libxcb-cursor0
 
-      - name: Проверка движка
+      - name: Engine check
         run: python -m compileall -q tools
 
-      - name: Сборка
+      - name: Build
         run: python qt/build.py
 
       - uses: actions/upload-artifact@v4
@@ -49,17 +49,16 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - name: Тесты движка
+      - name: Engine tests
         run: swift test --package-path swift
-      - name: Сверка слоя приложения с движком
-        # Проверяет то, чего не видит сверка движков: приложение собирает
-        # каталожный фрейм на месте, и однажды там пропало поле размера.
-        # Без коллекции и базы названий тихо пропускается.
+      - name: App layer against the engine
+        # Covers what the engine-to-engine check does not: the app builds a
+        # directory frame of its own. Skipped when there is no collection.
         run: |
           swift build --package-path swift
           python3 -m pip install --quiet PySide6
           python3 qt/check.py saves
-      - name: Приложение и образ
+      - name: App and disk image
         run: |
           ./swift/build-app.sh
           ./swift/build-dmg.sh

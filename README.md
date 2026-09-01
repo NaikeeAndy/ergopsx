@@ -41,17 +41,34 @@ share the same tables.
 them field by field. There should be no divergence — this is what catches
 mistakes that look plausible to the eye.
 
-## Running it
+## Getting it
 
-**macOS** — a native Swift app:
+There are no prebuilt downloads yet — build it from source. Start by
+cloning the repository:
 
 ```sh
-./swift/build-app.sh
-open swift/ErgoPSXSaveManager.app
-./swift/build-dmg.sh          # disk image for distribution
+git clone https://github.com/NaikeeAndy/ergopsx.git
+cd ergopsx
 ```
 
-**Windows and Linux** — a Qt version on top of the same engine:
+### Linux
+
+Python 3.12 or newer. Qt also needs a handful of system libraries; without
+them PySide6 fails with `could not load the Qt platform plugin "xcb"`.
+
+Debian and Ubuntu:
+
+```sh
+sudo apt-get install python3-venv libegl1 libxkbcommon-x11-0 \
+  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+  libxcb-render-util0 libxcb-shape0 libxcb-cursor0
+```
+
+That list is what CI installs on Ubuntu, so it is known to be enough. On
+other distributions the same libraries carry different names — look for
+EGL, xkbcommon-x11 and the xcb-util family.
+
+Then:
 
 ```sh
 python3 -m venv qt/.venv
@@ -59,13 +76,46 @@ qt/.venv/bin/python -m pip install PySide6
 qt/.venv/bin/python qt/app.py
 ```
 
-A standalone app, with no Python installed:
+To get a standalone application that runs without Python installed:
 
 ```sh
-qt/.venv/bin/python qt/build.py    # builds into qt/dist
+qt/.venv/bin/python -m pip install pyinstaller
+qt/.venv/bin/python qt/build.py      # lands in qt/dist
 ```
 
-GitHub Actions builds all three systems on a version tag.
+### Windows
+
+Python 3.12 or newer, nothing else to install:
+
+```sh
+python -m venv qt\.venv
+qt\.venv\Scripts\python -m pip install PySide6
+qt\.venv\Scripts\python qt\app.py
+```
+
+The standalone build works the same way as on Linux, through
+`qt/build.py`.
+
+### macOS
+
+A native Swift app; Xcode 15 or newer, macOS 14 or newer:
+
+```sh
+./swift/build-app.sh
+open swift/ErgoPSXSaveManager.app
+./swift/build-dmg.sh          # disk image for distribution
+```
+
+The Qt version runs on macOS as well, and is the one to use for
+development on Linux and Windows.
+
+### Which of the two to build
+
+Both read the same saves and share the same engine and string tables. The
+Swift app is for macOS only. The Qt app runs everywhere, including macOS.
+
+GitHub Actions builds all three systems on a version tag, so tagged
+releases carry ready-made binaries.
 
 Command-line tools (Python 3, no dependencies):
 
