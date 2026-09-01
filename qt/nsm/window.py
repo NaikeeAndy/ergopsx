@@ -109,8 +109,6 @@ class Window(QMainWindow):
         files.addSeparator()
         files.addAction(lang.t("Build card from basket…"),
                         self.basket_bar._save).setShortcut("Ctrl+Shift+S")
-        files.addSeparator()
-        files.addAction(lang.t("Settings…"), self.open_settings).setShortcut("Ctrl+,")
 
         consoles = bar.addMenu(lang.t("Consoles"))
         found = profiles()
@@ -125,6 +123,12 @@ class Window(QMainWindow):
         saves.addAction(lang.t("To basket"), self._toggle_basket).setShortcut("Ctrl+D")
         saves.addAction(lang.t("Compare the two selected"),
                         self.compare).setShortcut("Ctrl+=")
+
+        # Отдельным пунктом строки меню, а не строкой внутри «Файла»:
+        # там за ним прячутся язык, папки коллекции и профили консолей,
+        # и его не находили. На macOS Qt всё равно уводит его в меню
+        # приложения по ⌘, - тамошний обычай, и там его ищут сами.
+        bar.addAction(lang.t("Settings…"), self.open_settings).setShortcut("Ctrl+,")
 
     def open_settings(self):
         window = SettingsView(self.settings, self.palette_now, self)
@@ -177,13 +181,6 @@ class Window(QMainWindow):
         again = QPushButton(lang.t("Refresh"))
         again.clicked.connect(self.rescan)
         line.addWidget(again)
-        # На macOS настройки живут в меню приложения, и это тамошний
-        # обычай. На Windows и Linux такого меню нет, и пункт в «Файле»
-        # ищут глазами: язык, папки коллекции и профили консолей
-        # оказывались спрятаны там, где их никто не смотрит.
-        options = QPushButton(lang.t("Settings…"))
-        options.clicked.connect(self.open_settings)
-        line.addWidget(options)
         return bar
 
     def _divider(self):
