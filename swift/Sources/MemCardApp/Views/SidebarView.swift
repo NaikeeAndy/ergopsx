@@ -11,6 +11,9 @@ struct SidebarView: View {
     let onRight: () -> Void
     let onConsole: (ConsoleProfile) -> Void
     @Environment(\.palette) private var palette
+    /// Строку только что выбрали мышью - прокручивать к прежнему выбору
+    /// не надо, он сейчас сменится.
+    @State private var pickedByHand = false
 
     /// Всё, по чему можно ходить стрелками. Консоли пропущены:
     /// они открывают окно, а не меняют содержимое списка.
@@ -40,6 +43,10 @@ struct SidebarView: View {
                 // выделение и так стоит, но может быть за краем.
                 .onChange(of: focus.wrappedValue) { _, where_ in
                     guard where_ == .sidebar else { return }
+                    // Щелчок по строке тоже приводит фокус сюда, и обработчик
+                    // успевает сработать раньше, чем сменится `selection`:
+                    // список уезжал назад, к той игре, где выбирали сейв.
+                    guard !pickedByHand else { pickedByHand = false; return }
                     withAnimation(.easeOut(duration: 0.12)) {
                         scroller.scrollTo(selection, anchor: .center)
                     }
@@ -133,7 +140,7 @@ struct SidebarView: View {
     private func row(_ name: String, count: Int?, mark: Color,
                      target: Selection, round: Bool = false) -> some View {
         let on = selection == target
-        return Button { selection = target } label: {
+        return Button { pickedByHand = true; selection = target } label: {
             HStack(spacing: 9) {
                 RoundedRectangle(cornerRadius: round ? 3.5 : 2)
                     .fill(mark)
