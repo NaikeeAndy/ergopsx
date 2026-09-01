@@ -68,8 +68,31 @@ jobs:
               libxcb-render-util0 libxcb-shape0 libxcb-cursor0 \
               fontconfig fonts-dejavu-core > /dev/null
             cd /app/ErgoPSXSaveManager
-            QT_QPA_PLATFORM=offscreen ./ErgoPSXSaveManager --shot /tmp/shot.png --wait 4
+            QT_QPA_PLATFORM=offscreen ./ErgoPSXSaveManager \
+              --shot /app/started-linux.png --wait 4
           '
+          mv qt/dist/started-linux.png .
+
+      # A --windowed build has no console on Windows, so the shell does not
+      # wait for it: start it explicitly and read the exit code back.
+      - name: Start on Windows
+        if: runner.os == 'Windows'
+        run: |
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $exe = "qt\dist\ErgoPSXSaveManager\ErgoPSXSaveManager.exe"
+          $run = Start-Process -FilePath $exe -PassThru -Wait `
+            -ArgumentList "--shot","$PWD\started-windows.png","--wait","6"
+          if ($run.ExitCode -ne 0) { throw "exit code $($run.ExitCode)" }
+          if (-not (Test-Path "started-windows.png")) { throw "no screenshot" }
+          Get-Item started-windows.png | Format-List Name, Length
+
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: started-${{ runner.os }}
+          path: started-*.png
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
         with:
