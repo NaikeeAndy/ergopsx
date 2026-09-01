@@ -33,10 +33,11 @@ MAGIC, MAGIC_AT = 0x20000107, 0x18C
 STATS = 0x190
 GENERATION = 0x188
 ACTIONS_LEARNED, ACTIONS_SIZE = 0x640, 32
-MAP_STATUS = 0x660
+MAP_STATUS, MAP_STATUS_SIZE = 0x660, 0x48
 ROOM_FLAGS, ROOM_WORDS = 0x660, 16
 AREA_FLAGS = 0x6A0
 ARTS, ARTS_SIZE = 0x1DBC, 12
+ARTS_ABILITIES = 0x1DDC
 SCORE = 0x1784
 SCORE_KILLS = 0x04
 SCORE_MAX_CHAIN = 0x88
@@ -242,6 +243,12 @@ def overview(block):
         "kills": [_u16(plain, SCORE + SCORE_KILLS + i * 2) for i in range(6)],
         # Двенадцать счётчиков, а не биты: у каждой категории оружия
         # от нуля до четырёх приёмов.
+        # Открытые способности и число разделов карты, где герой побывал.
+        # Обоих полей тут не было, а у движка на Swift они есть - сверка
+        # движков этого не показала: она сравнивает только общий набор.
+        "abilities": _u16(plain, ARTS_ABILITIES),
+        "maps": sum(1 for byte in plain[MAP_STATUS:MAP_STATUS + MAP_STATUS_SIZE]
+                    if byte),
         "arts_learned": sum(plain[ARTS:ARTS + ARTS_SIZE]),
         "arts_by_category": list(plain[ARTS:ARTS + ARTS_SIZE]),
         "actions": sum(bin(byte).count("1")

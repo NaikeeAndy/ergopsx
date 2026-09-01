@@ -66,6 +66,38 @@ def playtimes_app(root):
         os.unlink(target)
 
 
+def digests_app(root):
+    """Разбор игр приложением для macOS: то, что видно в панели справа."""
+    if not os.path.exists(APP):
+        return None
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as fh:
+        target = fh.name
+    try:
+        subprocess.run([APP, "--digests", target], capture_output=True, check=True)
+        with open(target, encoding="utf-8") as fh:
+            return json.load(fh)
+    finally:
+        os.unlink(target)
+
+
+def shown(item, library):
+    """То же самое у версии на Qt."""
+    from nsm import digest
+    made = digest.build(library.detail(item))
+    if made is None:
+        return None
+    return {"game": made.game,
+            "fields": [[f.label, f.value] for f in made.fields],
+            "membersTitle": made.members_title,
+            "members": [[m.name, m.role, m.level,
+                         ",".join(f"{s.label}={s.value}" for s in m.stats),
+                         ",".join(m.gear or []), m.extra or ""]
+                        for m in made.members],
+            "sections": [[s.title, str(len(s.items)), s.note]
+                         for s in made.sections]}
+
+
 def engine_side(root):
     """Записи так, как их видит движок на Swift."""
     titles = psxid.default_titles_path()
@@ -148,7 +180,34 @@ def main():
                           f"    наигранное: Qt {mine}, macOS {theirs[key]}")
         print(f"наигранное       сверено {len(seen)}, "
               f"расхождений {clocks or 'нет'}")
-    return 1 if (holes or bad or clocks or only_app or only_engine) else 0
+    # Разбор игр - то, что видно в панели. Движки сверены между собой,
+    # а панель каждый строит сам, и она расходилась по всем играм сразу.
+    shows = 0
+    theirs = digests_app(root)
+    if theirs is None:
+        print("разбор игр   приложение для macOS не собрано, пропущено")
+    else:
+        from nsm import lang
+        lang.set_language("en")
+        seen = set()
+        for item in library.items:
+            key = hashlib.sha256(bytes(item.frame[10:30]) + item.block).hexdigest()
+            if key in seen or key not in theirs:
+                continue
+            seen.add(key)
+            mine, their = shown(item, library), theirs[key]
+            if mine == their:
+                continue
+            shows += 1
+            if shows <= 5:
+                part = next((p for p in their if mine is None or mine[p] != their[p]),
+                            "разбора нет")
+                print(f"  {their['game']}: {part}")
+                print(f"    macOS {str(their.get(part))[:120]}")
+                print(f"    Qt    {str(mine and mine.get(part))[:120]}")
+        print(f"разбор игр       сверено {len(seen)}, "
+              f"расхождений {shows or 'нет'}")
+    return 1 if (holes or bad or clocks or shows or only_app or only_engine) else 0
 
 
 if __name__ == "__main__":

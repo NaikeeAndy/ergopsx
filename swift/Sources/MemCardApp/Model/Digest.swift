@@ -132,7 +132,10 @@ struct Digest {
             return fromChronicles(found)
         }
         // Игры без своего разборщика - общий разбор по шаблону.
-        if let found = engine.templates.overview(block, serial: serial) {
+        // Пустой шаблон не показываем: панель с одним заголовком и без
+        // единого поля хуже честного «подробного разбора нет».
+        if let found = engine.templates.overview(block, serial: serial),
+           !found.fields.isEmpty || !found.sections.isEmpty {
             return Digest(
                 game: found.game,
                 playtime: nil,
@@ -240,7 +243,7 @@ struct Digest {
                       value: String(max(0, Vagrant.roomsTotal - found.rooms))),
                 Field(label: L.t("Chests opened"), value: String(found.chests)),
                 Field(label: L.t("Arts learned"),
-                      value: "\(found.artsLearned) из 48"),
+                      value: L.t("{0} of 48", found.artsLearned)),
                 Field(label: L.t("Abilities unlocked"), value: String(found.abilities)),
                 Field(label: L.t("Longest chain"), value: String(found.maxChain)),
                 Field(label: L.t("Heals"), value: String(found.heals)),

@@ -38,6 +38,14 @@ struct MemCardSaverApp: App {
             MemCardSaverApp.playtimes(to: URL(fileURLWithPath: args[mark + 1]))
             exit(0)
         }
+        // Разбор игр в том виде, в каком его показывает панель справа.
+        //     MemCardSaver --digests разбор.json
+        // Движки сверены между собой, а слой отображения - нет: панель
+        // строит его сама, и у двух приложений он может разойтись.
+        if let mark = args.firstIndex(of: "--digests"), mark + 1 < args.count {
+            MemCardSaverApp.digests(to: URL(fileURLWithPath: args[mark + 1]))
+            exit(0)
+        }
     }
 
     var body: some Scene {
@@ -149,6 +157,58 @@ struct MemCardSaverApp: App {
         }
         let known = rows.values.filter { $0 >= 0 }.count
         print("сейвов: \(rows.count), со временем: \(known)")
+        print("снято: \(target.path)")
+    }
+
+    /// Разбор игр по всей коллекции: хеш тела сейва -> то, что видно.
+    static func digests(to target: URL) {
+        L.current = .en
+        var folders = Folders.stored()
+        if folders.isEmpty, let nearby = Folders.nearby() { folders = [nearby] }
+        guard !folders.isEmpty else { print("папок с сейвами нет"); return }
+
+        struct Shown: Encodable {
+            var game: String
+            var fields: [[String]]
+            var membersTitle: String
+            var members: [[String]]
+            var sections: [[String]]
+        }
+
+        let engine = Engine()
+        var rows: [String: Shown] = [:]
+        for folder in folders {
+            for item in Library.scan(folder, engine: engine).items {
+                guard let made = Digest.of(item, engine: engine) else { continue }
+                // Ключ - имя и тело: у одного и того же тела бывает
+                // два имени, и по одному телу записи склеиваются.
+                var payload = Data(item.save.rawName)
+                payload.append(contentsOf: item.save.blocks.flatMap { $0 })
+                let key = SHA256.hash(data: payload)
+                    .map { String(format: "%02x", $0) }.joined()
+                rows[key] = Shown(
+                    game: made.game,
+                    fields: made.fields.map { [$0.label, $0.value] },
+                    membersTitle: made.membersTitle,
+                    members: made.members.map { member in
+                        [member.name, member.role, member.level,
+                         member.stats.map { "\($0.label)=\($0.value)" }
+                             .joined(separator: ","),
+                         member.gear.joined(separator: ","),
+                         member.extra]
+                    },
+                    sections: made.sections.map { part in
+                        [part.title, String(part.items.count), part.note]
+                    })
+            }
+        }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        guard let blob = try? encoder.encode(rows),
+              (try? blob.write(to: target)) != nil else {
+            print("выгрузить не вышло"); return
+        }
+        print("сейвов с разбором: \(rows.count)")
         print("снято: \(target.path)")
     }
 
