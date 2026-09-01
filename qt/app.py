@@ -2,6 +2,8 @@
 
     python3 qt/app.py               обычный запуск
     python3 qt/app.py --shot view.png  grab the window and quit
+    python3 qt/app.py --digests out.json --folder saves
+                                       dump every breakdown and quit
 
 Вывод здесь только латиницей: консоль Windows кодирует его в cp1252,
 и кириллица роняет процесс целиком.
@@ -36,6 +38,27 @@ def icon():
     return QIcon()
 
 
+def digests(target, folder):
+    import hashlib
+    import json
+    from nsm import digest, lang
+    from nsm.library import Library
+    lang.set_language("en")
+    library = Library()
+    library.load([folder])
+    out, seen = {}, set()
+    for item in library.items:
+        key = hashlib.sha256(bytes(item.frame[10:30]) + item.block).hexdigest()
+        if key in seen:
+            continue
+        seen.add(key)
+        out[key] = digest.dump(item, library)
+    with open(target, "w", encoding="utf-8") as fh:
+        json.dump(out, fh, ensure_ascii=False, indent=1)
+    print(f"digests: {len(out)} saves, {sum(v is not None for v in out.values())} with a breakdown -> {target}")
+    return 0
+
+
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName("ErgoPSX Save Manager")
@@ -43,6 +66,12 @@ def main():
     # Связывает окно с пунктом меню приложений: без этого оболочка
     # рисует рядом с ним заглушку, а не наш значок.
     app.setDesktopFileName("ergopsx")
+    # Выгрузка разборов для сличения с версией для macOS, без окна:
+    # запускается упакованный бинарник там, где он живёт, и сличается
+    # то, что реально ушло пользователю, а не исходники в моём окружении.
+    if "--digests" in sys.argv:
+        return digests(sys.argv[sys.argv.index("--digests") + 1],
+                       sys.argv[sys.argv.index("--folder") + 1])
     window = Window()
     # `app.quit()` не зовёт `closeEvent`, а поток обхода надо остановить
     # в любом случае - иначе Qt уничтожает его на ходу и приложение

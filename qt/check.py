@@ -8,6 +8,12 @@
 число блоков из длины цепочки, а не из ответа движка.
 
     python3 qt/check.py [папка]
+    python3 qt/check.py [папка] --against linux.json
+
+Второй вид сличает с macOS не код из исходников, а выгрузку упакованного
+бинарника: `ErgoPSXSaveManager --digests linux.json --folder <папка>`,
+запущенного там, где ему и жить, - например, в контейнере Linux.
+Упаковщик уже терял файлы данных, и на исходниках этого не видно.
 
 Без собранного `memcard` молча пропускается: на Windows и Linux Swift нет.
 """
@@ -84,18 +90,7 @@ def digests_app(root):
 def shown(item, library):
     """То же самое у версии на Qt."""
     from nsm import digest
-    made = digest.build(library.detail(item))
-    if made is None:
-        return None
-    return {"game": made.game,
-            "fields": [[f.label, f.value] for f in made.fields],
-            "membersTitle": made.members_title,
-            "members": [[m.name, m.role, m.level,
-                         ",".join(f"{s.label}={s.value}" for s in m.stats),
-                         ",".join(m.gear or []), m.extra or ""]
-                        for m in made.members],
-            "sections": [[s.title, str(len(s.items)), s.note]
-                         for s in made.sections]}
+    return digest.dump(item, library)
 
 
 def engine_side(root):
@@ -108,7 +103,12 @@ def engine_side(root):
 
 
 def main():
-    root = sys.argv[1] if len(sys.argv) > 1 else "saves"
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    root = args[0] if args else "saves"
+    against = None
+    if "--against" in sys.argv:
+        with open(sys.argv[sys.argv.index("--against") + 1], encoding="utf-8") as fh:
+            against = json.load(fh)
     # Пропускаем молча там, где сверять нечем: в публичном репозитории
     # нет ни коллекции, ни базы названий, а на Windows и Linux нет Swift.
     if not os.path.exists(BINARY):
@@ -195,7 +195,8 @@ def main():
             if key in seen or key not in theirs:
                 continue
             seen.add(key)
-            mine, their = shown(item, library), theirs[key]
+            mine = against.get(key) if against is not None else shown(item, library)
+            their = theirs[key]
             if mine == their:
                 continue
             shows += 1
@@ -205,7 +206,8 @@ def main():
                 print(f"  {their['game']}: {part}")
                 print(f"    macOS {str(their.get(part))[:120]}")
                 print(f"    Qt    {str(mine and mine.get(part))[:120]}")
-        print(f"разбор игр       сверено {len(seen)}, "
+        side = "бинарник" if against is not None else "исходники"
+        print(f"разбор игр       сверено {len(seen)} ({side}), "
               f"расхождений {shows or 'нет'}")
     return 1 if (holes or bad or clocks or shows or only_app or only_engine) else 0
 

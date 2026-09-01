@@ -558,3 +558,24 @@ def build(detail):
                               lang.t("{0} of {1}", len(part.get('set', [])), part.get('total', 0)))
                       for part in data.get("sections", [])])
     return None
+
+
+def dump(item, library):
+    """Разбор в виде, пригодном для сличения с `--digests` приложения для macOS.
+
+    Один и тот же вид строят и `qt/check.py` из исходников, и упакованный
+    бинарник по `--digests`: так сличается не код в моём окружении, а то,
+    что на самом деле уходит пользователю.
+    """
+    made = build(library.detail(item))
+    if made is None:
+        return None
+    return {"game": made.game,
+            "fields": [[f.label, f.value] for f in made.fields],
+            "membersTitle": made.members_title,
+            "members": [[m.name, m.role, m.level,
+                         ",".join(f"{s.label}={s.value}" for s in m.stats),
+                         ",".join(m.gear or []), m.extra or ""]
+                        for m in made.members],
+            "sections": [[s.title, str(len(s.items)), s.note]
+                         for s in made.sections]}
