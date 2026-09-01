@@ -1,55 +1,57 @@
 # ErgoPSX Save Manager
 
-Чтение и разбор сохранений PlayStation 1: карты памяти, отдельные сейвы,
-контейнеры всех ходовых форматов, подробный разбор двенадцати игр и работа
-с сохранениями прямо на PS3 и Nintendo Switch по FTP.
+Reads and inspects PlayStation 1 saves: memory cards, single saves, every
+container format in common use, detailed breakdowns for twelve games, and
+working with saves directly on a PS3 or a Nintendo Switch over FTP.
 
-Приложение **ничего не перезаписывает**. Смена региона, сборка карты,
-конвертация, отправка на консоль — всегда в новый файл.
+The app **never overwrites anything**. Changing a region, building a card,
+converting, uploading to a console — always into a new file.
 
-## Что умеет
+## What it does
 
-**Форматы карт и сейвов.** Сырой образ (`.mcr`, `.mcd`, `.VM1`), DexDrive
+**Card and save formats.** Raw image (`.mcr`, `.mcd`, `.VM1`), DexDrive
 `.gme`, VGS, PSP `.vmp`, Memory Juggler `.psx`, PS3 `.psv`, `.mcs`, MCX.
-Конвертация между ними, смена региона, разбор карты на отдельные сейвы и
-сборка карты обратно.
+Conversion between them, region switching, splitting a card into single
+saves and building a card back.
 
-**Подпись.** AES-128 и HMAC-SHA1 для `.psv` и `.vmp` — консоль принимает
-собранные файлы, а не отвергает их.
+**Signing.** AES-128 and HMAC-SHA1 for `.psv` and `.vmp` — consoles accept
+the files it builds instead of rejecting them.
 
-**Иконки.** Декодирование 16×16 BGR555, все кадры анимации, прозрачность
-по STP-биту.
+**Icons.** 16×16 BGR555 decoding, every animation frame, transparency from
+the STP bit.
 
-**Подробный разбор игр.** Final Fantasy V, VI, VII, VIII, IX, Tactics,
+**Detailed game breakdowns.** Final Fantasy V, VI, VII, VIII, IX, Tactics,
 Castlevania: Symphony of the Night, Castlevania Chronicles, Resident Evil,
-Vagrant Story, Parasite Eve II, Crash Bandicoot 2. Отряд, инвентарь,
-экипировка, магия, наигранное время, прогресс. Плюс общий разбор по
-шаблонам ещё для нескольких игр.
+Vagrant Story, Parasite Eve II, Crash Bandicoot 2. Party, inventory,
+equipment, magic, playtime, progress. Plus template-driven field reading
+for a number of other games.
 
-**Консоли по FTP.** Обход файлов на PS3 и Switch, просмотр содержимого карт
-без скачивания, загрузка образов игр, сборка карты из сейвов разных мест.
+**Consoles over FTP.** Browsing files on a PS3 and a Switch, looking inside
+memory cards without downloading them, uploading game images, building a
+card out of saves gathered from several places.
 
-**Семь языков.** Английский, русский, французский, немецкий, японский,
-китайский, польский; переключаются на лету, из настроек. Английский —
-исходный: он написан прямо в коде и служит ключом, остальные лежат
-таблицами в `tools/data/i18n`. Одни и те же таблицы у обеих версий.
+**Seven languages.** English, Russian, French, German, Japanese, Chinese,
+Polish; switched on the fly from the settings. English is the source
+language: it is written in the code itself and serves as the lookup key,
+while the others live in tables under `tools/data/i18n`. Both versions
+share the same tables.
 
-**Два движка, сверенных между собой.** Один на Swift, второй на Python;
-`python3 tools/psxverify.py saves` гоняет оба по коллекции и сравнивает поле
-в поле. Расхождений быть не должно - на этом ловятся ошибки, которые на глаз
-выглядят правдоподобно.
+**Two engines, checked against each other.** One in Swift, one in Python;
+`python3 tools/psxverify.py saves` runs both over a collection and compares
+them field by field. There should be no divergence — this is what catches
+mistakes that look plausible to the eye.
 
-## Как запустить
+## Running it
 
-**macOS** — родное приложение на Swift:
+**macOS** — a native Swift app:
 
 ```sh
 ./swift/build-app.sh
 open swift/ErgoPSXSaveManager.app
-./swift/build-dmg.sh          # образ для раздачи
+./swift/build-dmg.sh          # disk image for distribution
 ```
 
-**Windows и Linux** — версия на Qt поверх того же движка:
+**Windows and Linux** — a Qt version on top of the same engine:
 
 ```sh
 python3 -m venv qt/.venv
@@ -57,131 +59,125 @@ qt/.venv/bin/python -m pip install PySide6
 qt/.venv/bin/python qt/app.py
 ```
 
-Самостоятельное приложение, без установленного Python:
+A standalone app, with no Python installed:
 
 ```sh
-qt/.venv/bin/python qt/build.py    # соберёт в qt/dist
+qt/.venv/bin/python qt/build.py    # builds into qt/dist
 ```
 
-Готовые сборки под все три системы делает GitHub Actions по тегу версии.
+GitHub Actions builds all three systems on a version tag.
 
-### База названий игр
+Command-line tools (Python 3, no dependencies):
 
-Названия игр по серийникам берутся из внешней базы — 10 937 записей,
-`TitlesDB_PS1_English.txt` из
+```sh
+python3 tools/psxid.py <file>          # identify a save
+python3 tools/psxgallery.py <folder>   # HTML gallery
+python3 tools/psxconvert.py --help     # conversion
+python3 tools/psxbuild.py --help       # card building
+```
+
+## The game title database
+
+Game names are looked up by serial in an external database — 10,937
+entries, `TitlesDB_PS1_English.txt` from
 [sd2psx-save-converter](https://github.com/Kyuu-Ji/sd2psx-save-converter),
-который, в свою очередь, берёт её у
+which in turn takes it from
 [Title-Database-Scrapper](https://github.com/GDX-X/Title-Database-Scrapper).
-В репозиторий она не входит: лицензия у неё не указана, и перевыкладывать
-её мы не беремся. Без базы приложение работает, но вместо названий
-показывает «Unknown game», а список слева заполняет подписями сейвов.
+It is not included here: no licence is stated for it, and we are not going
+to redistribute it. Everything works without it, but instead of names the
+app shows "Unknown game" and fills the list on the left with save
+signatures.
 
-Положите файл в
+Put the file at
 `reference/psxsaves/sd2psx-save-converter/BAT/TitlesDB_PS1_English.txt`
-и выполните:
+and run:
 
 ```sh
 python3 tools/psxexport.py
 ```
 
-Он разложит базу и таблицы строк по обеим сборкам.
+It lays the database and the string tables out for both builds.
 
-Инструменты командной строки (Python 3, зависимостей нет):
+## Console profiles
 
-```sh
-python3 tools/psxid.py <файл>          # опознать сейв
-python3 tools/psxgallery.py <папка>    # HTML-галерея
-python3 tools/psxconvert.py --help     # конвертация
-python3 tools/psxbuild.py --help       # сборка карты
-```
+Copy `tools/data/consoles.example.json` to `tools/data/consoles.json` and
+fill in your own addresses. That file is not in the repository and must
+never end up in it — it holds a password.
 
-## База названий игр
+## Credits
 
-В репозиторий не входит: это чужая база, у неё своя лицензия. Возьмите её
-из [Title-Database-Scrapper](https://github.com/GDX-X/Title-Database-Scrapper)
-и положите рядом, затем выполните `python3 tools/psxexport.py`. Без неё всё
-работает, но игры показываются серийниками вместо названий.
+PS1 save formats were worked out by dozens of people, over years and mostly
+for free. This project would not exist without them; almost nothing here
+was derived from scratch.
 
-## Профили консолей
+### Game format research
 
-Скопируйте `tools/data/consoles.example.json` в `tools/data/consoles.json`
-и впишите свои адреса. Файл в репозиторий не входит и не должен в него
-попадать — в нём пароль.
-
-## Благодарности
-
-Форматы сохранений PS1 разбирали десятки людей, годами и по большей части
-безвозмездно. Без их работы этот проект был бы невозможен — здесь почти
-ничего не выведено с нуля.
-
-### Разборы форматов игр
-
-| Проект | Что дал | Лицензия |
+| Project | What it gave | Licence |
 |---|---|---|
-| [ser-pounce/rood-reverse](https://github.com/ser-pounce/rood-reverse) | Vagrant Story: расшифровка сейва, раскладка `savedata_t`, таблица символов, карта комнат | CC0 |
-| [myst6re/hyne](https://github.com/myst6re/hyne) | Final Fantasy VIII: раскладка сейва и таблица контрольной суммы | GPL-3.0 |
-| [sithlord48/ff7tk](https://github.com/sithlord48/ff7tk) | Final Fantasy VII: структуры сейва с проставленными смещениями | LGPL-3.0 |
-| [everything8215/ff5](https://github.com/everything8215/ff5) | Final Fantasy V: дизассемблировка, карта RAM, таблица символов | — |
-| [GabeRealB/parasite-eve-2-decomp](https://github.com/GabeRealB/parasite-eve-2-decomp) | Parasite Eve II: размер и раскладка записи сейва | CC0 |
-| [giuse94/PSDX](https://github.com/giuse94/PSDX) | Crash Bandicoot 2: смещения и контрольная сумма | Unlicense |
-| game-tools-collection | Шаблоны полей для FFT, SotN, Resident Evil и других | — |
+| [ser-pounce/rood-reverse](https://github.com/ser-pounce/rood-reverse) | Vagrant Story: save decryption, `savedata_t` layout, character table, room map | CC0 |
+| [myst6re/hyne](https://github.com/myst6re/hyne) | Final Fantasy VIII: save layout and checksum table | GPL-3.0 |
+| [sithlord48/ff7tk](https://github.com/sithlord48/ff7tk) | Final Fantasy VII: save structures with offsets spelled out | LGPL-3.0 |
+| [everything8215/ff5](https://github.com/everything8215/ff5) | Final Fantasy V: disassembly, RAM map, character table | — |
+| [GabeRealB/parasite-eve-2-decomp](https://github.com/GabeRealB/parasite-eve-2-decomp) | Parasite Eve II: save record size and layout | CC0 |
+| [giuse94/PSDX](https://github.com/giuse94/PSDX) | Crash Bandicoot 2: offsets and checksum | Unlicense |
+| game-tools-collection | Field templates for FFT, SotN, Resident Evil and others | — |
 
-### Контейнеры, подпись, работа с картами
+### Containers, signing, cards
 
-| Проект | Что дал |
+| Project | What it gave |
 |---|---|
-| [MemcardRex](https://github.com/ShendoXT/memcardrex) | Форматы контейнеров и подпись PSV |
-| [save-file-converter](https://github.com/euanjt/save-file-converter) | Конвертация и подпись |
-| psv-save-converter | Заголовок и подпись PSV |
-| ps1vmc-tool, ps3mca-ps1 | Работа с картами PS3 |
-| [PSDevWiki](https://www.psdevwiki.com/) | Описание `.VM1`, `.PSV`, `.VMP` |
+| [MemcardRex](https://github.com/ShendoXT/memcardrex) | Container formats and PSV signing |
+| [save-file-converter](https://github.com/euanjt/save-file-converter) | Conversion and signing |
+| psv-save-converter | PSV header and signature |
+| ps1vmc-tool, ps3mca-ps1 | Working with PS3 cards |
+| [PSDevWiki](https://www.psdevwiki.com/) | `.VM1`, `.PSV`, `.VMP` documentation |
 
-### Названия и таблицы
+### Names and tables
 
-| Источник | Что дал |
+| Source | What it gave |
 |---|---|
-| [Title-Database-Scrapper](https://github.com/GDX-X/Title-Database-Scrapper) | База названий игр по серийникам |
-| RPGe (перевод Final Fantasy V) | Названия работ, предметов и заклинаний |
-| ff5-names | Современный нейминг предметов FF5 |
-| forums.qhimm.com | Разбор сейвов Final Fantasy VIII |
-| [wiki.ffrtt.ru](https://wiki.ffrtt.ru/) и Data Crystal | Карта сейва Final Fantasy VII |
+| [Title-Database-Scrapper](https://github.com/GDX-X/Title-Database-Scrapper) | Game titles by serial |
+| RPGe (Final Fantasy V translation) | Job, item and spell names |
+| ff5-names | Modern FF5 item naming |
+| forums.qhimm.com | Final Fantasy VIII save research |
+| [wiki.ffrtt.ru](https://wiki.ffrtt.ru/) and Data Crystal | Final Fantasy VII save map |
 
-### Консоли
+### Consoles
 
-| Проект | Что дал |
+| Project | What it gave |
 |---|---|
-| [ITotalJustice/ftpsrv](https://github.com/ITotalJustice/ftpsrv) | FTP-сервер для Switch, в том числе системным модулем |
-| webMAN MOD, multiMAN | FTP на PS3 |
-| [DuckStation](https://github.com/stenzek/duckstation) | Именование карт памяти, с которым мы сверялись |
+| [ITotalJustice/ftpsrv](https://github.com/ITotalJustice/ftpsrv) | FTP server for the Switch, including as a system module |
+| webMAN MOD, multiMAN | FTP on the PS3 |
+| [DuckStation](https://github.com/stenzek/duckstation) | Memory card naming we checked ourselves against |
 
-### Что именно взято
+### What exactly was taken
 
-Стоит различать. **Находки** — смещения, порядок полей, единицы времени,
-алгоритмы контрольных сумм — это факты об играх, установленные чужим
-трудом. Они здесь повсюду, и убрать их нельзя: на них держится разбор.
-Единственное, что с ними можно сделать — назвать тех, кто их установил,
-что и сделано выше. Если атрибуция неверна или неполна, напишите,
-поправлю.
+The distinction matters. **Findings** — offsets, field order, time units,
+checksum algorithms — are facts about the games, established by other
+people's work. They are everywhere in this project and cannot be removed:
+the parsing rests on them. The one thing that can be done with them is to
+name who established them, which is what the tables above do. If the
+attribution is wrong or incomplete, write and it will be fixed.
 
-**Дословно скопированы** только таблицы, и вот их список — с ними
-разговор предметный:
+**Copied verbatim** are only tables, and here is the list of them — with
+those the conversation is concrete:
 
-| Файл | Откуда | Можно ли заменить |
+| File | From | Can it be replaced |
 |---|---|---|
-| `psxff8.json`, поле `CRC_TABLE` | hyne, GPL-3.0 | да — таблица строится по полиному `0x1021`, с одной поправкой: элемент 255 нулевой, иначе суммы не сойдутся |
-| `VagrantText.swift`, таблица символов | rood-reverse, CC0 | лицензия разрешает |
-| `templates.json` | game-tools-collection | лицензия не указана — нужна проверка |
-| Названия предметов и работ FF5 | патч RPGe | фанатский перевод, условия распространения не оговорены |
+| `psxff8.json`, the `CRC_TABLE` field | hyne, GPL-3.0 | yes — the table is generated from polynomial `0x1021`, with one correction: entry 255 is zero, otherwise the checksums do not match |
+| `VagrantText.swift`, character table | rood-reverse, CC0 | the licence allows it |
+| `templates.json` | game-tools-collection | no licence stated — needs checking |
+| FF5 item and job names | the RPGe patch | a fan translation, terms of distribution not spelled out |
 
-Таблицу CRC от FF8 можно вообще не хранить — она порождается кодом.
-Остальные при необходимости заменяются на собранные заново.
+The FF8 CRC table need not be stored at all — code can generate it. The
+rest can be rebuilt from scratch if it comes to that.
 
-Если ваш проект здесь использован, а в списке его нет — напишите,
-добавлю. Если вы против того, как использована **ваша таблица** — тоже
-напишите: её действительно можно убрать или пересобрать.
+If your project is used here and is missing from the list — write, it will
+be added. If you object to how **your table** is used — write as well: it
+really can be removed or rebuilt.
 
-## Лицензия
+## Licence
 
-MIT — см. `LICENSE`. Лицензия распространяется на код этого проекта.
-Данные и разборы, взятые из перечисленных выше источников, остаются под
-своими лицензиями.
+MIT — see `LICENSE`. The licence covers the code of this project. Data and
+research taken from the sources listed above remain under their own
+licences.
