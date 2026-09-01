@@ -1,11 +1,15 @@
-# Builds the app for all three systems. Windows and Linux are built here:
-# the developer's machine is a Mac.
+# Builds the app for all three systems and publishes them on a version tag.
+# Windows and Linux are built here: the developer's machine is a Mac.
 name: Build
 
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+
+# Needed so the release job can create a release and upload files to it.
+permissions:
+  contents: write
 
 jobs:
   qt:
@@ -39,30 +43,97 @@ jobs:
       - name: Build
         run: python qt/build.py
 
+      - name: Package for Linux
+        if: runner.os == 'Linux'
+        run: |
+          tar -czf "ErgoPSXSaveManager-${{ github.ref_name }}-linux-x86_64.tar.gz" \
+            -C qt/dist ErgoPSXSaveManager
+
+      - name: Package for Windows
+        if: runner.os == 'Windows'
+        run: |
+          Compress-Archive -Path qt/dist/ErgoPSXSaveManager -DestinationPath "ErgoPSXSaveManager-${{ github.ref_name }}-windows-x64.zip"
+
       - uses: actions/upload-artifact@v4
         with:
-          name: ErgoPSXSaveManager-${{ runner.os }}
-          path: qt/dist/
+          name: package-${{ runner.os }}
+          path: |
+            *.tar.gz
+            *.zip
+          if-no-files-found: error
 
   mac:
     name: macOS (Swift)
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+
       - name: Engine tests
         run: swift test --package-path swift
+
+      # Covers what the engine-to-engine check does not: the app builds a
+      # directory frame of its own. Skipped when there is no collection.
       - name: App layer against the engine
-        # Covers what the engine-to-engine check does not: the app builds a
-        # directory frame of its own. Skipped when there is no collection.
         run: |
           swift build --package-path swift
-          python3 -m pip install --quiet PySide6
           python3 qt/check.py saves
+
       - name: App and disk image
         run: |
           ./swift/build-app.sh
           ./swift/build-dmg.sh
+          mv swift/ErgoPSXSaveManager.dmg "ErgoPSXSaveManager-${{ github.ref_name }}-macos.dmg"
+
       - uses: actions/upload-artifact@v4
         with:
-          name: ErgoPSXSaveManager-macOS
-          path: swift/ErgoPSXSaveManager.dmg
+          name: package-macOS
+          path: "*.dmg"
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: [qt, mac]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: packages
+          merge-multiple: true
+
+      - name: List what was built
+        run: ls -la packages
+
+      # Source code archives are attached by GitHub itself.
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cat > notes.md <<'NOTES'
+          Builds for all three systems. Source code archives are attached below
+          by GitHub.
+
+          | File | System |
+          |---|---|
+          | `…-macos.dmg` | macOS 14 and newer |
+          | `…-windows-x64.zip` | Windows 10 and newer, 64-bit |
+          | `…-linux-x86_64.tar.gz` | Linux, x86-64 |
+
+          Windows and Linux need nothing installed — Python and Qt travel
+          inside the archive. Unpack it and run `ErgoPSXSaveManager`.
+
+          The macOS app is signed locally rather than with an Apple developer
+          certificate, so Gatekeeper refuses to open it on first launch.
+          Right-click the app and choose Open, or allow it in System Settings
+          under Privacy & Security.
+
+          Game titles come from an external database that is not redistributed
+          here; without it saves show as "Unknown game". The README explains
+          where to get it.
+          NOTES
+          gh release create "$TAG" packages/* \
+            --repo "$REPO" \
+            --title "ErgoPSX Save Manager $TAG" \
+            --notes-file notes.md

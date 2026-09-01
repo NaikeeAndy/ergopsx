@@ -222,9 +222,15 @@ those the conversation is concrete:
 The FF8 CRC table need not be stored at all — code can generate it. The
 rest can be rebuilt from scratch if it comes to that.
 
-If your project is used here and is missing from the list — write, it will
-be added. If you object to how **your table** is used — write as well: it
-really can be removed or rebuilt.
+If your project is used here and is missing from the list, write and it
+will be added. If you object to how **your table** is used, write as well:
+it really can be removed or rebuilt.
+
+## Contact
+
+Open for suggestions and collaboration — **dktgsitu@gmail.com**. Bug
+reports, missing games, wrong offsets, attribution that needs fixing: all
+welcome, by mail or as an issue.
 
 ## Licence
 
