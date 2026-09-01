@@ -41,6 +41,18 @@ share the same tables.
 them field by field. There should be no divergence — this is what catches
 mistakes that look plausible to the eye.
 
+## What is in here
+
+| Folder | What it is | Needed for |
+|---|---|---|
+| `tools/` | the engine and the command-line tools, plain Python 3 with no dependencies | everything |
+| `qt/` | the app for Windows and Linux, Python and Qt; runs on macOS too | Windows, Linux |
+| `swift/` | the native macOS app | macOS only |
+| `qt/packaging/` | Linux packaging: the `.deb` builder, the Arch `PKGBUILD`, icon and menu entry | Linux packages |
+
+`qt/` and `swift/` are two front ends over the same saves. Neither needs
+the other, but `qt/` does need `tools/`: that is where the parsing lives.
+
 ## Getting it
 
 Ready-made builds are on the
@@ -87,27 +99,14 @@ Unlike the release archives it bundles nothing: it leans on the system
 **Anything else.** The `.tar.gz` from the releases page: unpack it and run
 `ErgoPSXSaveManager`. Needs the libraries listed below.
 
-### Linux: running from source
+### Linux: building it yourself
 
-Python 3.12 or newer. Qt also needs a handful of system libraries; without
-them PySide6 fails with `could not load the Qt platform plugin "xcb"`.
+Any distribution. **Python between 3.10 and 3.14** — that range is
+PySide6's, not ours; check with `python3 -V` and name the interpreter
+explicitly if the default one is outside it, for instance
+`python3.12 -m venv qt/.venv`.
 
-Debian and Ubuntu:
-
-```sh
-sudo apt-get install python3-venv libgl1 libegl1 libxkbcommon-x11-0 \
-  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
-  libxcb-render-util0 libxcb-shape0 libxcb-cursor0
-```
-
-That list is checked on every build: CI launches the packaged app inside a
-bare Ubuntu container carrying nothing but these. Any desktop also has
-fontconfig and fonts installed, which Qt needs to draw text at all.
-
-On other distributions the same libraries carry different names — look for
-GL, EGL, xkbcommon-x11 and the xcb-util family.
-
-Then:
+Run it straight from the source tree:
 
 ```sh
 python3 -m venv qt/.venv
@@ -115,16 +114,35 @@ qt/.venv/bin/python -m pip install PySide6
 qt/.venv/bin/python qt/app.py
 ```
 
-To get a standalone application that runs without Python installed:
+Or build the portable binary — the very thing the release `.tar.gz`
+contains, a folder that runs on a machine without Python at all:
 
 ```sh
 qt/.venv/bin/python -m pip install pyinstaller
-qt/.venv/bin/python qt/build.py      # lands in qt/dist
+qt/.venv/bin/python qt/build.py       # lands in qt/dist/ErgoPSXSaveManager
 ```
+
+Qt still needs a few libraries from the system; without them it stops with
+`could not load the Qt platform plugin "xcb"` or
+`libGL.so.1: cannot open shared object file`. Any desktop already has
+almost all of them. These lists were measured by starting the app in a bare
+container of each distribution, not guessed:
+
+| Distribution | Packages |
+|---|---|
+| Debian, Ubuntu | `libgl1 libegl1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-cursor0` |
+| Arch | `libglvnd` |
+| Fedora | `libglvnd-glx libglvnd-egl` |
+
+Text also needs `fontconfig` and at least one font installed, which every
+desktop has and a bare container does not.
+
+The Debian list is re-checked on every build: CI starts the packaged app
+inside a clean Ubuntu container carrying nothing but those.
 
 ### Windows
 
-Python 3.12 or newer, nothing else to install:
+Python between 3.10 and 3.14, nothing else to install:
 
 ```sh
 python -m venv qt\.venv
@@ -148,14 +166,11 @@ open swift/ErgoPSXSaveManager.app
 The Qt version runs on macOS as well, and is the one to use for
 development on Linux and Windows.
 
-### Which of the two to build
+### Nothing needs deleting
 
-Both read the same saves and share the same engine and string tables. The
-Swift app is for macOS only. The Qt app runs everywhere, including macOS.
-
-Nothing needs deleting from the tree: `swift build` only ever looks at
-`swift/`, and `qt/build.py` only at `qt/` and `tools/`. Run the command for
-your system and ignore the rest.
+`swift build` only ever looks at `swift/`, and `qt/build.py` only at `qt/`
+and `tools/`. Run the command for your system and ignore the rest of the
+tree.
 
 GitHub Actions builds all three systems on a version tag, so tagged
 releases carry ready-made binaries.
