@@ -25,7 +25,7 @@ options=('!strip')
 source=("$pkgname-$pkgver.tar.gz::$url/releases/download/v$pkgver/ErgoPSXSaveManager-v$pkgver-linux-x86_64.tar.gz"
         "ergopsx.desktop::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v$pkgver/qt/packaging/ergopsx.desktop"
         "ergopsx.png::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v$pkgver/qt/packaging/ergopsx.png")
-sha256sums=('d4c1c113be0ef14da3b323ec100d2e63a1e2781989afcb2967a14e65130eaa63'
+sha256sums=('84ceaa0db77abd1d7bee516cf782b3315d5ec2a842f0fddf15760347e7ad6ee5'
             'd0ed821311b4dc49b177bb8e6ec1ebe46b050dda742494ba8ed6494826cef1e2'
             'dd3a905c42eb45341ba0529121d8606fb31cb521bc2f526c8cd574fbacb65448')
 
