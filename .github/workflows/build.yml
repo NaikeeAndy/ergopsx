@@ -170,8 +170,9 @@ jobs:
           | `ergopsx_….deb` | Debian, Ubuntu and relatives |
           | `…-linux-x86_64.tar.gz` | any other Linux, x86-64 |
 
-          On Arch, build from `qt/packaging/PKGBUILD` instead: that one follows
-          the git tip and leans on the system Python and Qt.
+          On Arch, build from `qt/packaging/aur/ergopsx-git/PKGBUILD` instead:
+          that one follows the git tip and leans on the system Python and Qt.
+          There is also `ergopsx-bin`, which carries Python and Qt itself.
 
           Windows and Linux need nothing installed — Python and Qt travel
           inside the archive. Unpack it and run `ErgoPSXSaveManager`.

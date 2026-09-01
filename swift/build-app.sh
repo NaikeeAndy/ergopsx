@@ -8,6 +8,13 @@ set -euo pipefail
 
 MODE="${1:-release}"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
+# Версия берётся у ближайшего тега, а не пишется руками: собранное в CI
+# на теге получает ровно его номер, а сборка с рук - номер последнего
+# выпуска. Раньше здесь стояло 0.1 строкой, и в «Об этой программе»
+# осталось бы 0.1 при любом дальнейшем выпуске.
+VERSION="${2:-$(git -C "$ROOT" describe --tags --abbrev=0 2>/dev/null || true)}"
+VERSION="${VERSION#v}"
+VERSION="${VERSION:-0.1}"
 BUILD="$ROOT/.build/$MODE"
 APP="$ROOT/ErgoPSXSaveManager.app"
 
@@ -48,7 +55,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
          <string>pl</string></array>
   <key>CFBundleExecutable</key><string>ErgoPSXSaveManager</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.1</string>
+  <key>CFBundleShortVersionString</key><string>__VERSION__</string>
   <key>CFBundleVersion</key><string>1</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>CFBundleIconFile</key><string>ErgoPSXSaveManager</string>
@@ -59,6 +66,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 </dict>
 </plist>
 PLIST
+sed -i "" "s/__VERSION__/$VERSION/" "$APP/Contents/Info.plist"
 
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 

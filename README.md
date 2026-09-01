@@ -79,7 +79,7 @@ cd ergopsx
 **Debian, Ubuntu and relatives.** Take the `.deb` from the releases page:
 
 ```sh
-sudo apt install ./ergopsx_0.1_amd64.deb
+sudo apt install ./ergopsx_*_amd64.deb
 ```
 
 It lands in `/opt/ergopsx`, appears in the applications menu, answers to
