@@ -16,6 +16,8 @@ from .sidebar import Sidebar
 from .compare import CompareView
 from .consoles import profiles
 from .consoleview import ConsoleView
+import atexit
+
 from .settings import Settings
 from .settingsview import SettingsView
 from .style import sheet
@@ -46,6 +48,7 @@ class Loader(QThread):
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
+        atexit.register(self._stop_at_exit)
         self.settings = Settings()
         lang.set_language(self.settings.language)
         self.palette_now = DARK if self.settings.dark else LIGHT
@@ -196,6 +199,20 @@ class Window(QMainWindow):
                 lang.t("Reading saves… {0} of {1}", done, total)))
         self.loader.done.connect(self._loaded)
         self.loader.start()
+
+    def _stop_at_exit(self):
+        """Последняя защита: остановить поток при завершении процесса.
+
+        `closeEvent` и `aboutToQuit` покрывают само приложение, но не
+        сценарий, который собрал окно и вышел без цикла событий - а Qt
+        и там зовёт `qFatal`, и получается отчёт о сбое на ровном месте.
+        Обработчики выхода Python идут в обратном порядке: наш встанет
+        после PySide и сработает раньше, чем она разбирает свои объекты.
+        """
+        try:
+            self.stop_loading()
+        except RuntimeError:
+            pass
 
     def stop_loading(self):
         """Остановить обход папок и дождаться потока.
