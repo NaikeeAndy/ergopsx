@@ -48,7 +48,7 @@ mistakes that look plausible to the eye.
 | `tools/` | the engine and the command-line tools, plain Python 3 with no dependencies | everything |
 | `qt/` | the app for Windows and Linux, Python and Qt; runs on macOS too | Windows, Linux |
 | `swift/` | the native macOS app | macOS only |
-| `qt/packaging/` | Linux packaging: the `.deb` builder, the Arch `PKGBUILD`, icon and menu entry | Linux packages |
+| `qt/packaging/` | Linux packaging: the `.deb` builder, two Arch recipes, icon and menu entry | Linux packages |
 
 `qt/` and `swift/` are two front ends over the same saves. Neither needs
 the other, but `qt/` does need `tools/`: that is where the parsing lives.
@@ -85,16 +85,21 @@ sudo apt install ./ergopsx_0.1_amd64.deb
 It lands in `/opt/ergopsx`, appears in the applications menu, answers to
 `ergopsx` from a terminal, and apt pulls in the system libraries by itself.
 
-**Arch and relatives.** `qt/packaging/PKGBUILD` builds a package straight
-from this repository, so it follows the git tip:
+**Arch and relatives.** Two recipes under `qt/packaging/aur`, pick one:
 
 ```sh
-curl -O https://raw.githubusercontent.com/NaikeeAndy/ergopsx/main/qt/packaging/PKGBUILD
+# follows the repository, uses the system python and pyside6, ~1 MB
+curl -O https://raw.githubusercontent.com/NaikeeAndy/ergopsx/main/qt/packaging/aur/ergopsx-git/PKGBUILD
+makepkg -si
+
+# the released build with Python and Qt inside, ~80 MB
+curl -O https://raw.githubusercontent.com/NaikeeAndy/ergopsx/main/qt/packaging/aur/ergopsx-bin/PKGBUILD
 makepkg -si
 ```
 
-Unlike the release archives it bundles nothing: it leans on the system
-`python` and `pyside6`, which makes it about a megabyte rather than eighty.
+`ergopsx-git` is the smaller and more Arch-like of the two, and it moves
+with every commit. `ergopsx-bin` carries its own Python and Qt, so a system
+upgrade cannot disturb it, but it only changes when a release is cut.
 
 **Anything else.** The `.tar.gz` from the releases page: unpack it and run
 `ErgoPSXSaveManager`. Needs the libraries listed below.

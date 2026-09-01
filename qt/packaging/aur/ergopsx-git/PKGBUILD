@@ -17,7 +17,11 @@ pkgdesc="PlayStation 1 save manager: memory cards, containers, game breakdowns, 
 arch=('any')
 url="https://github.com/NaikeeAndy/ergopsx"
 license=('MIT')
-depends=('python' 'pyside6')
+# Нижняя граница, а не прибитая версия: Arch катится вперёд, и
+# закреплённый старый пакет через полгода перестанет собираться.
+# Если однажды обновление Qt сломает совместимость - тогда и появится
+# верхняя граница, по факту, а не на всякий случай.
+depends=('python' 'pyside6>=6.5')
 makedepends=('git')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
