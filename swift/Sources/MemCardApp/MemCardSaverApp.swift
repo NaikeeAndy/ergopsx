@@ -256,7 +256,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                   let action = actions[letter] else { return event }
             // Съедаем нажатие только если его кто-то принял: иначе
             // ⌘A в списке сейвов перестал бы доходить до списка.
-            return NSApp.sendAction(action, to: nil, from: nil) ? nil : event
+            // AppKit зовёт обработчик на главном потоке, но тип замыкания
+            // об этом не говорит - подтверждаем явно, иначе Swift 6
+            // отказывается собирать.
+            // Наружу отдаём только признак: сам NSEvent через границу
+            // изоляции не проходит, он не Sendable.
+            let accepted = MainActor.assumeIsolated {
+                NSApp.sendAction(action, to: nil, from: nil)
+            }
+            return accepted ? nil : event
         }
     }
 
@@ -272,12 +280,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func watchMenuBar() {
         NotificationCenter.default.addObserver(
             forName: NSApplication.willUpdateNotification,
-            object: NSApp, queue: .main) { _ in
-            AppDelegate.dropEmptyMenus()
+            object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { AppDelegate.dropEmptyMenus() }
         }
     }
 
-    static func dropEmptyMenus() {
+    @MainActor static func dropEmptyMenus() {
         guard let bar = NSApp.mainMenu else { return }
         for item in bar.items {
             guard let inside = item.submenu else { continue }
