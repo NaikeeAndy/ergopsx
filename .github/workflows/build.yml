@@ -125,7 +125,11 @@ jobs:
 
       - name: App and disk image
         run: |
-          ./swift/build-app.sh
+          # Версию передаём явно: checkout@v4 берёт один ref, объекта
+          # тега рядом может не быть, и `git describe` внутри скрипта
+          # тихо откатится к запасному номеру. На workflow_dispatch
+          # тега нет вовсе - тогда пусто, и скрипт решает сам.
+          ./swift/build-app.sh release "${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}"
           ./swift/build-dmg.sh
           mv swift/ErgoPSXSaveManager.dmg "ErgoPSXSaveManager-${{ github.ref_name }}-macos.dmg"
 
