@@ -43,8 +43,18 @@ mistakes that look plausible to the eye.
 
 ## Getting it
 
-There are no prebuilt downloads yet — build it from source. Start by
-cloning the repository:
+Ready-made builds are on the
+[releases page](https://github.com/NaikeeAndy/ergopsx/releases): a `.dmg`
+for macOS, a `.zip` for Windows and a `.tar.gz` for Linux. Windows and
+Linux need nothing installed — Python and Qt travel inside the archive.
+
+GitHub also attaches the source there as `zip` and `tar.gz`. Those two hold
+the same 166 files and differ only in packing; there is no per-platform
+source archive because the tree is one — the Qt app for Windows and Linux
+uses the engine in `tools/`, and both apps share the tables in
+`tools/data`.
+
+To build it yourself, start by cloning:
 
 ```sh
 git clone https://github.com/NaikeeAndy/ergopsx.git
