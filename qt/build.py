@@ -19,14 +19,17 @@ NAME = "ErgoPSXSaveManager"
 def titles_data(sep):
     """База названий игр, выгруженная `psxexport.py`.
 
+    **Печатать сюда только латиницей.** Консоль Windows кодирует вывод
+    в cp1252, и `print` с кириллицей роняет сборку целиком.
+
     Без неё приложение показывает «Unknown game» вместо названий: сама база
     лежит в чужом проекте под `reference/` и в репозиторий не входит.
     Нет файла - собираем без неё, но говорим об этом вслух.
     """
     path = os.path.join(ROOT, "tools", "data", "titles.json")
     if not os.path.exists(path):
-        print("titles.json нет - названий игр в сборке не будет.")
-        print("Сделать: python3 tools/psxexport.py")
+        print("no titles.json - the build will show no game names.")
+        print("to fix: python3 tools/psxexport.py")
         return []
     return ["--add-data", f"{path}{sep}data"]
 
@@ -35,7 +38,7 @@ def main():
     try:
         import PyInstaller  # noqa: F401
     except ImportError:
-        print("нет PyInstaller, ставлю…")
+        print("PyInstaller is missing, installing it")
         subprocess.run([sys.executable, "-m", "pip", "install", "--quiet",
                         "pyinstaller"], check=True)
 
@@ -66,7 +69,7 @@ def main():
         args[args.index("--windowed") + 1:args.index("--windowed") + 1] = [
             "--icon", icon]
     subprocess.run(args, check=True, cwd=HERE)
-    print("готово:", os.path.join(HERE, "dist"))
+    print("done:", os.path.join(HERE, "dist"))
 
 
 HIDDEN = [

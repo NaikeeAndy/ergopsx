@@ -64,7 +64,8 @@ jobs:
 
   mac:
     name: macOS (Swift)
-    runs-on: macos-14
+    # macos-15 carries Xcode 16; the package needs Swift 6 tools.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
