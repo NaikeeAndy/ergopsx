@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=ErgoPSX Save Manager
+GenericName=PlayStation 1 save manager
+Comment=Read, convert and move PlayStation 1 saves
+Exec=ergopsx
+Icon=ergopsx
+Terminal=false
+Categories=Utility;Archiving;
+Keywords=PlayStation;PSX;PS1;save;memory card;
