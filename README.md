@@ -128,17 +128,16 @@ python3 tools/psxbuild.py --help       # card building
 
 ## The game title database
 
-Game names are looked up by serial in an external database — 10,937
-entries, `TitlesDB_PS1_English.txt` from
-[sd2psx-save-converter](https://github.com/Kyuu-Ji/sd2psx-save-converter),
-which in turn takes it from
-[Title-Database-Scrapper](https://github.com/GDX-X/Title-Database-Scrapper).
-It is not included here: no licence is stated for it, and we are not going
-to redistribute it. Everything works without it, but instead of names the
-app shows "Unknown game" and fills the list on the left with save
-signatures.
+Game names are looked up by serial in a table of 10,937 entries, included
+here as `tools/data/titles.json`. Nothing needs to be downloaded — the
+builds carry it.
 
-Put the file at
+The data comes from [redump.org](http://redump.org/), the disc
+preservation project; `tools/data/titles-source.md` spells out the whole
+chain and what was changed along the way. Without the file the app still
+works, it just shows "Unknown game" instead of names.
+
+To refresh it from a newer `TitlesDB_PS1_English.txt`, put that file at
 `reference/psxsaves/sd2psx-save-converter/BAT/TitlesDB_PS1_English.txt`
 and run:
 
@@ -146,7 +145,7 @@ and run:
 python3 tools/psxexport.py
 ```
 
-It lays the database and the string tables out for both builds.
+That lays the database and the string tables out for both builds.
 
 ## Console profiles
 
@@ -186,7 +185,8 @@ was derived from scratch.
 
 | Source | What it gave |
 |---|---|
-| [Title-Database-Scrapper](https://github.com/GDX-X/Title-Database-Scrapper) | Game titles by serial |
+| [redump.org](http://redump.org/) | Game titles by serial, the source of the table |
+| [Title-Database-Scrapper](https://github.com/GDX-X/Title-Database-Scrapper) | Collecting that table out of redump |
 | RPGe (Final Fantasy V translation) | Job, item and spell names |
 | ff5-names | Modern FF5 item naming |
 | forums.qhimm.com | Final Fantasy VIII save research |

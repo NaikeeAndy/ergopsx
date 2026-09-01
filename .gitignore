@@ -1,8 +1,6 @@
 # Личное: профили консолей с паролем
 tools/data/consoles.json
 
-# Чужая база названий игр - берётся отдельно
-swift/Sources/MemCardKit/Resources/titles.json
 
 # Сборка
 qt/.venv/
@@ -22,4 +20,3 @@ reports/
 .DS_Store
 __pycache__/
 *.pyc
-tools/data/titles.json

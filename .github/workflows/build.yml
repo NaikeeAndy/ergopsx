@@ -130,9 +130,9 @@ jobs:
           Right-click the app and choose Open, or allow it in System Settings
           under Privacy & Security.
 
-          Game titles come from an external database that is not redistributed
-          here; without it saves show as "Unknown game". The README explains
-          where to get it.
+          Game titles come from a table of 10,937 serials that travels inside
+          every build; it originates from redump.org. See
+          tools/data/titles-source.md.
           NOTES
           gh release create "$TAG" packages/* \
             --repo "$REPO" \
