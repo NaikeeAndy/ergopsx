@@ -139,8 +139,11 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
+      # Только сами сборки: снимки запуска лежат отдельными артефактами
+      # и в релиз попадать не должны.
       - uses: actions/download-artifact@v4
         with:
+          pattern: package-*
           path: packages
           merge-multiple: true
 
