@@ -45,8 +45,9 @@ mistakes that look plausible to the eye.
 
 Ready-made builds are on the
 [releases page](https://github.com/NaikeeAndy/ergopsx/releases): a `.dmg`
-for macOS, a `.zip` for Windows and a `.tar.gz` for Linux. Windows and
-Linux need nothing installed — Python and Qt travel inside the archive.
+for macOS, a `.zip` for Windows, and a `.deb` or a `.tar.gz` for Linux.
+Windows and Linux need nothing installed — Python and Qt travel inside the
+package. On Arch there is a PKGBUILD instead, see below.
 
 GitHub also attaches the source there as `zip` and `tar.gz`. Those two hold
 the same 166 files and differ only in packing; there is no per-platform
@@ -61,7 +62,32 @@ git clone https://github.com/NaikeeAndy/ergopsx.git
 cd ergopsx
 ```
 
-### Linux
+### Linux: installing a package
+
+**Debian, Ubuntu and relatives.** Take the `.deb` from the releases page:
+
+```sh
+sudo apt install ./ergopsx_0.1_amd64.deb
+```
+
+It lands in `/opt/ergopsx`, appears in the applications menu, answers to
+`ergopsx` from a terminal, and apt pulls in the system libraries by itself.
+
+**Arch and relatives.** `qt/packaging/PKGBUILD` builds a package straight
+from this repository, so it follows the git tip:
+
+```sh
+curl -O https://raw.githubusercontent.com/NaikeeAndy/ergopsx/main/qt/packaging/PKGBUILD
+makepkg -si
+```
+
+Unlike the release archives it bundles nothing: it leans on the system
+`python` and `pyside6`, which makes it about a megabyte rather than eighty.
+
+**Anything else.** The `.tar.gz` from the releases page: unpack it and run
+`ErgoPSXSaveManager`. Needs the libraries listed below.
+
+### Linux: running from source
 
 Python 3.12 or newer. Qt also needs a handful of system libraries; without
 them PySide6 fails with `could not load the Qt platform plugin "xcb"`.

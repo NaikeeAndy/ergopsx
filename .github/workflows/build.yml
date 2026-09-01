@@ -48,6 +48,7 @@ jobs:
         run: |
           tar -czf "ErgoPSXSaveManager-${{ github.ref_name }}-linux-x86_64.tar.gz" \
             -C qt/dist ErgoPSXSaveManager
+          qt/packaging/build-deb.sh "${{ github.ref_name }}"
 
       - name: Package for Windows
         if: runner.os == 'Windows'
@@ -102,6 +103,7 @@ jobs:
           path: |
             *.tar.gz
             *.zip
+            *.deb
           if-no-files-found: error
 
   mac:
@@ -165,7 +167,11 @@ jobs:
           |---|---|
           | `…-macos.dmg` | macOS 14 and newer |
           | `…-windows-x64.zip` | Windows 10 and newer, 64-bit |
-          | `…-linux-x86_64.tar.gz` | Linux, x86-64 |
+          | `ergopsx_….deb` | Debian, Ubuntu and relatives |
+          | `…-linux-x86_64.tar.gz` | any other Linux, x86-64 |
+
+          On Arch, build from `qt/packaging/PKGBUILD` instead: that one follows
+          the git tip and leans on the system Python and Qt.
 
           Windows and Linux need nothing installed — Python and Qt travel
           inside the archive. Unpack it and run `ErgoPSXSaveManager`.
