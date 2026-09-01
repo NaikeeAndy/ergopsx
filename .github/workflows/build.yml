@@ -41,7 +41,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: NaikeeSaveManager-${{ runner.os }}
+          name: ErgoPSXSaveManager-${{ runner.os }}
           path: qt/dist/
 
   mac:
@@ -65,5 +65,5 @@ jobs:
           ./swift/build-dmg.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: NaikeeSaveManager-macOS
-          path: swift/NaikeeSaveManager.dmg
+          name: ErgoPSXSaveManager-macOS
+          path: swift/ErgoPSXSaveManager.dmg

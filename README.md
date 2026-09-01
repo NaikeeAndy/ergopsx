@@ -1,4 +1,4 @@
-# Naikee's Save Manager
+# ErgoPSX Save Manager
 
 Чтение и разбор сохранений PlayStation 1: карты памяти, отдельные сейвы,
 контейнеры всех ходовых форматов, подробный разбор двенадцати игр и работа
@@ -45,7 +45,7 @@ Vagrant Story, Parasite Eve II, Crash Bandicoot 2. Отряд, инвентар�
 
 ```sh
 ./swift/build-app.sh
-open swift/NaikeeSaveManager.app
+open swift/ErgoPSXSaveManager.app
 ./swift/build-dmg.sh          # образ для раздачи
 ```
 

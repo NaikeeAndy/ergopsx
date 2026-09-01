@@ -34,8 +34,13 @@ class Loader(QThread):
         self.folders = folders
 
     def run(self):
-        self.library.load(self.folders, progress=lambda a, b: self.step.emit(a, b))
-        self.done.emit()
+        self.library.load(self.folders,
+                          progress=lambda a, b: self.step.emit(a, b),
+                          stop=self.isInterruptionRequested)
+        # Прерванный обход коллекцию не собрал - окну о нём знать незачем,
+        # оно уже закрывается.
+        if not self.isInterruptionRequested():
+            self.done.emit()
 
 
 class Window(QMainWindow):
@@ -49,7 +54,7 @@ class Window(QMainWindow):
         self.selection = "*"
         self.loader = None
 
-        self.setWindowTitle("Naikee's Save Manager")
+        self.setWindowTitle("ErgoPSX Save Manager")
         self.resize(1280, 820)
         self._build()
         self.setStyleSheet(sheet(self.palette_now))
@@ -191,6 +196,23 @@ class Window(QMainWindow):
                 lang.t("Reading saves… {0} of {1}", done, total)))
         self.loader.done.connect(self._loaded)
         self.loader.start()
+
+    def stop_loading(self):
+        """Остановить обход папок и дождаться потока.
+
+        Без этого Qt уничтожает работающий поток и зовёт `qFatal` -
+        приложение падало при выходе с отчётом о сбое, если коллекция
+        ещё читалась. Ждём не больше пяти секунд: обход проверяет
+        остановку каждые двадцать пять файлов.
+        """
+        loader = getattr(self, "loader", None)
+        if loader is not None and loader.isRunning():
+            loader.requestInterruption()
+            loader.wait(5000)
+
+    def closeEvent(self, event):
+        self.stop_loading()
+        super().closeEvent(event)
 
     def _loaded(self):
         self.sidebar.fill(self.library)

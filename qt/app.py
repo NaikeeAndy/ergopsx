@@ -1,4 +1,4 @@
-"""Naikee's Save Manager - версия для Windows и Linux.
+"""ErgoPSX Save Manager - версия для Windows и Linux.
 
     python3 qt/app.py               обычный запуск
     python3 qt/app.py --shot вид.png   снять окно и выйти
@@ -17,8 +17,12 @@ from nsm.window import Window                     # noqa: E402
 
 def main():
     app = QApplication(sys.argv)
-    app.setApplicationName("Naikee's Save Manager")
+    app.setApplicationName("ErgoPSX Save Manager")
     window = Window()
+    # `app.quit()` не зовёт `closeEvent`, а поток обхода надо остановить
+    # в любом случае - иначе Qt уничтожает его на ходу и приложение
+    # падает уже на выходе.
+    app.aboutToQuit.connect(window.stop_loading)
     window.show()
 
     # Снимок окна для проверки вида: собрать, дождаться чтения, снять.

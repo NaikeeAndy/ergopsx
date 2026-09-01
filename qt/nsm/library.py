@@ -67,11 +67,21 @@ class Library:
         self.cards = 0
         self.skipped: list[tuple[str, str]] = []
 
-    def load(self, folders, progress=None):
+    def load(self, folders, progress=None, stop=None):
+        """Обход папок. `stop` - можно ли бросить на полпути.
+
+        Прерывать нужно уметь: обход идёт в отдельном потоке, и Qt зовёт
+        `qFatal`, если поток уничтожают на ходу. Приложение падало при
+        выходе, пока читалась коллекция.
+        """
         self.items, self.skipped, self.cards = [], [], 0
         files = []
         for folder in folders:
+            if stop and stop():
+                return
             for root, _, names in os.walk(folder):
+                if stop and stop():
+                    return
                 for name in sorted(names):
                     if name.startswith("."):
                         continue
@@ -84,8 +94,11 @@ class Library:
                     files.append(full)
 
         for done, full in enumerate(files):
-            if progress and done % 25 == 0:
-                progress(done, len(files))
+            if done % 25 == 0:
+                if stop and stop():
+                    return
+                if progress:
+                    progress(done, len(files))
             try:
                 found = psxbuild.sources(full)
             except Exception:
