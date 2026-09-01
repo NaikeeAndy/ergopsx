@@ -8,3 +8,4 @@ Icon=ergopsx
 Terminal=false
 Categories=Utility;Archiving;
 Keywords=PlayStation;PSX;PS1;save;memory card;
+StartupWMClass=ErgoPSXSaveManager

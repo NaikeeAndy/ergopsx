@@ -13,14 +13,36 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from PySide6.QtCore import Qt, QTimer                # noqa: E402
+from PySide6.QtGui import QIcon                   # noqa: E402
 from PySide6.QtWidgets import QApplication       # noqa: E402
 
 from nsm.window import Window                     # noqa: E402
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def icon():
+    """Значок окна. Без него в панели задач висит заглушка системы.
+
+    На macOS его даёт сам пакет приложения, а на Windows и Linux задать
+    его должен кто-то - иначе окно остаётся безымянным.
+    """
+    for where in (os.path.join(HERE, "packaging", "ergopsx.png"),
+                  os.path.join(HERE, "..", "packaging", "ergopsx.png"),
+                  os.path.join(os.path.dirname(HERE), "packaging",
+                               "ergopsx.png")):
+        if os.path.exists(where):
+            return QIcon(where)
+    return QIcon()
 
 
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName("ErgoPSX Save Manager")
+    app.setWindowIcon(icon())
+    # Связывает окно с пунктом меню приложений: без этого оболочка
+    # рисует рядом с ним заглушку, а не наш значок.
+    app.setDesktopFileName("ergopsx")
     window = Window()
     # `app.quit()` не зовёт `closeEvent`, а поток обхода надо остановить
     # в любом случае - иначе Qt уничтожает его на ходу и приложение

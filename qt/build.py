@@ -56,6 +56,8 @@ def main():
         # складывает их плоско - кладём папку и туда.
         "--add-data", f"{os.path.join(ROOT, 'tools', 'data')}{sep}data",
         "--paths", os.path.join(ROOT, "tools"),
+        # Значок окна ищется рядом с app.py.
+        "--add-data", f"{os.path.join(HERE, 'packaging')}{sep}packaging",
         *titles_data(sep),
         "--distpath", os.path.join(HERE, "dist"),
         "--workpath", os.path.join(HERE, "build"),

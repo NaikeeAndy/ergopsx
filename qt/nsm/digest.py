@@ -349,7 +349,9 @@ def from_ff7(got):
                 Field(lang.t("Gil"), number(got.get("gil", 0))),
                 Field(lang.t("Location"), str(got.get("location", ""))),
                 Field(lang.t("Battles"), str(got.get("battles", ""))),
-                Field(lang.t("Escapes"), str(got.get("escapes", "")))],
+                # Разбор отдаёт это поле как `runs`. Со старым именем
+                # строка была пустой всегда и у всех.
+                Field(lang.t("Escapes"), str(got.get("runs", "")))],
         members=members, members_title=lang.t("Party"),
         sections=[Section(lang.t("Inventory"), pairs(got.get("inventory")),
                           lang.t("{0} entries", len(got.get('inventory') or [])))])
