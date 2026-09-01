@@ -13,7 +13,7 @@ pkgbase = ergopsx-bin
 	source = ergopsx-bin-0.1.tar.gz::https://github.com/NaikeeAndy/ergopsx/releases/download/v0.1/ErgoPSXSaveManager-v0.1-linux-x86_64.tar.gz
 	source = ergopsx.desktop::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v0.1/qt/packaging/ergopsx.desktop
 	source = ergopsx.png::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v0.1/qt/packaging/ergopsx.png
-	sha256sums = 84ceaa0db77abd1d7bee516cf782b3315d5ec2a842f0fddf15760347e7ad6ee5
+	sha256sums = f6115f657dc8f2c6420034311b21ea692a4773f88064a8854d7eeea30d80545e
 	sha256sums = d0ed821311b4dc49b177bb8e6ec1ebe46b050dda742494ba8ed6494826cef1e2
 	sha256sums = dd3a905c42eb45341ba0529121d8606fb31cb521bc2f526c8cd574fbacb65448
 
