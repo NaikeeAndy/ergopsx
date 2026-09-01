@@ -127,6 +127,10 @@ development on Linux and Windows.
 Both read the same saves and share the same engine and string tables. The
 Swift app is for macOS only. The Qt app runs everywhere, including macOS.
 
+Nothing needs deleting from the tree: `swift build` only ever looks at
+`swift/`, and `qt/build.py` only at `qt/` and `tools/`. Run the command for
+your system and ignore the rest.
+
 GitHub Actions builds all three systems on a version tag, so tagged
 releases carry ready-made binaries.
 
