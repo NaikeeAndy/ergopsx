@@ -77,8 +77,10 @@ jobs:
       # wait for it: start it explicitly and read the exit code back.
       - name: Start on Windows
         if: runner.os == 'Windows'
+        # Штатной платформой, а не offscreen: та на Windows не подключает
+        # системные шрифты, и в снимке весь текст выходит квадратами -
+        # по нему не понять, рисуется ли интерфейс на самом деле.
         run: |
-          $env:QT_QPA_PLATFORM = "offscreen"
           $exe = "qt\dist\ErgoPSXSaveManager\ErgoPSXSaveManager.exe"
           $run = Start-Process -FilePath $exe -PassThru -Wait `
             -ArgumentList "--shot","$PWD\started-windows.png","--wait","6"
