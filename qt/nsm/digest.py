@@ -417,8 +417,12 @@ def from_ff7(got):
                 Field(lang.t("Level"), str(got.get("level", ""))),
                 Field(lang.t("Playtime"), clock(got.get("playtime"))),
                 Field(lang.t("Gil"), number(got.get("gil", 0))),
-                Field(lang.t("Place"), str(got.get("location", ""))),
-                Field(lang.t("Slot"), got.get("location_text", "")),
+                # Название места игра пишет в сам сейв - в описание слота,
+                # которое видно в её меню загрузки. Справочник кодов у нас
+                # неполный (51 запись из ~764), и по нему выходило «#0x0000»
+                # там, где название лежало рядом.
+                Field(lang.t("Place"), got.get("location_text")
+                      or str(got.get("location", ""))),
                 Field(lang.t("Battles"), number(got.get("battles", 0))),
                 Field(lang.t("Escapes"), number(got.get("runs", 0)))],
         members=members, members_title=lang.t("Characters"),

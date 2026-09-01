@@ -612,8 +612,13 @@ struct Digest {
                 Field(label: L.t("Level"), value: String(found.level)),
                 Field(label: L.t("Playtime"), value: time(found.playtime)),
                 Field(label: L.t("Gil"), value: number(found.gil)),
-                Field(label: L.t("Place"), value: found.location),
-                Field(label: L.t("Slot"), value: found.locationText),
+                // Название места игра пишет в сам сейв - в описание слота,
+                // которое видно в её меню загрузки. Справочник кодов у нас
+                // неполный, и по нему выходило «#0x0000» там, где название
+                // лежало рядом.
+                Field(label: L.t("Place"),
+                      value: found.locationText.isEmpty ? found.location
+                                                        : found.locationText),
                 Field(label: L.t("Battles"), value: number(found.battles)),
                 Field(label: L.t("Escapes"), value: number(found.runs)),
             ],
