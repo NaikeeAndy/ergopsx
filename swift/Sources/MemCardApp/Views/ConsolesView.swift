@@ -359,7 +359,9 @@ struct ConsolesView: View {
             self.hint = hint
         }
 
-        @objc func changed(_ sender: NSPopUpButton) {
+        // Обработчик зовёт AppKit, а тот живёт на главном потоке.
+        // Без пометки Swift 6 отказывается собирать.
+        @MainActor @objc func changed(_ sender: NSPopUpButton) {
             let index = sender.indexOfSelectedItem
             guard choices.indices.contains(index) else { return }
             hint.stringValue = choices[index].note

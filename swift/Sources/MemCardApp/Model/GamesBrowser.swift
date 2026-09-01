@@ -173,7 +173,7 @@ final class GamesBrowser {
             // ровно, а не прыгать от файла к файлу.
             total = files.reduce(0) {
                 $0 + ((try? FileManager.default
-                    .attributesOfItem(atPath: $1.path)[.size] as? Int) ?? 0 ?? 0)
+                    .attributesOfItem(atPath: $1.path)[.size] as? Int) ?? 0)
             }
             sent = 0
             fileCount = files.count
@@ -200,7 +200,7 @@ final class GamesBrowser {
                     }
                 }
                 base += (try? FileManager.default
-                    .attributesOfItem(atPath: file.path)[.size] as? Int) ?? 0 ?? 0
+                    .attributesOfItem(atPath: file.path)[.size] as? Int) ?? 0
                 sent = base
                 done += 1
             }
