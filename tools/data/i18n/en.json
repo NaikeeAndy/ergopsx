@@ -3,10 +3,6 @@
   "one": "block",
   "other": "blocks"
  },
- "plural:device": {
-  "one": "device",
-  "other": "devices"
- },
  "plural:difference": {
   "one": "difference",
   "other": "differences"

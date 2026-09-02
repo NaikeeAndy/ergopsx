@@ -57,35 +57,6 @@ public enum FF8 {
         return magicValues.contains(read16(block[...], at: magicOffset))
     }
 
-    /// Пересчитывает контрольную сумму и обновляет обе её копии.
-    /// Без этого игра сейв не примет.
-    public static func resealed(_ block: [UInt8], tables: Tables) -> [UInt8] {
-        var out = block
-        guard out.count >= checksumB + 2 else { return out }
-        let value = checksum(out, tables: tables)
-        for (at, shift) in [(checksumA, 0), (checksumA + 1, 8),
-                            (checksumB, 0), (checksumB + 1, 8)] {
-            out[at] = UInt8((value >> UInt16(shift)) & 0xFF)
-        }
-        return out
-    }
-
-    /// Кладёт 64-байтовую запись Chocobo World в сейв и перезапечатывает его.
-    public static func withChocobo(_ block: [UInt8], record: [UInt8],
-                                   tables: Tables) -> [UInt8]? {
-        guard isFF8(block), record.count == Boko.recordSize,
-              block.count >= Boko.ff8ChocoboAt + Boko.recordSize else { return nil }
-        var out = block
-        out.replaceSubrange(Boko.ff8ChocoboAt ..< Boko.ff8ChocoboAt + Boko.recordSize,
-                            with: record)
-        return resealed(out, tables: tables)
-    }
-
-    public static func chocoboBytes(_ block: [UInt8]) -> [UInt8]? {
-        guard block.count >= Boko.ff8ChocoboAt + Boko.recordSize else { return nil }
-        return Array(block[Boko.ff8ChocoboAt ..< Boko.ff8ChocoboAt + Boko.recordSize])
-    }
-
     public static func verify(_ block: [UInt8], tables: Tables) -> Bool {
         let first = read16(block[...], at: checksumA)
         let second = read16(block[...], at: checksumB)

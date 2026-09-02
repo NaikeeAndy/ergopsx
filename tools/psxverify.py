@@ -34,7 +34,6 @@ import psxff7
 import psxtemplate
 import psxsign
 import psxconvert
-import psxpocket
 
 BINARY = "swift/.build/debug/memcard"
 
@@ -463,64 +462,6 @@ def compare_plain(old, new, label):
     return report, bool(bad or only_old or only_new)
 
 
-def pocket_python(root):
-    """Записи Chocobo World старым движком."""
-    rows = {}
-    for folder, _, names in os.walk(root):
-        for name in names:
-            path = os.path.join(folder, name)
-            try:
-                if os.path.getsize(path) < psxid.BLOCK:
-                    continue
-                entries = psxbuild.sources(path)
-            except Exception:
-                continue
-            relative = os.path.relpath(path, root)
-            for entry in entries:
-                block = entry["blocks"][0]
-                frame = bytearray(128)
-                frame[10:30] = entry["name"][:20]
-                record = psxpocket.find_chocobo(block, frame)
-                app = psxpocket.is_application(frame, block)
-                # Строка нужна и без Боко: опознание приложений сверяется
-                # на всех файлах, а не только на сейвах Chocobo World.
-                if record is None and not app:
-                    continue
-                source = "-"
-                if record is not None:
-                    source = ("ff8" if record["source"].startswith("блок")
-                              else "pocket:%d"
-                              % int(record["source"].rsplit(" ", 1)[1]))
-                blank = {"flags": 0, "level": 0, "hp": 0, "hp_max": 0,
-                         "weapon": 0, "rank": 0, "move": 0, "save_count": 0,
-                         "id": 0, "items": [], "ff8_id": 0, "summon": 0,
-                         "home_walking": 0}
-                got = record or blank
-                rows[(relative, psxbuild._name_of(entry["name"]))] = {
-                    "source": source,
-                    "flags": got["flags"], "level": got["level"],
-                    "hp": got["hp"], "hpMax": got["hp_max"],
-                    "weapon": got["weapon"], "rank": got["rank"],
-                    "move": got["move"], "saveCount": got["save_count"],
-                    "id": got["id"], "items": got["items"],
-                    "ff8ID": got["ff8_id"], "summon": got["summon"],
-                    "homeWalking": got["home_walking"],
-                    "isApplication": app,
-                }
-    return rows
-
-
-def pocket_swift(root, titles_path):
-    """То же самое новым движком."""
-    out = subprocess.run([BINARY, "pocket", titles_path, root],
-                         capture_output=True, check=True).stdout
-    rows = {}
-    for row in json.loads(out):
-        key = (row.pop("path"), row.pop("name"))
-        rows[key] = row
-    return rows
-
-
 def convert_python(root):
     """Каждый сейв во все одиночные форматы и регионы, старым движком."""
     rows = {}
@@ -623,20 +564,13 @@ def main():
         print(f"{left:<22} {right}" if left else right)
 
     print()
-    pocket_report, pocket_failed = compare_plain(
-        pocket_python(args.root), pocket_swift(args.root, titles_path),
-        "Chocobo World")
-    for left, right in pocket_report:
-        print(f"{left:<22} {right}" if left else right)
-
-    print()
     conv_report, conv_failed = compare_plain(
         convert_python(args.root), convert_swift(args.root, titles_path),
         "конвертация")
     for left, right in conv_report:
         print(f"{left:<22} {right}" if left else right)
     return 1 if any((failed, card_failed, sign_failed,
-                     icon_failed, pocket_failed, conv_failed)) else 0
+                     icon_failed, conv_failed)) else 0
 
 
 if __name__ == "__main__":

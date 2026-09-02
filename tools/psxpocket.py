@@ -25,19 +25,9 @@ POCKET_SAVE_SIZE = 57472  # 128 байт заголовка .mcs + 7 блоко�
 
 # --- Признаки приложения PocketStation ---
 # По MemcardRex, loadSlotDataTypes: 'P' в имени сейва плюс магия в блоке.
-#
-# **`CRD0` - тоже приложение.** MemcardRex его исключает намеренно, и в
-# комментарии там сказано почему: `CRD0` не заставляет браузер PS2
-# показывать запись как «software». Но это ответ на другой вопрос - как
-# запись выглядит на PS2, - а нам надо знать, приложение это или сейв.
-# С `CRD0` идут семь настоящих приложений коллекции: Brightis, PokeHito,
-# R4, Rockman 3, Doraemon 3, Chivas и Parumui. Скопировав критерий, я
-# скопировал и чужую цель.
 APP_NAME_INDEX = 6
 APP_MAGIC_OFFSET = 0x52
-APP_MAGICS = (b"MCX0", b"MCX1", b"CRD0")
-# Показывается ли запись приложением в браузере PS2 - отдельный вопрос.
-PS2_BROWSER_MAGICS = (b"MCX0", b"MCX1")
+APP_MAGICS = (b"MCX0", b"MCX1")
 
 # Имена битов по ChocoEdit, кроме нулевого: тот у ChocoEdit зовётся Eventflag0
 # с пометкой «назначение неясно», а у hyne это Enabled - главный выключатель
@@ -169,11 +159,6 @@ def is_application(directory_frame, block):
     if len(name) <= APP_NAME_INDEX or name[APP_NAME_INDEX] != 0x50:
         return False
     return block[APP_MAGIC_OFFSET:APP_MAGIC_OFFSET + 4] in APP_MAGICS
-
-
-def shows_on_ps2(block):
-    """Показывает ли браузер PS2 эту запись приложением, а не сейвом."""
-    return block[APP_MAGIC_OFFSET:APP_MAGIC_OFFSET + 4] in PS2_BROWSER_MAGICS
 
 
 def summary(record):
