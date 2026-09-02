@@ -1,7 +1,7 @@
 """Панель разбора справа: всё, что движок знает о выделенном сейве."""
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import (QFrame, QGridLayout, QHBoxLayout, QLabel,
                                QScrollArea, QVBoxLayout, QWidget)
 
@@ -10,11 +10,15 @@ from . import lang
 from .theme import Palette
 
 
-def _label(text, kind=None, size=12.5, bold=False):
+def _label(text, kind=None, size=12.5, bold=False, mono=False):
     made = QLabel(str(text))
     if kind:
         made.setObjectName(kind)
     font = made.font()
+    if mono:
+        # Уровень у версии для macOS моноширинный: числа в столбце плиток
+        # выстраиваются друг под другом.
+        font = QFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
     font.setPointSizeF(size)
     if bold:
         font.setWeight(QFont.DemiBold)
@@ -86,6 +90,7 @@ class Inspector(QScrollArea):
                 f"{made.members_title.upper()} · {len(made.members)}", "head", 11))
             for unit in made.members:
                 self.box.addWidget(self._member(unit))
+                self.box.addSpacing(8)
 
         for part in made.sections:
             self.box.addWidget(self._rule())
@@ -128,31 +133,41 @@ class Inspector(QScrollArea):
         return row
 
     def _member(self, unit):
-        """Строка бойца: имя, роль, уровень, числа и что надето."""
+        """Плитка бойца: имя, роль, уровень, числа и что надето.
+
+        Вёрстка повторяет `InspectorView.member` из версии для macOS:
+        отступ 11, фон плитки, скруглённая рамка, уровень прижат вправо,
+        а `extra` - своей строкой, не вклеенной в статы. Раньше здесь был
+        голый виджет без фона, и панель у двух приложений выглядела
+        по-разному, хотя данные совпадали поле в поле: `--digests`
+        сравнивает подписи и значения, а не вёрстку.
+        """
         box = QWidget()
+        box.setObjectName("tile")
         column = QVBoxLayout(box)
-        column.setContentsMargins(0, 2, 0, 6)
-        column.setSpacing(2)
+        column.setContentsMargins(11, 11, 11, 11)
+        column.setSpacing(6)
 
         top = QWidget()
         line = QHBoxLayout(top)
         line.setContentsMargins(0, 0, 0, 0)
-        line.setSpacing(8)
-        line.addWidget(_label(unit.name, size=12.5, bold=True))
-        if unit.level:
-            line.addWidget(_label(lang.t("lv. {0}", unit.level), "accent", 11.5))
+        line.setSpacing(9)
+        line.addWidget(_label(unit.name, size=13, bold=True))
         if unit.role:
-            line.addWidget(_label(unit.role, "dim", 11.5))
+            line.addWidget(_label(unit.role, "dim", 12))
         line.addStretch(1)
+        if unit.level:
+            line.addWidget(_label(lang.t("lv. {0}", unit.level), size=11.5,
+                                  mono=True))
         column.addWidget(top)
 
-        numbers = " · ".join(f"{f.label} {f.value}" for f in unit.stats)
-        if unit.extra:
-            numbers += ("  ·  " if numbers else "") + unit.extra
-        if numbers:
-            column.addWidget(_label(numbers, "dim", 11.5))
+        if unit.stats:
+            numbers = "   ".join(f"{f.label} {f.value}" for f in unit.stats)
+            column.addWidget(_label(numbers, "dim", 11))
         if unit.gear:
-            column.addWidget(_label(" · ".join(unit.gear), "faint", 11))
+            column.addWidget(_label(" · ".join(unit.gear), "dim", 11))
+        if unit.extra:
+            column.addWidget(_label(unit.extra, "faint", 10.5))
         return box
 
     def _grid(self, pairs):

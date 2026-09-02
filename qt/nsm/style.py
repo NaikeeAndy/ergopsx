@@ -1,6 +1,6 @@
 """Таблица стилей: те же цвета и та же плотность, что в версии для macOS."""
 
-from .theme import Palette, gradient
+from .theme import Palette, gradient, rgba
 
 
 def sheet(p: Palette) -> str:
@@ -15,7 +15,12 @@ def sheet(p: Palette) -> str:
         background: {gradient(p.bar)};
         border-bottom: 1px solid {p.bar_line};
     }}
-    QWidget#panel {{ background: {p.panel}; }}
+    QWidget#panel {{ background: {rgba(p.panel, p.panel_alpha)}; }}
+    QWidget#tile {{
+        background: {gradient(p.tile)};
+        border: 1px solid {p.tile_edge};
+        border-radius: 8px;
+    }}
     QFrame#divider {{ background: {p.panel_line}; max-width: 1px; border: none; }}
     QFrame#hdivider {{ background: {p.panel_line}; max-height: 1px; border: none; }}
 

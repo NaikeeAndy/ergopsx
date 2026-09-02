@@ -10,6 +10,28 @@ import CryptoKit
 // движком должен быть выбор: тот пишет их по-русски.
 //     memcard --lang ru dump <база названий> <папка>
 var args = CommandLine.arguments
+
+// Опрос USB: есть ли адаптер CECHZM1. Отдельной командой, чтобы это
+// можно было проверить без окна.
+if args.count >= 2, args[1] == "adapter" {
+    if args.contains("--all") {
+        let all = PS3Adapter.allDevices()
+        print("устройств USB: \(all.count)")
+        for device in all {
+            print("  " + String(format: "%04X:%04X", device.vendorID,
+                                device.productID) + "  \(device.name)")
+        }
+        exit(0)
+    }
+    let found = PS3Adapter.find()
+    print("адаптеров найдено: \(found.count)")
+    for device in found {
+        print("  \(device.name) "
+              + String(format: "%04X:%04X", device.vendorID, device.productID)
+              + (device.claimed ? " (занят драйвером)" : ""))
+    }
+    exit(found.isEmpty ? 1 : 0)
+}
 if let mark = args.firstIndex(of: "--lang"), mark + 1 < args.count {
     L.current = Lang(rawValue: args[mark + 1]) ?? .en
     args.removeSubrange(mark...(mark + 1))
@@ -237,10 +259,78 @@ if args.count >= 4, args[1] == "icons" {
     exit(0)
 }
 
-guard args.count >= 4, ["dump", "rebuild", "sign", "convert"].contains(args[1]) else {
+guard args.count >= 4,
+      ["dump", "rebuild", "sign", "convert", "pocket"].contains(args[1]) else {
     FileHandle.standardError.write(
-        Data("нужно: memcard dump|rebuild|sign|convert <titles.txt> <папка>\n".utf8))
+        Data("нужно: memcard dump|rebuild|sign|convert|pocket <titles.txt> <папка>\n".utf8))
     exit(2)
+}
+
+/// PocketStation: по каждому сейву отдаём запись Chocobo World, если она
+/// там есть. Сверяется с `tools/psxpocket.py` - разбор перенесён с него.
+if args[1] == "pocket" {
+    struct Found: Encodable {
+        var path: String
+        var name: String
+        var source: String
+        var flags: Int
+        var level: Int
+        var hp: Int
+        var hpMax: Int
+        var weapon: Int
+        var rank: Int
+        var move: Int
+        var saveCount: Int
+        var id: Int
+        var items: [Int]
+        var ff8ID: Int
+        var summon: Int
+        var homeWalking: Int
+        var isApplication: Bool
+    }
+    var out: [Found] = []
+    let root = URL(fileURLWithPath: args[3])
+    let walker = FileManager.default.enumerator(at: root,
+                                                includingPropertiesForKeys: nil)
+    while let item = walker?.nextObject() as? URL {
+        guard let data = try? Data(contentsOf: item), data.count >= PSX.block,
+              let saves = Identify.saves(in: [UInt8](data),
+                                         fallbackName: item.deletingPathExtension()
+                                             .lastPathComponent) else { continue }
+        let relative = item.path.replacingOccurrences(of: root.path + "/", with: "")
+        for save in saves {
+            guard let block = save.blocks.first else { continue }
+            let app = Boko.isApplication(name: save.rawName, block: block)
+            let boko = Boko.find(block: block, name: save.rawName)
+            // Строка нужна и без Боко: опознание приложений - половина
+            // дела, и сверять его надо на всех 110 файлах, а не на трёх
+            // сейвах Chocobo World.
+            guard app || boko != nil else { continue }
+            var source = "-"
+            if let boko {
+                switch boko.source {
+                case .ff8: source = "ff8"
+                case .pocketStation(let banks): source = "pocket:\(banks)"
+                }
+            }
+            out.append(Found(path: relative, name: save.name, source: source,
+                             flags: Int(boko?.flags ?? 0), level: boko?.level ?? 0,
+                             hp: boko?.hp ?? 0, hpMax: boko?.hpMax ?? 0,
+                             weapon: boko?.weapon ?? 0, rank: boko?.rank ?? 0,
+                             move: boko?.move ?? 0,
+                             saveCount: Int(boko?.saveCount ?? 0),
+                             id: boko?.id ?? 0, items: boko?.items ?? [],
+                             ff8ID: Int(boko?.ff8ID ?? 0),
+                             summon: boko?.summon ?? 0,
+                             homeWalking: Int(boko?.homeWalking ?? 0),
+                             isApplication: app))
+        }
+    }
+    out.sort { ($0.path, $0.name) < ($1.path, $1.name) }
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.sortedKeys]
+    FileHandle.standardOutput.write(try encoder.encode(out))
+    exit(0)
 }
 
 /// Конвертация: каждый сейв во все одиночные форматы и в каждый регион,

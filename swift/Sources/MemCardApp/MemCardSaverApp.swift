@@ -29,6 +29,12 @@ struct MemCardSaverApp: App {
             MemCardSaverApp.render(to: URL(fileURLWithPath: args[mark + 1]))
             exit(0)
         }
+        // То же самое для окна PocketStation: оно живёт своей жизнью и
+        // в снимок корзины не попадает.
+        if let mark = args.firstIndex(of: "--render-pocket"), mark + 1 < args.count {
+            MemCardSaverApp.renderPocket(to: URL(fileURLWithPath: args[mark + 1]))
+            exit(0)
+        }
         // Наигранное время, как его считает слой приложения.
         //     MemCardSaver --playtimes время.json
         // В `memcard dump` его нет: время собирает не движок, а `Digest` -
@@ -73,6 +79,11 @@ struct MemCardSaverApp: App {
             GamesWindow().environment(state)
         }
         .defaultSize(width: 900, height: 640)
+
+        Window(L.t("PocketStation"), id: "pocket") {
+            PocketStationView().environment(state)
+        }
+        .defaultSize(width: 720, height: 560)
 
         Window(L.t("Settings"), id: "settings") {
             SettingsView().environment(state)
@@ -214,6 +225,46 @@ struct MemCardSaverApp: App {
 
     /// Рисует корзину с несколькими сейвами и кладёт в PNG.
     @MainActor
+    /// Окно PocketStation мимо экрана.
+    static func renderPocket(to target: URL) {
+        var folders = Folders.stored()
+        if folders.isEmpty, let nearby = Folders.nearby() { folders = [nearby] }
+        guard !folders.isEmpty else { print("папок с сейвами нет"); return }
+        let state = AppState()
+        let semaphore = DispatchSemaphore(value: 0)
+        Task { await state.library.load(folders); semaphore.signal() }
+        // Ждём загрузку, прокручивая цикл: `load` уходит в отдельную
+        // задачу, а без цикла событий она не доедет.
+        while semaphore.wait(timeout: .now()) == .timedOut {
+            RunLoop.current.run(mode: .default, before: Date() + 0.05)
+        }
+        print("сейвов: \(state.library.unique.count)")
+        let boko = state.library.unique.filter {
+            guard let block = $0.save.blocks.first else { return false }
+            return Boko.fromPocketStation(block, name: $0.save.rawName) != nil
+        }
+        let ff8 = state.library.unique.filter {
+            guard let block = $0.save.blocks.first else { return false }
+            return FF8.isFF8(block)
+        }
+        print("Chocobo World: \(boko.count), сейвов FF8: \(ff8.count)")
+
+        let view = PocketStationView(snapshot: true)
+            .environment(state)
+            .environment(\.palette, .dark)
+            .frame(width: 720, height: 560)
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = 2
+        guard let image = renderer.cgImage,
+              let out = CGImageDestinationCreateWithURL(
+                  target as CFURL, "public.png" as CFString, 1, nil) else {
+            print("нарисовать не вышло"); return
+        }
+        CGImageDestinationAddImage(out, image, nil)
+        CGImageDestinationFinalize(out)
+        print("снято: \(target.path)")
+    }
+
     static func render(to target: URL) {
         var folders = Folders.stored()
         if folders.isEmpty, let nearby = Folders.nearby() { folders = [nearby] }

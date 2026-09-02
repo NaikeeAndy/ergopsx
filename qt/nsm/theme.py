@@ -14,6 +14,10 @@ class Palette:
     bar: tuple                 # панель сверху и снизу
     bar_line: str
     panel: str
+    # Панель у Swift лежит поверх градиента с прозрачностью 0.55, и сквозь
+    # неё виден фон. Сплошная заливка тем же цветом даёт заметно другой
+    # оттенок - именно на этом два приложения и разошлись по виду.
+    panel_alpha: float
     panel_line: str
     tile: tuple                # плитка сейва
     tile_edge: str
@@ -39,6 +43,7 @@ DARK = Palette(
     bar=("#1D2E4E", "#142138"),
     bar_line="#0A1120",
     panel="#090F1B",
+    panel_alpha=0.55,
     panel_line="#16233A",
     tile=("#22355A", "#172742"),
     tile_edge="#2C4470",
@@ -60,6 +65,7 @@ LIGHT = Palette(
     bar=("#D6D2C8", "#C4C0B6"),
     bar_line="#A9A69D",
     panel="#C3BFB5",
+    panel_alpha=0.55,
     panel_line="#ABA79E",
     tile=("#DBD7CD", "#CAC6BC"),
     tile_edge="#ABA79E",
@@ -79,6 +85,13 @@ LIGHT = Palette(
 
 GOOD = "#2FA84F"
 BAD = "#E8433F"
+
+
+def rgba(hexcolor, alpha):
+    """`#RRGGBB` плюс прозрачность - в вид, понятный Qt."""
+    value = hexcolor.lstrip("#")
+    red, green, blue = (int(value[i:i + 2], 16) for i in (0, 2, 4))
+    return f"rgba({red}, {green}, {blue}, {alpha})"
 
 
 def gradient(stops, horizontal=False):

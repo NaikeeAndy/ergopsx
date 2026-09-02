@@ -90,9 +90,15 @@ def main():
             # видно только общую часть.
             # Поле поиска очищаем: в снимок попадало случайное содержимое.
             window.search.clear()
+            # По умолчанию Vagrant Story - у него самый полный разбор.
+            # `--pick` берёт другую игру: у Vagrant нет отряда, и плитки
+            # бойцов на таком снимке не проверить.
+            wanted = "Vagrant"
+            if "--pick" in sys.argv:
+                wanted = sys.argv[sys.argv.index("--pick") + 1]
             want = None
             for index in range(window.sidebar.count()):
-                if "Vagrant" in window.sidebar.item(index).text():
+                if wanted.lower() in window.sidebar.item(index).text().lower():
                     want = index
                     break
             if want is not None:

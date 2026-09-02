@@ -170,7 +170,7 @@ struct InspectorView: View {
                     .lineLimit(1)
                 Spacer(minLength: 6)
                 if !member.level.isEmpty {
-                    Text(L.t("lv. ") + member.level)
+                    Text(L.t("lv. {0}", member.level))
                         .font(.system(size: 11.5, design: .monospaced))
                         .foregroundStyle(palette.ink)
                 }
