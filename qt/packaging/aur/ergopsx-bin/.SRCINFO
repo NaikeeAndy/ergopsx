@@ -1,6 +1,6 @@
 pkgbase = ergopsx-bin
 	pkgdesc = PlayStation 1 save manager: memory cards, containers, game breakdowns, consoles over FTP
-	pkgver = 0.1
+	pkgver = 0.2
 	pkgrel = 1
 	url = https://github.com/NaikeeAndy/ergopsx
 	arch = x86_64
@@ -10,10 +10,10 @@ pkgbase = ergopsx-bin
 	provides = ergopsx
 	conflicts = ergopsx
 	options = !strip
-	source = ergopsx-bin-0.1.tar.gz::https://github.com/NaikeeAndy/ergopsx/releases/download/v0.1/ErgoPSXSaveManager-v0.1-linux-x86_64.tar.gz
-	source = ergopsx.desktop::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v0.1/qt/packaging/ergopsx.desktop
-	source = ergopsx.png::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v0.1/qt/packaging/ergopsx.png
-	sha256sums = d9691c911bc540d95c689ee3926ee8206ec93e4bf69fd54fe8969b5f44dd7db9
+	source = ergopsx-bin-0.2.tar.gz::https://github.com/NaikeeAndy/ergopsx/releases/download/v0.2/ErgoPSXSaveManager-v0.2-linux-x86_64.tar.gz
+	source = ergopsx.desktop::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v0.2/qt/packaging/ergopsx.desktop
+	source = ergopsx.png::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v0.2/qt/packaging/ergopsx.png
+	sha256sums = 51dd922c1558df6b7a9ddfb9fd634476e2743b255ef93b5adb91515c26c882e5
 	sha256sums = d0ed821311b4dc49b177bb8e6ec1ebe46b050dda742494ba8ed6494826cef1e2
 	sha256sums = dd3a905c42eb45341ba0529121d8606fb31cb521bc2f526c8cd574fbacb65448
 

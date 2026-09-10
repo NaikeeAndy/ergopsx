@@ -10,7 +10,7 @@
 
 _pkgname=ergopsx
 pkgname=ergopsx-bin
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 pkgdesc="PlayStation 1 save manager: memory cards, containers, game breakdowns, consoles over FTP"
 arch=('x86_64')
@@ -25,7 +25,7 @@ options=('!strip')
 source=("$pkgname-$pkgver.tar.gz::$url/releases/download/v$pkgver/ErgoPSXSaveManager-v$pkgver-linux-x86_64.tar.gz"
         "ergopsx.desktop::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v$pkgver/qt/packaging/ergopsx.desktop"
         "ergopsx.png::https://raw.githubusercontent.com/NaikeeAndy/ergopsx/v$pkgver/qt/packaging/ergopsx.png")
-sha256sums=('d9691c911bc540d95c689ee3926ee8206ec93e4bf69fd54fe8969b5f44dd7db9'
+sha256sums=('51dd922c1558df6b7a9ddfb9fd634476e2743b255ef93b5adb91515c26c882e5'
             'd0ed821311b4dc49b177bb8e6ec1ebe46b050dda742494ba8ed6494826cef1e2'
             'dd3a905c42eb45341ba0529121d8606fb31cb521bc2f526c8cd574fbacb65448')
 
