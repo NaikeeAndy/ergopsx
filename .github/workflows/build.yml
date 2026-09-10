@@ -168,6 +168,10 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           cat > notes.md <<'NOTES'
+          Fixed Castlevania: Symphony of the Night, Castlevania Chronicles,
+          Final Fantasy 7 save file reading, fixed language support, moved
+          Setting to a separate item
+
           Builds for all three systems. Source code archives are attached below
           by GitHub.
 
