@@ -261,17 +261,38 @@ struct Digest {
         Digest(
             game: "Castlevania Chronicles",
             playtime: nil,
-            fields: [
-                Field(label: L.t("Player"), value: found.name),
-                Field(label: L.t("Stage"), value: String(format: "%02d", found.stage)),
-                Field(label: L.t("Level"), value: String(found.level)),
+            // Строка на запись: их две, и по одной сейвы было не
+            // различить. Какой записи какой режим игры - по байтам не
+            // видно, поэтому номер, а не выдуманное название.
+            fields: [Field(label: L.t("Player"), value: found.name)]
+                + found.slots.map { one in
+                    // Круг показываем только со второго: на первом
+                    // он лишний.
+                    Field(label: one.mode,
+                          value: one.loop > 1
+                            ? L.t("level {0} of loop {1}, stage {2}",
+                                  String(one.level), String(one.loop),
+                                  String(format: "%02d", one.stage))
+                            : L.t("level {0}, stage {1}", String(one.level),
+                                  String(format: "%02d", one.stage)))
+                }
+                + [
                 // Второе число с экрана выбора: что оно значит - неизвестно,
                 // поэтому и подписано тем, чем оно является на экране.
                 Field(label: L.t("Second number"),
                       value: String(format: "%02d", found.counter)),
                 Field(label: L.t("Saved"), value: found.saved),
             ],
-            members: [], membersTitle: "", sections: [])
+            members: [], membersTitle: "",
+            // Только рекорды игрока: заводские места одинаковы у всех.
+            sections: found.timeAttack.isEmpty ? [] : [
+                Section(title: L.t("Time Attack"),
+                        items: found.timeAttack.map { one in
+                            Field(label: L.t("level {0}, place {1}",
+                                             String(one.level), String(one.place)),
+                                  value: "\(one.name) · \(one.time) · \(one.score)")
+                        })
+            ])
     }
 
     static func fromCrash2(_ found: Crash2.Overview) -> Digest {
@@ -454,6 +475,26 @@ struct Digest {
             ])
     }
 
+    /// Инвентарь разделами по видам, без расходуемого.
+    ///
+    /// Оружие, броня, щиты, плащи и украшения показываются поимённо -
+    /// каждый предмет своей строкой. Еда и лекарства не показываются
+    /// вовсе: их 63 наименования, и к собранному они отношения не имеют.
+    static func keptSections(_ rows: [[String]]) -> [Section] {
+        var titles: [String] = []
+        var items: [String: [Field]] = [:]
+        for row in rows where row.count > 2 {
+            if titles.last != row[0] { titles.append(row[0]) }
+            let count = Int(row[2]) ?? 0
+            items[row[0], default: []].append(
+                Field(label: row[1], value: count > 1 ? row[2] : ""))
+        }
+        return titles.map { title in
+            Section(title: title, items: items[title] ?? [],
+                    note: String((items[title] ?? []).count))
+        }
+    }
+
     static func fromSotN(_ found: SotN.Overview) -> Digest {
         Digest(
             game: "Castlevania: Symphony of the Night",
@@ -490,8 +531,9 @@ struct Digest {
                 Section(title: L.t("Spells"),
                         items: found.spells.map { Field(label: $0, value: "") },
                         note: String(found.spells.count)),
-                Section(title: L.t("Inventory"), items: pairs(found.inventory),
-                        note: L.t("{0} entries", found.inventory.count)),
+            ]
+            + keptSections(found.kept)
+            + [
                 Section(title: L.t("Bestiary"),
                         items: found.bestiary.map { Field(label: $0, value: "") },
                         note: L.t("{0} of {1}", found.bestiary.count, found.enemyTotal)),

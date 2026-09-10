@@ -4,6 +4,7 @@
     python3 qt/app.py --shot view.png  grab the window and quit
     python3 qt/app.py --digests out.json --folder saves
                                        dump every breakdown and quit
+    python3 qt/app.py --theme system   show one theme without saving it
 
 Вывод здесь только латиницей: консоль Windows кодирует его в cp1252,
 и кириллица роняет процесс целиком.
@@ -72,6 +73,24 @@ def main():
     if "--digests" in sys.argv:
         return digests(sys.argv[sys.argv.index("--digests") + 1],
                        sys.argv[sys.argv.index("--folder") + 1])
+    # Чужая системная палитра из файла: посмотреть, как приложение
+    # выйдет под темой, которой на этой машине нет. Только для проверки.
+    if "--fake-palette" in sys.argv:
+        import json
+        from PySide6.QtGui import QColor, QPalette
+        with open(sys.argv[sys.argv.index("--fake-palette") + 1],
+                  encoding="utf-8") as fh:
+            roles = json.load(fh)
+        made = QPalette()
+        for role, value in roles.items():
+            made.setColor(getattr(QPalette.ColorRole, role), QColor(value))
+        app.setPalette(made)
+
+    # Тема разово, мимо настроек: показать её, ничего не сохраняя.
+    if "--theme" in sys.argv:
+        from nsm import theme as theming
+        wanted = sys.argv[sys.argv.index("--theme") + 1]
+        Window.forced_theme = wanted
     window = Window()
     # `app.quit()` не зовёт `closeEvent`, а поток обхода надо остановить
     # в любом случае - иначе Qt уничтожает его на ходу и приложение

@@ -36,7 +36,13 @@ public enum SotN {
     static let handSlots: Set<Int> = [0x3D4, 0x3D8]
 
     static let spellsBase = 0x156, spellSlots = 8
+    /// **Списков два, подряд.** По `0x15E` - ручные предметы (оружие,
+    /// щиты, метательное, еда), таблица `HANDS`. Сразу за ними, по
+    /// `0x207`, снаряжение (доспехи, шлемы, плащи, украшения), таблица
+    /// `ITEMS`. Раньше читался только первый список и чужой таблицей.
     static let inventoryBase = 0x15E
+    static let handCount = 169
+    static let gearBase = inventoryBase + handCount
     static let familiarBase = 0x418, familiarSize = 0x0C, familiarCount = 7
     static let bestiarySeen = 0x758, bestiaryDrops = 0x778
     static let relicOn: UInt8 = 3
@@ -47,7 +53,7 @@ public enum SotN {
         enum CodingKeys: String, CodingKey {
             case character, level, exp, gold, kills, hp, mp, hearts, map
             case location, progression, playtime, gear, relics, spells
-            case inventory, familiars, bestiary, drops
+            case inventory, kept, familiars, bestiary, drops
             case enemyTotal = "enemy_total"
         }
         public var character: String
@@ -66,6 +72,7 @@ public enum SotN {
         public var relics: [String]
         public var spells: [String]
         public var inventory: [[String]]
+        public var kept: [[String]] = []
         public var familiars: [[String]]
         public var bestiary: [String]
         public var drops: [String]
@@ -108,6 +115,7 @@ public enum SotN {
             relics: relics(block, base: base, data: data),
             spells: spells(block, base: base, data: data),
             inventory: inventory(block, base: base, data: data),
+            kept: kept(block, base: base, data: data),
             familiars: familiars(block, base: base, data: data),
             bestiary: bestiary(block, base: base, at: bestiarySeen, data: data),
             drops: bestiary(block, base: base, at: bestiaryDrops, data: data),
@@ -140,13 +148,54 @@ public enum SotN {
         }
     }
 
-    static func inventory(_ block: [UInt8], base: Int, data: GameData) -> [[String]] {
-        data.keys("ITEMS").compactMap { index in
-            let at = base + inventoryBase + index
+    static func counted(_ block: [UInt8], at start: Int, table: String,
+                        data: GameData) -> [[String]] {
+        data.keys(table).compactMap { index in
+            let at = start + index
             guard at < block.count, block[at] != 0,
-                  let name = data.name("ITEMS", index) else { return nil }
+                  let name = data.name(table, index) else { return nil }
             return [name, String(block[at])]
         }
+    }
+
+    /// Оба списка подряд - так их показывает и меню игры.
+    static func inventory(_ block: [UInt8], base: Int, data: GameData) -> [[String]] {
+        counted(block, at: base + inventoryBase, table: "HANDS", data: data)
+            + counted(block, at: base + gearBase, table: "ITEMS", data: data)
+    }
+
+    /// Инвентарь без расходуемого, разложенный по видам: тройки
+    /// «раздел, предмет, сколько».
+    ///
+    /// Еды в игре 42 наименования, лекарств 21 - списком они забивают
+    /// панель, а к собранному отношения не имеют. Виды взяты из того же
+    /// game-tools-collection, что и названия. Плоскими тройками, а не
+    /// вложенно: так вид одинаков у обоих движков.
+    static func kept(_ block: [UInt8], base: Int, data: GameData) -> [[String]] {
+        // Ключи таблицы и есть номера отсеиваемых видов, а значения -
+        // их названия, чтобы было видно, что именно отброшено.
+        let drop = Set(data.keys("CONSUMABLE_TYPES"))
+        var out: [[String]] = []
+        for (start, table, types, kinds) in [
+            (base + inventoryBase, "HANDS", "HAND_TYPE_OF", "HAND_TYPES"),
+            (base + gearBase, "ITEMS", "GEAR_TYPE_OF", "GEAR_TYPES"),
+        ] {
+            var groups: [Int: [[String]]] = [:]
+            for index in data.keys(table).sorted() {
+                let at = start + index
+                guard at < block.count, block[at] != 0,
+                      let name = data.name(table, index) else { continue }
+                let kind = data.number(types, index) ?? -1
+                if table == "HANDS", drop.contains(kind) { continue }
+                groups[kind, default: []].append([name, String(block[at])])
+            }
+            for kind in data.keys(kinds).sorted() {
+                guard let rows = groups[kind],
+                      let title = data.name(kinds, kind) else { continue }
+                for row in rows { out.append([title, row[0], row[1]]) }
+            }
+        }
+        return out
     }
 
     static func familiars(_ block: [UInt8], base: Int, data: GameData) -> [[String]] {

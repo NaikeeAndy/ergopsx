@@ -42,7 +42,18 @@ HAND_SLOTS = (0x3D4, 0x3D8)     # в руках свой список предм
 
 SPELLS_BASE = 0x156
 SPELL_SLOTS = 8
+# **Списков два, подряд.** По `0x15E` лежат ручные предметы - оружие,
+# щиты, метательное, еда, - и им отвечает таблица `HANDS`. Сразу за ними,
+# по `0x207`, идёт снаряжение: доспехи, шлемы, плащи, украшения - таблица
+# `ITEMS`. Раньше читался только первый список и **чужой таблицей**: у
+# Алукарда на 50 % выходили две «Axe Lord armor», «Duplicator» и
+# «Covenant stone» - редчайшие вещи финала, - а на деле там сыр, яичница,
+# сюрикэны и бумеранг. Половина инвентаря при этом не показывалась вовсе.
+# Найдено на раннем сейве: у него список разреженный, и подмена таблицы
+# сразу бросается в глаза.
 INVENTORY_BASE = 0x15E
+HAND_COUNT = 169                  # ячеек в первом списке, считая нулевую
+GEAR_BASE = INVENTORY_BASE + HAND_COUNT
 
 FAMILIAR_BASE = 0x418
 FAMILIAR_SIZE = 0x0C
@@ -101,10 +112,56 @@ def spells(block):
     return out
 
 
+def _counted(block, base, table):
+    """Список «название, сколько» по одной из двух областей."""
+    at = _base(block) + base
+    return [(name, block[at + index]) for index, name in sorted(table.items())
+            if at + index < len(block) and block[at + index]]
+
+
+def hand_items(block):
+    """Ручные предметы: оружие, щиты, метательное, еда."""
+    return _counted(block, INVENTORY_BASE, data.HANDS)
+
+
+def gear_items(block):
+    """Снаряжение: доспехи, шлемы, плащи, украшения."""
+    return _counted(block, GEAR_BASE, data.ITEMS)
+
+
 def inventory(block):
-    return [(name, block[_base(block) + INVENTORY_BASE + index])
-            for index, name in sorted(data.ITEMS.items())
-            if block[_base(block) + INVENTORY_BASE + index]]
+    """Оба списка подряд - так их показывает и меню игры."""
+    return hand_items(block) + gear_items(block)
+
+
+def kept(block):
+    """Инвентарь без расходуемого, разложенный по видам.
+
+    Еды в игре 42 наименования, лекарств 21 - списком они забивают панель,
+    а к собранному отношения не имеют. Виды взяты из того же
+    game-tools-collection, что и названия, а не поделены на глаз.
+    """
+    at = _base(block)
+    out = []
+    for base, table, types, kinds in (
+            (INVENTORY_BASE, data.HANDS, data.HAND_TYPE_OF, data.HAND_TYPES),
+            (GEAR_BASE, data.ITEMS, data.GEAR_TYPE_OF, data.GEAR_TYPES)):
+        groups = {}
+        for index, name in sorted(table.items()):
+            spot = at + base + index
+            if spot >= len(block) or not block[spot]:
+                continue
+            kind = types.get(index)
+            if base == INVENTORY_BASE and kind in data.CONSUMABLE_TYPES:
+                continue
+            groups.setdefault(kinds.get(kind, "?"), []).append(
+                [name, block[spot]])
+        # Плоскими тройками, а не вложенно: так вид одинаков в обоих
+        # движках и сверка сравнивает данные, а не форму записи.
+        for title in kinds.values():
+            for name, count in groups.get(title, []):
+                out.append([title, name, count])
+    return out
 
 
 def familiars(block):
@@ -149,7 +206,11 @@ def overview(block, frame=None):
         "gear": gear(block),
         "relics": relics(block),
         "spells": spells(block),
+        # Отдельными полями два списка не отдаём: `inventory` - их
+        # склейка, а лишние ключи разошлись бы со сверкой движков.
+        # Кому нужны врозь - зовут `hand_items` и `gear_items`.
         "inventory": inventory(block),
+        "kept": kept(block),
         "familiars": familiars(block),
         "bestiary": bestiary(block)[0],
         "drops": bestiary(block)[1],

@@ -4,6 +4,8 @@
 разных мест сразу, и отдельным экраном пришлось бы всё искать заново.
 """
 
+import os
+
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFont, QPainter
 from PySide6.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QMessageBox,
@@ -140,6 +142,11 @@ class BasketBar(QWidget):
             "card.mcr", lang.t("Card image (*.mcr *.mcd *.VM1)"))
         if not target:
             return
+        # Имя предлагается вместе с расширением, и набирая своё, его
+        # затирают заодно - файл уходил на диск голым. Ни игра, ни
+        # эмулятор такой не подхватят: сейв узнают по расширению.
+        if not os.path.splitext(target)[1]:
+            target += ".mcr"
         try:
             image, layout, dropped = self.basket.build()
         except Exception as error:

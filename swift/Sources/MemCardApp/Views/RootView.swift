@@ -191,7 +191,8 @@ struct RootView: View {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = item.save.name + ".mcs"
         panel.message = L.t("A single save — the original file is not changed")
-        guard panel.runModal() == .OK, let target = panel.url else { return }
+        guard panel.runModal() == .OK,
+              let target = panel.url?.named("mcs") else { return }
         let format: Convert.Single =
             target.pathExtension.lowercased() == "psv" ? .psv
             : target.pathExtension.lowercased() == "raw" ? .raw : .mcs

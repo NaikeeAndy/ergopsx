@@ -34,6 +34,7 @@ import psxff7
 import psxtemplate
 import psxsign
 import psxconvert
+import psxpocket
 
 BINARY = "swift/.build/debug/memcard"
 
@@ -215,6 +216,7 @@ def sotn_shape(info):
     if not info:
         return info
     info["inventory"] = [[name, str(count)] for name, count in info["inventory"]]
+    info["kept"] = [[title, name, str(count)] for title, name, count in info["kept"]]
     info["familiars"] = [[n, str(a), str(b)] for n, a, b in info["familiars"]]
     info["gear"] = [list(g) for g in info["gear"]]
     return info
@@ -462,6 +464,151 @@ def compare_plain(old, new, label):
     return report, bool(bad or only_old or only_new)
 
 
+def pocket_python(root):
+    """Записи Chocobo World старым движком."""
+    rows = {}
+    for folder, _, names in os.walk(root):
+        for name in names:
+            path = os.path.join(folder, name)
+            try:
+                if os.path.getsize(path) < psxid.BLOCK:
+                    continue
+                entries = psxbuild.sources(path)
+            except Exception:
+                continue
+            relative = os.path.relpath(path, root)
+            for entry in entries:
+                block = entry["blocks"][0]
+                frame = bytearray(128)
+                frame[10:30] = entry["name"][:20]
+                record = psxpocket.find_chocobo(block, frame)
+                app = psxpocket.is_application(frame, block)
+                # Строка нужна и без Боко: опознание приложений сверяется
+                # на всех файлах, а не только на сейвах Chocobo World.
+                if record is None and not app:
+                    continue
+                source = "-"
+                if record is not None:
+                    source = ("ff8" if record["source"].startswith("блок")
+                              else "pocket:%d"
+                              % int(record["source"].rsplit(" ", 1)[1]))
+                blank = {"flags": 0, "level": 0, "hp": 0, "hp_max": 0,
+                         "weapon": 0, "rank": 0, "move": 0, "save_count": 0,
+                         "id": 0, "items": [], "ff8_id": 0, "summon": 0,
+                         "home_walking": 0}
+                got = record or blank
+                rows[(relative, psxbuild._name_of(entry["name"]))] = {
+                    "source": source,
+                    "flags": got["flags"], "level": got["level"],
+                    "hp": got["hp"], "hpMax": got["hp_max"],
+                    "weapon": got["weapon"], "rank": got["rank"],
+                    "move": got["move"], "saveCount": got["save_count"],
+                    "id": got["id"], "items": got["items"],
+                    "ff8ID": got["ff8_id"], "summon": got["summon"],
+                    "homeWalking": got["home_walking"],
+                    "isApplication": app,
+                }
+    return rows
+
+
+def chocolink_pairs(root):
+    """Сейвы Chocobo World и сейвы FF8 из коллекции, сведённые по телу."""
+    import psxff8
+    choco, ff8 = {}, {}
+    for folder, _, names in os.walk(root):
+        for name in names:
+            path = os.path.join(folder, name)
+            try:
+                if os.path.getsize(path) < psxid.BLOCK:
+                    continue
+                entries = psxbuild.sources(path)
+            except Exception:
+                continue
+            # Только первый сейв файла: командная строка нового движка
+            # берёт именно его, и сравнивать надо одно и то же. Образы
+            # карт с их пятнадцатью слотами сюда не попадают, а
+            # одиночные сейвы - все.
+            if not entries:
+                continue
+            entry = entries[0]
+            block = entry["blocks"][0]
+            frame = bytearray(128)
+            frame[10:30] = entry["name"][:20]
+            key = hashlib.sha256(block).hexdigest()
+            if psxpocket.from_pocketstation_save(block, frame) is not None:
+                choco.setdefault(key, path)
+            elif psxff8.is_ff8(block):
+                ff8.setdefault(key, path)
+    return sorted(choco.values()), sorted(ff8.values())
+
+
+def chocolink_python(root):
+    """Связка старым движком: по паре отдаём хеши обоих блоков."""
+    import psxff8
+    rows = {}
+    choco_paths, ff8_paths = chocolink_pairs(root)
+    for choco_path in choco_paths:
+        for ff8_path in ff8_paths:
+            choco = psxbuild.sources(choco_path)[0]["blocks"][0]
+            ff8 = psxbuild.sources(ff8_path)[0]["blocks"][0]
+            tag = psxpocket.read_link(psxff8.read_chocobo_bytes(ff8))
+            # Ровно то, что делает `psxchoco link`.
+            new_choco = bytearray(choco)
+            for base in psxpocket.POCKET_BANKS:
+                record = bytes(choco[base:base + psxpocket.RECORD_SIZE])
+                if not psxpocket.plausible(psxpocket.read_record(record, 0)):
+                    continue
+                fixed = psxpocket.with_flags(
+                    psxpocket.with_link(record, tag), enabled=True, away=True)
+                new_choco[base:base + psxpocket.RECORD_SIZE] = fixed
+            new_ff8 = psxff8.transplant_chocobo(
+                ff8, psxpocket.with_flags(psxff8.read_chocobo_bytes(ff8),
+                                          enabled=True, away=True, walking=False))
+            key = (os.path.relpath(choco_path, root),
+                   os.path.relpath(ff8_path, root))
+            rows[key] = {
+                "tag": "%08X" % tag,
+                "chocobo": hashlib.sha256(bytes(new_choco)).hexdigest(),
+                "ff8": hashlib.sha256(new_ff8).hexdigest(),
+                "seal": psxff8.verify(new_ff8)[3],
+            }
+    return rows
+
+
+def chocolink_swift(root, titles_path):
+    """То же самое новым движком."""
+    import tempfile
+    rows = {}
+    choco_paths, ff8_paths = chocolink_pairs(root)
+    with tempfile.TemporaryDirectory() as out:
+        for choco_path in choco_paths:
+            for ff8_path in ff8_paths:
+                told = subprocess.run(
+                    [BINARY, "chocolink", choco_path, ff8_path, out],
+                    capture_output=True, check=True).stdout
+                got = json.loads(told)
+                key = (os.path.relpath(choco_path, root),
+                       os.path.relpath(ff8_path, root))
+                rows[key] = {
+                    "tag": got["tag"],
+                    "chocobo": got["chocoboDigest"],
+                    "ff8": got["ff8Digest"],
+                    "seal": got["ff8SealOK"],
+                }
+    return rows
+
+
+def pocket_swift(root, titles_path):
+    """То же самое новым движком."""
+    out = subprocess.run([BINARY, "pocket", titles_path, root],
+                         capture_output=True, check=True).stdout
+    rows = {}
+    for row in json.loads(out):
+        key = (row.pop("path"), row.pop("name"))
+        rows[key] = row
+    return rows
+
+
 def convert_python(root):
     """Каждый сейв во все одиночные форматы и регионы, старым движком."""
     rows = {}
@@ -564,13 +711,28 @@ def main():
         print(f"{left:<22} {right}" if left else right)
 
     print()
+    pocket_report, pocket_failed = compare_plain(
+        pocket_python(args.root), pocket_swift(args.root, titles_path),
+        "Chocobo World")
+    for left, right in pocket_report:
+        print(f"{left:<22} {right}" if left else right)
+
+    print()
+    link_report, link_failed = compare_plain(
+        chocolink_python(args.root), chocolink_swift(args.root, titles_path),
+        "связка Боко")
+    for left, right in link_report:
+        print(f"{left:<22} {right}" if left else right)
+
+    print()
     conv_report, conv_failed = compare_plain(
         convert_python(args.root), convert_swift(args.root, titles_path),
         "конвертация")
     for left, right in conv_report:
         print(f"{left:<22} {right}" if left else right)
     return 1 if any((failed, card_failed, sign_failed,
-                     icon_failed, conv_failed)) else 0
+                     icon_failed, pocket_failed, link_failed,
+                     conv_failed)) else 0
 
 
 if __name__ == "__main__":

@@ -103,7 +103,9 @@ struct BasketBar: View {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "card.mcr"
         panel.message = L.t("The built card — original files are not changed")
-        guard panel.runModal() == .OK, let target = panel.url else { return }
+        guard panel.runModal() == .OK else { return }
+        let target = panel.url?.named("mcr")
+        guard let target else { return }
         saving = true
         defer { saving = false }
         do {

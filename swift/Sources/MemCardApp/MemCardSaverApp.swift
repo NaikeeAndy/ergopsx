@@ -29,6 +29,12 @@ struct MemCardSaverApp: App {
             MemCardSaverApp.render(to: URL(fileURLWithPath: args[mark + 1]))
             exit(0)
         }
+        // Окно настроек мимо экрана - в нём разделы, и переключатель
+        // языка проверяется только глазами.
+        if let mark = args.firstIndex(of: "--render-settings"), mark + 1 < args.count {
+            MemCardSaverApp.renderSettings(to: URL(fileURLWithPath: args[mark + 1]))
+            exit(0)
+        }
         // Наигранное время, как его считает слой приложения.
         //     MemCardSaver --playtimes время.json
         // В `memcard dump` его нет: время собирает не движок, а `Digest` -
@@ -214,6 +220,40 @@ struct MemCardSaverApp: App {
 
     /// Рисует корзину с несколькими сейвами и кладёт в PNG.
     @MainActor
+    /// Снимок вида через AppKit.
+    ///
+    /// `ImageRenderer` не умеет элементы управления - кнопки, списки и
+    /// переключатели выходят жёлтыми заглушками, и проверить по такому
+    /// снимку нечего. `NSHostingView` раскладывается настоящим AppKit
+    /// и рисует их как есть.
+    static func shoot(_ view: some View, size: CGSize, to target: URL) -> Bool {
+        let host = NSHostingView(rootView: view)
+        host.frame = CGRect(origin: .zero, size: size)
+        host.layoutSubtreeIfNeeded()
+        // Один проход цикла: подставленные виджеты ещё не разложены,
+        // и без него часть панели выходит пустой.
+        RunLoop.current.run(mode: .default, before: Date() + 0.2)
+        host.layoutSubtreeIfNeeded()
+        guard let rep = host.bitmapImageRepForCachingDisplay(in: host.bounds)
+        else { return false }
+        host.cacheDisplay(in: host.bounds, to: rep)
+        guard let data = rep.representation(using: .png, properties: [:])
+        else { return false }
+        try? data.write(to: target)
+        return true
+    }
+
+    static func renderSettings(to target: URL) {
+        let state = AppState()
+        let view = SettingsView(startAt: .look)
+            .environment(state)
+            .environment(\.palette, .dark)
+        guard shoot(view, size: CGSize(width: 760, height: 560), to: target)
+        else { print("нарисовать не вышло"); return }
+        print("снято: \(target.path)")
+    }
+
+
     static func render(to target: URL) {
         var folders = Folders.stored()
         if folders.isEmpty, let nearby = Folders.nearby() { folders = [nearby] }

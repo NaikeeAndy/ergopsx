@@ -1,8 +1,10 @@
 """Главное окно: список игр слева, сейвы посередине, разбор справа."""
 
 import os
+import sys
 
 from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (QComboBox, QFileDialog, QFrame, QHBoxLayout,
                                QLabel, QLineEdit, QListWidget, QListWidgetItem,
                                QMainWindow, QPushButton, QVBoxLayout, QWidget)
@@ -22,7 +24,7 @@ from .settings import Settings
 from .settingsview import SettingsView
 from .style import sheet
 from . import lang
-from .theme import DARK, LIGHT
+from .theme import palette_for
 
 
 class Loader(QThread):
@@ -46,12 +48,15 @@ class Loader(QThread):
 
 
 class Window(QMainWindow):
+    #: Тема, заданная ключом командной строки: показать, не сохраняя.
+    forced_theme = None
+
     def __init__(self):
         super().__init__()
         atexit.register(self._stop_at_exit)
         self.settings = Settings()
         lang.set_language(self.settings.language)
-        self.palette_now = DARK if self.settings.dark else LIGHT
+        self.palette_now = palette_for(self.forced_theme or self.settings.theme)
         self.library = Library()
         self.basket = Basket()
         self.selection = "*"
@@ -128,7 +133,19 @@ class Window(QMainWindow):
         # там за ним прячутся язык, папки коллекции и профили консолей,
         # и его не находили. На macOS Qt всё равно уводит его в меню
         # приложения по ⌘, - тамошний обычай, и там его ищут сами.
-        bar.addAction(lang.t("Settings…"), self.open_settings).setShortcut("Ctrl+,")
+        # На macOS в строке меню живут только меню, и одинокий пункт
+        # туда не попадает вовсе - настройки было не найти. Роли
+        # `PreferencesRole` мало: Qt переносит в меню приложения только
+        # то, что лежит **внутри** меню. Поэтому на маке кладём пункт в
+        # «Файл» и помечаем ролью - оттуда система сама уводит его в
+        # меню приложения. На Windows и Linux он остаётся отдельным
+        # пунктом строки, как и просили.
+        if sys.platform == "darwin":
+            options = files.addAction(lang.t("Settings…"), self.open_settings)
+            options.setMenuRole(QAction.MenuRole.PreferencesRole)
+        else:
+            options = bar.addAction(lang.t("Settings…"), self.open_settings)
+        options.setShortcut("Ctrl+,")
 
     def open_settings(self):
         window = SettingsView(self.settings, self.palette_now, self)

@@ -32,7 +32,12 @@ struct SettingsView: View {
     @Environment(AppState.self) private var state
     @Environment(\.colorScheme) private var scheme
     @Environment(\.openWindow) private var openWindow
-    @State private var tab: Tab = .folders
+    @State private var tab: Tab
+
+    /// С какого раздела открыть. Обычно с первого; снимку нужен свой.
+    init(startAt: Tab = .folders) {
+        _tab = State(initialValue: startAt)
+    }
 
     private var palette: Palette { scheme == .dark ? .dark : .light }
 
@@ -42,15 +47,15 @@ struct SettingsView: View {
             Divider().overlay(palette.panelLine)
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    switch tab {
-                    case .folders: FoldersPane()
-                    case .look: LookPane()
-                    case .consoles: ConsolesPane(onOpen: { profile in
-                        state.openConsole = profile
-                        openWindow(id: "console")
-                    })
-                    case .about: AboutPane()
-                    }
+                switch tab {
+                case .folders: FoldersPane()
+                case .look: LookPane()
+                case .consoles: ConsolesPane(onOpen: { profile in
+                    state.openConsole = profile
+                    openWindow(id: "console")
+                })
+                case .about: AboutPane()
+                }
                 }
                 .padding(22)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -262,14 +267,17 @@ private struct LookPane: View {
                 Text(L.t("Language"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(palette.ink)
+                // Выпадающим списком, а не сегментами: сегменты делят
+                // отведённую ширину поровну, и на семи языках «English»
+                // обрезался до «ish». Список не зависит от их числа и
+                // выдержит восьмой.
                 Picker("", selection: Binding(
                     get: { state.folders.language },
                     set: { state.setLanguage($0) })) {
                     ForEach(Lang.allCases) { Text($0.label).tag($0) }
                 }
-                .pickerStyle(.segmented)
                 .labelsHidden()
-                .frame(width: 260)
+                .fixedSize()
                 Text(L.t("Save contents and game titles stay as they are — they come from the games themselves."))
                     .font(.system(size: 11))
                     .foregroundStyle(palette.inkFaint)

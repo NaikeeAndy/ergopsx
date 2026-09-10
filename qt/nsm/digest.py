@@ -289,13 +289,29 @@ def from_crash2(got):
 
 
 def from_chronicles(got):
-    return Digest(
-        game="Castlevania Chronicles",
-        fields=[Field(lang.t("Player"), got.get("name", "")),
-                Field(lang.t("Stage"), f"{got.get('stage', 0):02d}"),
-                Field(lang.t("Level"), str(got.get("level", ""))),
-                Field(lang.t("Second number"), f"{got.get('counter', 0):02d}"),
-                Field(lang.t("Saved"), got.get("saved", ""))])
+    # Строка на режим: их два, и по одной записи сейвы было не
+    # различить. Какая запись какому режиму - проверено на консоли.
+    fields = [Field(lang.t("Player"), got.get("name", ""))]
+    for one in got.get("slots", []):
+        # Круг показываем только со второго: на первом он лишний.
+        if one.get("loop", 1) > 1:
+            value = lang.t("level {0} of loop {1}, stage {2}", one["level"],
+                           one["loop"], f"{one['stage']:02d}")
+        else:
+            value = lang.t("level {0}, stage {1}", one["level"],
+                           f"{one['stage']:02d}")
+        fields.append(Field(one["mode"], value))
+    fields.append(Field(lang.t("Second number"), f"{got.get('counter', 0):02d}"))
+    fields.append(Field(lang.t("Saved"), got.get("saved", "")))
+    # Только рекорды игрока: заводские места одинаковы у всех.
+    sections = []
+    records = got.get("timeAttack") or []
+    if records:
+        sections.append(Section(lang.t("Time Attack"), [
+            Field(lang.t("level {0}, place {1}", one["level"], one["place"]),
+                  f"{one['name']} · {one['time']} · {one['score']}")
+            for one in records]))
+    return Digest(game="Castlevania Chronicles", fields=fields, sections=sections)
 
 
 AREAS = (lang.t("Humans"), lang.t("Beasts"), lang.t("Undead"), lang.t("Phantoms"), lang.t("Dragons"), lang.t("Evils"))
@@ -437,6 +453,21 @@ def from_ff7(got):
                            for x in (got.get("inventory") or [])],
                           lang.t("{0} entries", len(got.get("inventory") or [])))])
 
+def _sotn_kept(got):
+    """Инвентарь разделами по видам, без расходуемого.
+
+    Оружие, броня, щиты, плащи и украшения показываются поимённо - каждый
+    предмет своей строкой. Еда и лекарства не показываются вовсе: их 63
+    наименования, и к собранному они отношения не имеют.
+    """
+    groups = []
+    for title, name, count in got.get("kept") or []:
+        if not groups or groups[-1][0] != title:
+            groups.append((title, []))
+        groups[-1][1].append(Field(name, str(count) if count > 1 else ""))
+    return [Section(title, items, str(len(items))) for title, items in groups]
+
+
 def from_sotn(got):
     hp, mp = got.get("hp", [0, 0]), got.get("mp", [0, 0])
     hearts = got.get("hearts", [0, 0])
@@ -469,8 +500,7 @@ def from_sotn(got):
                   Section(lang.t("Spells"),
                           [Field(x) for x in (got.get("spells") or [])],
                           str(len(got.get("spells") or []))),
-                  Section(lang.t("Inventory"), pairs(got.get("inventory")),
-                          lang.t("{0} entries", len(got.get("inventory") or []))),
+                  *_sotn_kept(got),
                   Section(lang.t("Bestiary"),
                           [Field(x) for x in (got.get("bestiary") or [])],
                           lang.t("{0} of {1}", len(got.get("bestiary") or []),

@@ -43,7 +43,10 @@ class Settings:
         self.path = config_path()
         _moved_from_old_place(self.path)
         self.folders = []
-        self.dark = True
+        # "dark" и "light" - наши палитры, "system" - цвета темы
+        # операционной системы. Третий вариант нужен на Linux, где у
+        # рабочего стола единая тема на все программы.
+        self.theme = "dark"
         self.language = "en"
         self.load()
 
@@ -55,13 +58,17 @@ class Settings:
             data = {}
         self.folders = [f for f in data.get("folders", []) if os.path.isdir(f)]
         self.language = data.get("language", "en")
-        self.dark = data.get("dark", True)
+        theme = data.get("theme")
+        if theme not in ("dark", "light", "system"):
+            # Раньше здесь лежал признак `dark`; переносим молча.
+            theme = "dark" if data.get("dark", True) else "light"
+        self.theme = theme
 
     def save(self):
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
         with open(self.path, "w", encoding="utf-8") as fh:
             json.dump({"folders": self.folders, "language": self.language,
-                       "dark": self.dark}, fh, ensure_ascii=False, indent=1)
+                       "theme": self.theme}, fh, ensure_ascii=False, indent=1)
 
     def add_folder(self, folder):
         if folder not in self.folders:

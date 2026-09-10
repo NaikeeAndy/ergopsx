@@ -87,6 +87,7 @@ struct Menus: Commands {
             }
         }
 
+
         // Своё меню: консолей две, и у каждой два окна - сохранения
         // и образы игр. В «Окне» это тонуло среди системных пунктов.
         CommandMenu(L.t("Consoles")) {
@@ -149,7 +150,8 @@ struct Menus: Commands {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = item.save.name + ".mcs"
         panel.message = L.t("A single save — the original file is not changed")
-        guard panel.runModal() == .OK, let target = panel.url else { return }
+        guard panel.runModal() == .OK,
+              let target = panel.url?.named("mcs") else { return }
         let format: Convert.Single =
             target.pathExtension.lowercased() == "psv" ? .psv
             : target.pathExtension.lowercased() == "raw" ? .raw : .mcs
@@ -160,7 +162,8 @@ struct Menus: Commands {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "card.mcr"
         panel.message = L.t("The built card — original files are not changed")
-        guard panel.runModal() == .OK, let target = panel.url else { return }
+        guard panel.runModal() == .OK,
+              let target = panel.url?.named("mcr") else { return }
         guard let built = try? state.basket.build() else { return }
         try? Data(built.image).write(to: target)
     }

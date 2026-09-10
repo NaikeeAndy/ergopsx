@@ -87,6 +87,113 @@ GOOD = "#2FA84F"
 BAD = "#E8433F"
 
 
+def _mix(one, two, part):
+    """Смешивает два цвета: `part` - доля второго."""
+    a = [int(one.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+    b = [int(two.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+    return "#" + "".join(f"{round(x + (y - x) * part):02X}" for x, y in zip(a, b))
+
+
+def _shift(color, part):
+    """Двигает цвет к чёрному (part < 0) или к белому (part > 0)."""
+    return _mix(color, "#FFFFFF" if part > 0 else "#000000", abs(part))
+
+
+def _light(color):
+    """Яркость по восприятию, 0..255."""
+    r, g, b = (int(color.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+    return (r * 299 + g * 587 + b * 114) / 1000
+
+
+def _apart(color, amount):
+    """Отодвигает цвет от исходного в ту сторону, где есть запас.
+
+    Осветлять почти белое некуда: у Breeze Light фон `#eff0f1`, и плитки,
+    построенные осветлением, сливались с ним. У наших палитр фон средней
+    светлоты, и там это не всплывало.
+    """
+    return _shift(color, -amount if _light(color) > 160 else amount)
+
+
+def _readable(color, on, gap=70):
+    """Отодвигает цвет от фона, пока разница яркости не станет заметной.
+
+    Акцент у нас служит и заливкой кнопки, и цветом текста. Как заливка
+    системный `Highlight` хорош всегда, а как текст - нет: macOS отдаёт
+    тёмно-синий `#314F78`, и на плитке он пропадает. Двигаем в сторону,
+    противоположную фону.
+    """
+    toward = 1 if _light(on) < 128 else -1
+    for step in range(0, 11):
+        moved = _shift(color, toward * step * 0.07)
+        if abs(_light(moved) - _light(on)) >= gap:
+            return moved
+    return moved
+
+
+def from_system(qt_palette):
+    """Палитра из цветов темы операционной системы.
+
+    Нужна на Linux, где у пользователя единая тема на весь рабочий стол:
+    KDE отдаёт свою цветовую схему через `QPalette`, и приложение,
+    которое её не слушает, выглядит чужим среди остальных. Наши две
+    темы никуда не деваются - это третий выбор, а не замена.
+
+    Роли берутся стандартные, так что работает и в GNOME, и в Xfce -
+    везде, где тема доходит до Qt.
+    """
+    from PySide6.QtGui import QPalette
+
+    def color(role, group=QPalette.ColorGroup.Active):
+        return qt_palette.color(group, getattr(QPalette.ColorRole, role)).name()
+
+    window, text = color("Window"), color("WindowText")
+    base, alt = color("Base"), color("AlternateBase")
+    button, mid = color("Button"), color("Mid")
+    highlight, on_highlight = color("Highlight"), color("HighlightedText")
+    # Светлая тема или тёмная - по яркости фона, а не по названию:
+    # названия у схем KDE произвольные.
+    r, g, b = (int(window.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+    light = (r * 299 + g * 587 + b * 114) / 1000 > 128
+
+    # Направление сдвигов у обеих наших палитр одинаковое и от светлоты
+    # темы не зависит: панель темнее фона, плитка и верхняя полоса -
+    # светлее. Фон идёт сверху вниз от светлого к тёмному.
+    # Плитка строится из фона, а не из `AlternateBase`. Роль эта - для
+    # чередующихся строк таблицы, и системы понимают её по-разному:
+    # macOS отдаёт средне-серый `#989898` при фоне `#323232`, и плитки
+    # выходили светло-серыми посреди тёмного окна. От фона надёжнее
+    # везде, а у наших палитр так и сделано.
+    tile_top, tile_bottom = _apart(window, 0.11), _apart(window, 0.06)
+    return Palette(
+        background=(_shift(window, 0.05), window, _shift(window, -0.09)),
+        bar=(_apart(button, 0.06), _apart(button, 0.01)),
+        bar_line=mid,
+        panel=_apart(window, -0.12),
+        panel_alpha=0.55,
+        panel_line=mid,
+        tile=(tile_top, tile_bottom),
+        tile_edge=_apart(window, 0.20),
+        control=button,
+        control_edge=mid,
+        well=base,
+        ink=text,
+        # Приглушённые оттенки подмешиваются к **плитке**, а не к фону:
+        # на ней этот текст чаще всего и лежит. Подмешивание к фону
+        # давало серое по серому там, где плитка светлее окна.
+        ink_soft=_mix(text, tile_top, 0.30),
+        ink_faint=_mix(text, tile_top, 0.52),
+        # Акцент читаемый на плитке: на ней он и лежит текстом.
+        accent=_readable(highlight, tile_top),
+        accent_ink=on_highlight,
+        icon_well=_shift(base, -0.06),
+        icon_well_edge=mid,
+        # Четыре цвета логотипа остаются своими: это опознавательный знак
+        # игр в списке, а не оформление.
+        marks=DARK.marks,
+        letterpress=light)
+
+
 def rgba(hexcolor, alpha):
     """`#RRGGBB` плюс прозрачность - в вид, понятный Qt."""
     value = hexcolor.lstrip("#")
@@ -104,3 +211,13 @@ def gradient(stops, horizontal=False):
         f"stop:{i / (len(stops) - 1):.3f} {colour}"
         for i, colour in enumerate(stops))
     return f"qlineargradient({line}, {parts})"
+
+
+def palette_for(name):
+    """Палитра по имени темы из настроек."""
+    if name == "system":
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+        if app is not None:
+            return from_system(app.palette())
+    return LIGHT if name == "light" else DARK

@@ -63,7 +63,29 @@ class SettingsView(QDialog):
         hint.setObjectName("faint")
         hint.setWordWrap(True)
         column.addWidget(hint)
+
+        # Третьим пунктом - цвета темы рабочего стола. На Linux у
+        # пользователя одна тема на все программы, и приложение,
+        # которое её не слушает, выглядит среди них чужим.
+        column.addWidget(self._title(lang.t("Theme")))
+        self.theme = QComboBox()
+        self.theme.addItems([lang.t("Dark"), lang.t("Light"),
+                             lang.t("Follow the desktop")])
+        names = ["dark", "light", "system"]
+        self.theme.setCurrentIndex(names.index(settings.theme)
+                                   if settings.theme in names else 0)
+        self.theme.currentIndexChanged.connect(self._theme)
+        self.theme.setFixedWidth(240)
+        column.addWidget(self.theme)
+        note = QLabel(lang.t("Dark is the memory card screen of the BIOS, light is the console shell. Applies after a restart."))
+        note.setObjectName("faint")
+        note.setWordWrap(True)
+        column.addWidget(note)
         self._fill()
+
+    def _theme(self, index):
+        self.settings.theme = ["dark", "light", "system"][index]
+        self.settings.save()
 
     def _title(self, text):
         made = QLabel(text)
